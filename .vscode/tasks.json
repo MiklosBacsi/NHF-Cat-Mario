@@ -8,6 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-DMEMTRACE",
+                "-std=c++11",
                 "-I", "${workspaceFolder}/include",
                 "${workspaceFolder}/src/*.cpp",
                 "-o", "${workspaceFolder}/bin/Cat-Mario",

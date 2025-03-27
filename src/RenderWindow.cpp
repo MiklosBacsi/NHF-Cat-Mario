@@ -4,7 +4,7 @@
 
 #include "RenderWindow.h"
 
-using std::cout, std::endl;
+using std::cout; using std::endl;
 
 RenderWindow::RenderWindow(const char* title, int width, int height) : window(nullptr), renderer(nullptr) {
     // Create SDL Window

@@ -3,7 +3,7 @@
 
 #include "RenderWindow.h"
 
-using std::cout, std::endl;
+using std::cout; using std::endl;
 
 int main(int argc, char* arvg[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
