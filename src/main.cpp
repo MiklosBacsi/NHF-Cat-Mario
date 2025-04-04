@@ -25,13 +25,21 @@ int main(int argc, char* arvg[]) {
     while (SDL_WaitEvent(&event) && !exitProgram) {
         if (event.type == SDL_QUIT)
             exitProgram = true;
+        else if (event.type == SDL_KEYDOWN)
+            break;
     }
     
     // Game Loop
-    while (SDL_PollEvent(&event) && !exitProgram) {
-        if (event.type == SDL_QUIT)
-            exitProgram = true;
-        // code
+    Texture gameScreenTest = window.loadTexture("../res/img/game.png", 1600, 900);
+    window.clear();
+    window.render(gameScreenTest);
+    while (!exitProgram) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT)
+                exitProgram = true;
+            window.display();
+            // code
+        }
     }
     
     SDL_Quit();

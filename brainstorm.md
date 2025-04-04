@@ -26,3 +26,6 @@ lookRight és runRight állapotokban fix időt tölt összesen
 Tubes:
 isEnterable
 isMalevolnet;
+
+
+Transition (similiar to Post-Proccess)
