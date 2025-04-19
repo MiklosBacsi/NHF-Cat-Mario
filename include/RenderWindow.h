@@ -30,6 +30,7 @@ public:
     void clear();
     void render(Texture& texture, int destX=0, int destY=0); // SDL miatt nem lehet const Texture& texture
     void display();
+    ~RenderWindow();
 };
 
 #endif

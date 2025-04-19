@@ -41,8 +41,6 @@ int main(int argc, char* arvg[]) {
             // code
         }
     }
-    
-    SDL_Quit();
 
     return 0;
 }

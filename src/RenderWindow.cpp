@@ -12,6 +12,7 @@ int Texture::getHeight() const {return height;}
 
 Texture::~Texture() {
     SDL_DestroyTexture(texture);
+    cout << "~Texture Dtor" << endl;
 }
 
 RenderWindow::RenderWindow(const char* title, int width, int height) : window(nullptr), renderer(nullptr) {
@@ -48,3 +49,13 @@ void RenderWindow::render(Texture& texture, int destX, int destY) {
 }
 
 void RenderWindow::display() {SDL_RenderPresent(renderer);}
+
+RenderWindow::~RenderWindow() {
+    if (window != nullptr)
+        SDL_DestroyWindow(window);
+    if (renderer != nullptr)
+        SDL_DestroyRenderer(renderer);
+    
+    SDL_Quit();
+    cout << "~RenderWindow Dtor" << endl;
+}
