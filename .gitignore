@@ -1,2 +1,4 @@
 #ignoring compiled program
 /bin/Cat-Mario
+
+/.vscode/settings.json

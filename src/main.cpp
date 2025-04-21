@@ -1,20 +1,20 @@
 #include "SDL2/SDL.h"
 #include <iostream>
 
+#include "ProgramData.h"
 #include "RenderWindow.h"
 
-using std::cout; using std::endl;
+/* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
+ * és így "mindenhol" feleselegen kéne const_cast-olni.
+ */
 
 int main(int argc, char* arvg[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        cout << "SDL_Init has failed. Error: " << SDL_GetError() << endl;
+        std::cout << "SDL_Init has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
-        
-    RenderWindow window("Cat Mario", 1600, 900);
 
-    SDL_Event event;
-
+    RenderWindow window("Cat Mario", 1600, 900);    
     bool exitProgram = false;
 
     // Title Screen Loop
@@ -22,7 +22,9 @@ int main(int argc, char* arvg[]) {
     window.clear();
     window.render(titleScreen);
     window.display();
-    while (SDL_WaitEvent(&event) && !exitProgram) {
+    while (!exitProgram) {
+        SDL_Event event;
+        SDL_WaitEvent(&event);
         if (event.type == SDL_QUIT)
             exitProgram = true;
         else if (event.type == SDL_KEYDOWN)
@@ -30,17 +32,27 @@ int main(int argc, char* arvg[]) {
     }
     
     // Game Loop
-    Texture gameScreenTest = window.loadTexture("../res/img/game.png", 1600, 900);
-    window.clear();
-    window.render(gameScreenTest);
+    Texture menuScreen = window.loadTexture("../res/img/game.png", 1600, 900);
     while (!exitProgram) {
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 exitProgram = true;
-            window.display();
+
+            window.clear();
+            
             // code
+
+            window.render(menuScreen);
+
+            std::string text = "ŐŐűűűűíííéééé";
+            window.renderText(text, 30, 100, WHITE, REG30);
+
+            window.display();
         }
     }
+
+    std::cout << "Exiting Program" << std::endl;
 
     return 0;
 }

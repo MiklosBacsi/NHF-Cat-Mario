@@ -7,6 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                // "-fsanitize=address",
                 "-DMEMTRACE",
                 "-std=c++11",
                 "-I", "${workspaceFolder}/include",

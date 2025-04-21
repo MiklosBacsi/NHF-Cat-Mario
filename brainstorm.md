@@ -1,5 +1,10 @@
 ProgramData::event !!!!!!!!!!!!!!
 
+Class LanguageModule:
+több nyelv
+enum LanguageCommands = Exit, Start, Dialogue1, Dialogue2;
+std::string Lang[Language][LanguageCommands]
+
 isPaused
 isLoadingLevel
 isLoadingGame
