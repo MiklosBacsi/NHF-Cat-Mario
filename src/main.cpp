@@ -3,6 +3,7 @@
 
 #include "ProgramData.h"
 #include "RenderWindow.h"
+#include "LanguageModule.h"
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
  * és így "mindenhol" feleselegen kéne const_cast-olni.
@@ -45,8 +46,10 @@ int main(int argc, char* arvg[]) {
 
             window.render(menuScreen);
 
-            std::string text = "ŐŐűűűűíííéééé";
-            window.renderText(text, 30, 100, WHITE, REG30);
+            std::string latin_text = "ŐŐűűűűíííéééé";
+            std::string japanse_text = "ダンススターを誕生させるには、自分の中にカオスがなければならない。";
+            window.renderText(latin_text, 30, 100, WHITE, REG30, HUNGARIAN);
+            window.renderText(japanse_text, 30, 200, WHITE, REG30, JAPANESE);
 
             window.display();
         }

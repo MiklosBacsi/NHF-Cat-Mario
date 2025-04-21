@@ -23,7 +23,7 @@ Font::Font() : fonts(FONT_COUNT, nullptr) {
     TTF_Init();
 }
 
-void Font::loadFont(const char* path, int size, Fonts fontType) {
+void Font::loadFont(const char* path, int size, FontType fontType) {
     if (fonts[fontType] != nullptr)
         TTF_CloseFont(fonts[fontType]);
 
@@ -34,7 +34,7 @@ void Font::loadFont(const char* path, int size, Fonts fontType) {
     }
 }
 
-TTF_Font* Font::getFont(Fonts font) {
+TTF_Font* Font::getFont(FontType font) {
     if (font == FONT_COUNT)
         throw "You are trying to get the count instead of a font! Font::getFont()";
     return fonts.at(font);
@@ -90,8 +90,21 @@ int RenderWindow::getWidth() const {return width;}
 
 int RenderWindow::getHeight() const {return height;}
 
-void RenderWindow::renderText(std::string text, int x, int y, Colour colour, Fonts font) {
-    SDL_Surface* captionSurface = TTF_RenderUTF8_Blended(fonts.getFont(font), text.c_str(), getColour(colour));
+void RenderWindow::renderText(std::string text, int x, int y, Colour colour, FontType font, Language language) {
+    SDL_Surface* captionSurface = nullptr;
+    switch (language) {
+    case ENGLISH:
+    case HUNGARIAN:
+        captionSurface = TTF_RenderUTF8_Blended(latinFonts.getFont(font), text.c_str(), getColour(colour));
+        break;
+    case JAPANESE:
+        captionSurface = TTF_RenderUTF8_Blended(japaneseFonts.getFont(font), text.c_str(), getColour(colour));
+        break;
+    
+    default:
+        throw "Language not found! RenderWindow::renderText()";
+    }
+    
     SDL_Texture* captionTexture = SDL_CreateTextureFromSurface(renderer, captionSurface);
 
     SDL_Rect dest = { .x = x, .y = y, .w = captionSurface->w, .h = captionSurface->h };
@@ -114,12 +127,22 @@ SDL_Color RenderWindow::getColour(Colour colour) {
     }
 }
 
-TTF_Font* RenderWindow::getFont(Fonts font) {
-    return fonts.getFont(font);
+TTF_Font* RenderWindow::getFont(FontType font, Language language) {
+    switch (language){
+    case ENGLISH:
+    case HUNGARIAN:
+        return latinFonts.getFont(font);
+    case JAPANESE:
+        return japaneseFonts.getFont(font);
+    
+    default:
+        throw "Language not found! RenderWindow::getFont()";
+    }
 }
 
 void RenderWindow::loadFonts() {
-    fonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
+    japaneseFonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
+    latinFonts.loadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
     cout << "Ne felejtsd el betölteni a betűtípusokat!!!" << endl;
 }
 
