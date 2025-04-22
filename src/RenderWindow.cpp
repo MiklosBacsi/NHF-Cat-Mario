@@ -47,8 +47,8 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
-Button::Button(int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
-    : srcRect(nullptr), texture(nullptr), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
+Button::Button(ButtonType buttonType, int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
+    : buttonType(buttonType), srcRect(nullptr), texture(nullptr), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
 }
 
 void Button::drawSelectBox(SDL_Renderer* renderer) {
@@ -71,9 +71,13 @@ bool Button::isClicked(int x, int y) const {
     return false;
 }
 
-bool Button::getSelected() const { return isSelected; }
+bool Button::getIsSelected() const { return isSelected; }
 
-void Button::setSelected(bool isSelected) { isSelected = isSelected; }
+bool Button::getIsTextBased() const { return isTextBased; }
+
+ButtonType Button::getButtonType() const { return buttonType; }
+
+void Button::setSelected(bool selected) { isSelected = selected; }
 
 Button::~Button() {
     SDL_DestroyTexture(texture);
@@ -81,8 +85,8 @@ Button::~Button() {
     cout << "~Button Dtor" << endl;
 }
 
-TextButton::TextButton(std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(x, y, window, true, 5, isSelected), caption(text), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+TextButton::TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
+    : Button(buttonType, x, y, window, true, 5, isSelected), caption(text), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, language), text.c_str(), getColour(colour));    
     texture = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
@@ -94,8 +98,8 @@ TextButton::TextButton(std::string text, int x, int y, Colour colour, FontType f
     srcRect->h = surface->h;
 }
 
-ImageButton::ImageButton(int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected)
-    : Button(x, y, window, false, 2, isSelected) {
+ImageButton::ImageButton(ButtonType buttonType, int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected)
+    : Button(buttonType, x, y, window, false, 2, isSelected) {
     
     texture = IMG_LoadTexture(window.getRenderer(), path);
 
@@ -125,7 +129,9 @@ void ImageButton::drawButton(SDL_Renderer* renderer) {
         drawSelectBox(renderer);
 }
 
-void TextButton::updateCaption(Language newLanguage, RenderWindow& window) {
+void TextButton::updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window) {
+    caption = newCaption;
+
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 

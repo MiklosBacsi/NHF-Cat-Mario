@@ -11,7 +11,7 @@
 
 enum Colour { WHITE=0, BLACK };
 enum FontType { REG30=0, MED20, FONT_COUNT=2 };
-enum buttonType { NONE=0, START, EXIT, ENG, JP, HUN, LEV1, LEV2 };
+enum ButtonType { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LEV1, LEV2 };
 
 SDL_Color getColour(Colour colour);
 
@@ -67,6 +67,7 @@ public:
 
 class Button {
 protected:
+    ButtonType buttonType;
     SDL_Rect* srcRect;
     SDL_Texture* texture;
     bool isSelected;
@@ -75,11 +76,13 @@ protected:
 
     void drawSelectBox(SDL_Renderer* renderer);
 public:
-    Button(int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
+    Button(ButtonType type, int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
     virtual void drawButton(SDL_Renderer* renderer) = 0;
     bool isClicked(int x, int y) const;
-    bool getSelected() const;
-    void setSelected(bool isSelected);
+    bool getIsSelected() const;
+    bool getIsTextBased() const;
+    ButtonType getButtonType() const;
+    void setSelected(bool selected);
     virtual ~Button();
 };
 
@@ -91,15 +94,15 @@ private:
     Colour colour;
     const int backgroundOppacity;
 public:
-    TextButton(std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
+    TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
     void drawButton(SDL_Renderer* renderer);
-    void updateCaption(Language newLanguage, RenderWindow& window); // when changing Language
+    void updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window); // when changing Language
     ~TextButton();
 };
 
 class ImageButton : public Button {
 public:
-    ImageButton(int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected=false);
+    ImageButton(ButtonType buttonType, int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected=false);
     void drawButton(SDL_Renderer* renderer);
     ~ImageButton();
 };

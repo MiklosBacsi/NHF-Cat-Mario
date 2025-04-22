@@ -2,6 +2,8 @@ ProgramData::event !!!!!!!!!!!!!!
 
 Rewrite Class Texture -> SDL_Rect !!!
 
+Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText() -> Level 1
+
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
@@ -9,15 +11,6 @@ Class Level:
 numberOfCheckpoints
 std::vector<Enemy>
 std::vector<Block>
-
-Menu:
-Lang: ENG, JP, HUN
-START
-EXIT
-
-std::vector<Button> menuButtons
-std::vector<Button> gameButtons
-Class Button:
 
 Class LanguageModule:
 több nyelv

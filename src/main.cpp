@@ -43,40 +43,13 @@ int main(int argc, char* arvg[]) {
     Uint32 frameStart;
     int frameTime;
 
-    bool MouseClick = false;
-    int MouseX = 0, MouseY = 0;
-
     while (pd.getExitProgram() == false) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
+        // Handling events one-by-one
         while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_KEYDOWN:
-                break;
-            case SDL_KEYUP:
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.button == SDL_BUTTON_LEFT)
-                    MouseClick = true;
-                    MouseX = event.button.x;
-                    MouseY = event.button.y;
-                break;
-            case SDL_MOUSEBUTTONUP:
-                if (event.button.button == SDL_BUTTON_LEFT)    
-                    MouseClick = false;
-                break;
-            case SDL_MOUSEMOTION:
-                if (MouseClick) {
-                    // Poll Buttons
-                }
-                MouseX = event.motion.x;
-                MouseY = event.motion.y;
-                break;
-            case SDL_QUIT:
-                pd.exitProgram();
-                break;
-            }
+            pd.handleEvent(event, window);
         }
             
         // Beginning of Update

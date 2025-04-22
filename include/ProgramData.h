@@ -18,10 +18,18 @@ private:
     Language currentLanguage;
     std::vector<Button*> menuButtons;
     std::vector<Button*> gameButtons;
+    bool MouseClick;
+    int MouseX;
+    int MouseY;
 
     void renderButtons(RenderWindow& window);
+    void handleMenuButtons(RenderWindow& window);
+    void handleGameButtons(RenderWindow& window);
+    void updateButtons(RenderWindow& window);
+    void loadLevel(); // Which Level, which checkpoint ???
 public:
     ProgramData(RenderWindow& window);
+    void handleEvent(SDL_Event& event, RenderWindow& window);
     bool getExitProgram() const;
     void exitProgram();
     Language getLanguage() const;
