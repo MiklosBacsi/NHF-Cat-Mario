@@ -15,6 +15,26 @@ enum ButtonType { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LEV1, LEV2
 
 SDL_Color getColour(Colour colour);
 
+class Texture {
+private:
+    SDL_Texture* texture;
+    SDL_Rect srcRect;
+public:
+    Texture(SDL_Texture* texture = nullptr, SDL_Rect srcRect={.x=0, .y=0, .w=0, .h=0});
+    Texture(SDL_Texture* texture = nullptr, int width=0, int height=0);
+    SDL_Texture*& getTexture();
+    const SDL_Rect* getSrcRect() const;
+    int getWidth() const;
+    int getHeight() const;
+    int getX1() const;
+    int getX2() const;
+    int getY1() const;
+    int getY2() const;
+    void setWidth(int width);
+    void setHeight(int height);
+    ~Texture();
+};
+
 class Font {
 private:
     std::vector<TTF_Font*> fonts;
@@ -24,8 +44,6 @@ public:
     TTF_Font* getFont(FontType font);
     ~Font();
 };
-
-class Texture;
 
 class RenderWindow {
 private:
@@ -38,7 +56,8 @@ private:
     void loadFonts();
 public:
     RenderWindow(const char* title, int width, int height);
-    Texture loadTexture(const char* file, int width, int height);
+    Texture loadTexture(const char* path, int width, int height);
+    void loadTexture(const char* path, Texture& texture);
     void clear();
     void render(Texture& texture, int destX=0, int destY=0);
     void render(Texture& texture, const SDL_Rect* srcRect, const SDL_Rect* destRect);
@@ -51,33 +70,18 @@ public:
     ~RenderWindow();
 };
 
-class Texture {
-private:
-    SDL_Texture* texture;
-    int width;
-    int height;
-public:
-    Texture(SDL_Texture* texture = nullptr, int width=0, int height=0)
-    : texture(texture), width(width), height(height) {}
-    SDL_Texture* getTexture();
-    int getWidth() const;
-    int getHeight() const;
-    ~Texture();
-};
-
 class Button {
 protected:
     ButtonType buttonType;
-    SDL_Rect* srcRect;
-    SDL_Texture* texture;
+    Texture texture;
     bool isSelected;
     bool isTextBased;
     const int padding;
 
     void drawSelectBox(SDL_Renderer* renderer);
 public:
-    Button(ButtonType type, int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
-    virtual void drawButton(SDL_Renderer* renderer) = 0;
+    Button(ButtonType type, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
+    virtual void drawButton(RenderWindow& window) = 0;
     bool isClicked(int x, int y) const;
     bool getIsSelected() const;
     bool getIsTextBased() const;
@@ -95,15 +99,15 @@ private:
     const int backgroundOppacity;
 public:
     TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
-    void drawButton(SDL_Renderer* renderer);
+    void drawButton(RenderWindow& window);
     void updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window); // when changing Language
     ~TextButton();
 };
 
 class ImageButton : public Button {
 public:
-    ImageButton(ButtonType buttonType, int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected=false);
-    void drawButton(SDL_Renderer* renderer);
+    ImageButton(ButtonType buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected=false);
+    void drawButton(RenderWindow& window);
     ~ImageButton();
 };
 

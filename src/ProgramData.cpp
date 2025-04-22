@@ -9,12 +9,12 @@ ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentSc
     currentLanguage(ENGLISH), MouseClick(false), MouseX(0), MouseY(0) {
     
     menuButtons.push_back((Button*) new TextButton(START, "Start", 100, 200, BLACK, REG30, currentLanguage, window, 100));
-    menuButtons.push_back((Button*) new TextButton(EXIT, "Exit", 200, 200, BLACK, REG30, currentLanguage, window, 100, true));
+    menuButtons.push_back((Button*) new TextButton(NONE, "None", 200, 200, BLACK, REG30, currentLanguage, window, 100, true));
 
-    menuButtons.push_back((Button*) new ImageButton(ENG, 900, 100, "../res/img/FlagENG.png", 200, 100, window, true));
-    menuButtons.push_back((Button*) new ImageButton(JP, 1150, 100, "../res/img/FlagJP.png", 150, 100, window));
-    menuButtons.push_back((Button*) new ImageButton(HUN, 1350, 100, "../res/img/FlagHUN.png", 150, 100, window));
-    menuButtons.push_back((Button*) new ImageButton(EXIT, 1540, 10, "../res/img/IconX.png", 50, 50, window));
+    menuButtons.push_back((Button*) new ImageButton(ENG, {900, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
+    menuButtons.push_back((Button*) new ImageButton(JP, {1150, 100, 150, 100}, "../res/img/FlagJP.png", window));
+    menuButtons.push_back((Button*) new ImageButton(HUN, {1350, 100, 150, 100}, "../res/img/FlagHUN.png", window));
+    menuButtons.push_back((Button*) new ImageButton(EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 }
 
 void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
@@ -85,7 +85,7 @@ void ProgramData::renderButtons(RenderWindow& window) {
     switch (currentScene) {
     case MENU:
         for (Button* button : menuButtons)
-            button->drawButton(window.getRenderer());
+            button->drawButton(window);
         break;
     case GAME:
         break;

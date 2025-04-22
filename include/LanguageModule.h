@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 enum Language {ENGLISH=0, JAPANESE, HUNGARIAN};
 

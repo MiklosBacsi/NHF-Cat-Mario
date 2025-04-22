@@ -9,9 +9,19 @@ using std::cout; using std::endl;
 
 
 /***** CLASS TEXTURE *****/
-SDL_Texture* Texture::getTexture() {return texture;}
-int Texture::getWidth() const {return width;}
-int Texture::getHeight() const {return height;}
+Texture::Texture(SDL_Texture* texture, SDL_Rect srcRect) : texture(texture), srcRect(srcRect) {}
+Texture::Texture(SDL_Texture* texture, int width, int height)
+    : texture(texture), srcRect((SDL_Rect){.x=0, .y=0, .w=width, .h=height}) {}
+SDL_Texture*& Texture::getTexture() { return texture; }
+const SDL_Rect* Texture::getSrcRect() const { return &srcRect; }
+int Texture::getWidth() const { return srcRect.w; }
+int Texture::getHeight() const { return srcRect.h; }
+int Texture::getX1() const { return srcRect.x; }
+int Texture::getX2() const { return srcRect.x + srcRect.w; }
+int Texture::getY1() const { return srcRect.y; }
+int Texture::getY2() const { return srcRect.y + srcRect.h; }
+void Texture::setWidth(int width) { srcRect.w = width; }
+void Texture::setHeight(int height) { srcRect.h = height; }
 
 Texture::~Texture() {
     SDL_DestroyTexture(texture);
@@ -47,27 +57,26 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
-Button::Button(ButtonType buttonType, int x, int y, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
-    : buttonType(buttonType), srcRect(nullptr), texture(nullptr), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
+Button::Button(ButtonType buttonType, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
+    : buttonType(buttonType), texture(nullptr, srcRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
 }
 
 void Button::drawSelectBox(SDL_Renderer* renderer) {
     const int width = 4;
     const int r=255, g=215, b=0, a=255;
     // TOP
-    thickLineRGBA(renderer, srcRect->x - padding, srcRect->y - padding, srcRect->x + srcRect->w + padding, srcRect->y - padding, width, r, g, b, a);
+    thickLineRGBA(renderer, texture.getX1() - padding, texture.getY1() - padding, texture.getX2() + padding, texture.getY1() - padding, width, r, g, b, a);
     // BOTTOM
-    thickLineRGBA(renderer, srcRect->x - padding, srcRect->y + srcRect->h + padding, srcRect->x + srcRect->w + padding, srcRect->y + srcRect->h + padding, width, r, g, b, a);
+    thickLineRGBA(renderer, texture.getX1() - padding, texture.getY2() + padding, texture.getX2() + padding, texture.getY2() + padding, width, r, g, b, a);
     // LEFT
-    thickLineRGBA(renderer, srcRect->x - padding, srcRect->y - padding, srcRect->x - padding, srcRect->y + srcRect->h + padding, width, r, g, b, a);
+    thickLineRGBA(renderer, texture.getX1() - padding, texture.getY1() - padding, texture.getX1() - padding, texture.getY2() + padding, width, r, g, b, a);
     // RIGHT
-    thickLineRGBA(renderer, srcRect->x + srcRect->w + padding, srcRect->y - padding, srcRect->x + srcRect->w + padding, srcRect->y + srcRect->h + padding, width, r, g, b, a);
+    thickLineRGBA(renderer, texture.getX2() + padding, texture.getY1() - padding, texture.getX2() + padding, texture.getY2() + padding, width, r, g, b, a);
 }
 
 bool Button::isClicked(int x, int y) const {
-    if (x >= srcRect->x && x <= srcRect->x + srcRect->w)
-        if (y >= srcRect->y && y <= srcRect->y + srcRect->h)
-            return true;
+    if (x >= texture.getX1() && x <= texture.getX2() && y >= texture.getY1() && y <= texture.getY2())
+        return true;
     return false;
 }
 
@@ -80,66 +89,52 @@ ButtonType Button::getButtonType() const { return buttonType; }
 void Button::setSelected(bool selected) { isSelected = selected; }
 
 Button::~Button() {
-    SDL_DestroyTexture(texture);
-    delete srcRect;
     cout << "~Button Dtor" << endl;
 }
 
 TextButton::TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, x, y, window, true, 5, isSelected), caption(text), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(text), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, language), text.c_str(), getColour(colour));    
-    texture = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
 
-    srcRect = new SDL_Rect;
-    srcRect->x = x;
-    srcRect->y = y;
-    srcRect->w = surface->w;
-    srcRect->h = surface->h;
+    texture.setWidth(surface->w);
+    texture.setHeight(surface->h);
 }
 
-ImageButton::ImageButton(ButtonType buttonType, int x, int y, const char* path, int width, int height, RenderWindow& window, bool isSelected)
-    : Button(buttonType, x, y, window, false, 2, isSelected) {
+ImageButton::ImageButton(ButtonType buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected)
+    : Button(buttonType, srcRect, window, false, 2, isSelected) {
     
-    texture = IMG_LoadTexture(window.getRenderer(), path);
-
-    if (texture == nullptr)
-        cout << "Failed to load texture for Button. Error: " << SDL_GetError() << endl;
-
-    srcRect = new SDL_Rect;
-    srcRect->x = x;
-    srcRect->y = y;
-    srcRect->w = width;
-    srcRect->h = height;    
+    window.loadTexture(path, texture);
 }
 
-void TextButton::drawButton(SDL_Renderer* renderer) {
+void TextButton::drawButton(RenderWindow& window) {
     if (backgroundOppacity > 0)
-        boxRGBA(renderer, srcRect->x - padding, srcRect->y - padding, srcRect->x + srcRect->w + padding,
-            srcRect->y + srcRect->h + padding, 255, 255, 255, backgroundOppacity);
+        boxRGBA(window.getRenderer(), texture.getX1() - padding, texture.getY1() - padding, texture.getX2() + padding, texture.getY2() + padding, 255, 255, 255, backgroundOppacity);
     
-    SDL_RenderCopy(renderer, texture, NULL, srcRect);
+    window.render(texture, texture.getX1(), texture.getY1());
+
     if (isSelected)
-        drawSelectBox(renderer);
+        drawSelectBox(window.getRenderer());
 }
 
-void ImageButton::drawButton(SDL_Renderer* renderer) {
-    SDL_RenderCopy(renderer, texture, NULL, srcRect);
+void ImageButton::drawButton(RenderWindow& window) {
+    window.render(texture, texture.getX1(), texture.getY1());
     if (isSelected)
-        drawSelectBox(renderer);
+        drawSelectBox(window.getRenderer());
 }
 
 void TextButton::updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window) {
     caption = newCaption;
 
     SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(texture.getTexture());
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, newLanguage), caption.c_str(), getColour(colour));    
-    texture = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
 
-    srcRect->w = surface->w;
-    srcRect->h = surface->h;
+    texture.setWidth(surface->w);
+    texture.setHeight(surface->h);
 }
 
 TextButton::~TextButton() {
@@ -171,15 +166,22 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
     loadFonts();
 }
 
-Texture RenderWindow::loadTexture(const char* filePath, int width, int height) {
+Texture RenderWindow::loadTexture(const char* path, int width, int height) {
     SDL_Texture* texture = nullptr;
-    texture = IMG_LoadTexture(renderer, filePath);
+    texture = IMG_LoadTexture(renderer, path);
     
     if (texture == nullptr)
         cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
 
     Texture newTexture(texture, width, height);
     return newTexture;
+}
+
+void RenderWindow::loadTexture(const char* path, Texture& texture) {
+    texture.getTexture() = IMG_LoadTexture(renderer, path);
+    
+    if (texture.getTexture() == nullptr)
+        cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
 }
 
 void RenderWindow::clear() { SDL_RenderClear(renderer); }
