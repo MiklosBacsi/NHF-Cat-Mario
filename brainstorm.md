@@ -1,5 +1,24 @@
 ProgramData::event !!!!!!!!!!!!!!
 
+Rewrite Class Texture -> SDL_Rect !!!
+
+Files to read:
+GameConfig.txt -> Level1.txt, Level2.txt
+
+Class Level:
+numberOfCheckpoints
+std::vector<Enemy>
+std::vector<Block>
+
+Menu:
+Lang: ENG, JP, HUN
+START
+EXIT
+
+std::vector<Button> menuButtons
+std::vector<Button> gameButtons
+Class Button:
+
 Class LanguageModule:
 több nyelv
 enum LanguageCommands = Exit, Start, Dialogue1, Dialogue2;
@@ -10,7 +29,6 @@ isLoadingLevel
 isLoadingGame
 isLevelCompleted
 isCheckpointReached
-isJapanese
 
 class Player {
     Vektor2D poz; // struct Pozition = {float x, float y};
