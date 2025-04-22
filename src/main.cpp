@@ -24,6 +24,8 @@ int main(int argc, char* arvg[]) {
     window.render(titleScreen);
     window.renderText("Press any key to continue...", 610, 800, WHITE, REG30, ENGLISH);
     window.display();
+    pd.updateButtons(window); // Work on TitleScreen
+    
     while (pd.getExitProgram() == false) {
         SDL_Event event;
         SDL_WaitEvent(&event);

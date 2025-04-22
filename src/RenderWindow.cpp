@@ -57,7 +57,7 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
-Button::Button(ButtonType buttonType, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
+Button::Button(Button::Type buttonType, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
     : buttonType(buttonType), texture(nullptr, srcRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
 }
 
@@ -84,7 +84,7 @@ bool Button::getIsSelected() const { return isSelected; }
 
 bool Button::getIsTextBased() const { return isTextBased; }
 
-ButtonType Button::getButtonType() const { return buttonType; }
+Button::Type Button::getButtonType() const { return buttonType; }
 
 void Button::setSelected(bool selected) { isSelected = selected; }
 
@@ -92,17 +92,17 @@ Button::~Button() {
     cout << "~Button Dtor" << endl;
 }
 
-TextButton::TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(text), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
+    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
-    surface = TTF_RenderUTF8_Blended(window.getFont(font, language), text.c_str(), getColour(colour));    
+    surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour));    
     texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
 
     texture.setWidth(surface->w);
     texture.setHeight(surface->h);
 }
 
-ImageButton::ImageButton(ButtonType buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected)
+ImageButton::ImageButton(Button::Type buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected)
     : Button(buttonType, srcRect, window, false, 2, isSelected) {
     
     window.loadTexture(path, texture);
@@ -123,6 +123,8 @@ void ImageButton::drawButton(RenderWindow& window) {
     if (isSelected)
         drawSelectBox(window.getRenderer());
 }
+
+Lang::CaptionType TextButton::getCaptionType() const { return captionType; }
 
 void TextButton::updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window) {
     caption = newCaption;
@@ -243,7 +245,15 @@ void RenderWindow::renderText(std::string text, int x, int y, Colour colour, Fon
 void RenderWindow::loadFonts() {
     japaneseFonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
     latinFonts.loadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
-    cout << "Ne felejtsd el betölteni a betűtípusokat!!!" << endl;
+    
+    japaneseFonts.loadFont("../res/font/NotoSansJP-Bold.ttf", 100, BOLD100);
+    latinFonts.loadFont("../res/font/OpenSans-Bold.ttf", 100, BOLD100);
+
+    japaneseFonts.loadFont("../res/font/NotoSansJP-Medium.ttf", 20, MED20);
+    latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 20, MED20);
+
+    japaneseFonts.loadFont("../res/font/NotoSansJP-Light.ttf", 15, LIGHT15);
+    latinFonts.loadFont("../res/font/OpenSans-Light.ttf", 15, LIGHT15);
 }
 
 RenderWindow::~RenderWindow() {

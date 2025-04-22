@@ -10,8 +10,7 @@
 #include "LanguageModule.h"
 
 enum Colour { WHITE=0, BLACK };
-enum FontType { REG30=0, MED20, FONT_COUNT=2 };
-enum ButtonType { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LEV1, LEV2 };
+enum FontType { REG30=0, BOLD100, MED20, LIGHT15, FONT_COUNT=4 };
 
 SDL_Color getColour(Colour colour);
 
@@ -71,8 +70,10 @@ public:
 };
 
 class Button {
+public:
+    enum Type { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LEV1, LEV2 };
 protected:
-    ButtonType buttonType;
+    Type buttonType;
     Texture texture;
     bool isSelected;
     bool isTextBased;
@@ -80,12 +81,12 @@ protected:
 
     void drawSelectBox(SDL_Renderer* renderer);
 public:
-    Button(ButtonType type, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
+    Button(Type type, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
     virtual void drawButton(RenderWindow& window) = 0;
     bool isClicked(int x, int y) const;
     bool getIsSelected() const;
     bool getIsTextBased() const;
-    ButtonType getButtonType() const;
+    Type getButtonType() const;
     void setSelected(bool selected);
     virtual ~Button();
 };
@@ -93,20 +94,22 @@ public:
 class TextButton : public Button {
 private:
     std::string caption;
+    Lang::CaptionType captionType;
     SDL_Surface* surface;
     FontType font;
     Colour colour;
     const int backgroundOppacity;
 public:
-    TextButton(ButtonType buttonType, std::string text, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
+    TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
     void drawButton(RenderWindow& window);
     void updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window); // when changing Language
+    Lang::CaptionType getCaptionType() const;
     ~TextButton();
 };
 
 class ImageButton : public Button {
 public:
-    ImageButton(ButtonType buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected=false);
+    ImageButton(Button::Type buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected=false);
     void drawButton(RenderWindow& window);
     ~ImageButton();
 };

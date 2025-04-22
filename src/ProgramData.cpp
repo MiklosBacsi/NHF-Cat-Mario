@@ -8,13 +8,17 @@
 ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentScene(MENU),
     currentLanguage(ENGLISH), MouseClick(false), MouseX(0), MouseY(0) {
     
-    menuButtons.push_back((Button*) new TextButton(START, "Start", 100, 200, BLACK, REG30, currentLanguage, window, 100));
-    menuButtons.push_back((Button*) new TextButton(NONE, "None", 200, 200, BLACK, REG30, currentLanguage, window, 100, true));
+    LangMod.push_back(new LanguageModule("../res/lang/English.txt"));
+    LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
+    LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
+    
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, REG30, currentLanguage,  window, 100));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 80, 80, BLACK, BOLD100, currentLanguage, window, 100, true));
 
-    menuButtons.push_back((Button*) new ImageButton(ENG, {900, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
-    menuButtons.push_back((Button*) new ImageButton(JP, {1150, 100, 150, 100}, "../res/img/FlagJP.png", window));
-    menuButtons.push_back((Button*) new ImageButton(HUN, {1350, 100, 150, 100}, "../res/img/FlagHUN.png", window));
-    menuButtons.push_back((Button*) new ImageButton(EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::ENG, {900, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
+    menuButtons.push_back((Button*) new ImageButton(Button::JP, {1150, 100, 150, 100}, "../res/img/FlagJP.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1350, 100, 150, 100}, "../res/img/FlagHUN.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 }
 
 void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
@@ -98,32 +102,32 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons) {
         if (button->isClicked(MouseX, MouseY)) {
             switch (button->getButtonType()) {
-            case START:
+            case Button::START:
                 loadLevel();
                 return;
-            case EXIT:
+            case Button::EXIT:
                 exitProgram();
                 return;
-            case ENG:
+            case Button::ENG:
                 currentLanguage = ENGLISH;    
                 updateButtons(window);
                 return;
-            case JP:
+            case Button::JP:
                 currentLanguage = JAPANESE;
                 updateButtons(window);
                 return;
-            case HUN:
+            case Button::HUN:
                 currentLanguage = HUNGARIAN;
                 updateButtons(window);
                 return;
-            case LEV1:
+            case Button::LEV1:
                 loadLevel();
                 return;
-            case LEV2:
+            case Button::LEV2:
                 if (1)
                     loadLevel();
                 return;
-            case NONE:
+            case Button::NONE:
                 return;
             default:
                 std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
@@ -143,13 +147,22 @@ void ProgramData::updateButtons(RenderWindow& window) {
         if (button->getIsTextBased()) {
             switch (currentLanguage) {
             case ENGLISH:
-                static_cast<TextButton*>(button)->updateCaption("Dick", ENGLISH, window);
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    ENGLISH, window
+                );
                 break;
             case JAPANESE:
-                static_cast<TextButton*>(button)->updateCaption("肉棒", JAPANESE, window);
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    JAPANESE, window
+                );
                 break;
             case HUNGARIAN:
-                static_cast<TextButton*>(button)->updateCaption("Fasz", HUNGARIAN, window);
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    HUNGARIAN, window
+                );
                 break;
             default:
                 throw "ButtonType not found!";
@@ -159,13 +172,13 @@ void ProgramData::updateButtons(RenderWindow& window) {
         else {
             switch (currentLanguage) {
             case ENGLISH:
-                button->setSelected(button->getButtonType() == ENG);
+                button->setSelected(button->getButtonType() == Button::ENG);
                 break;
             case JAPANESE:
-                button->setSelected(button->getButtonType() == JP);
+                button->setSelected(button->getButtonType() == Button::JP);
                 break;
             case HUNGARIAN:
-                button->setSelected(button->getButtonType() == HUN);
+                button->setSelected(button->getButtonType() == Button::HUN);
                 break;
             default:
                 break;
@@ -183,5 +196,7 @@ ProgramData::~ProgramData() {
         delete button;
     for (Button* button : gameButtons)
         delete button;
+    for (LanguageModule* lang : LangMod)
+        delete lang;
     std::cout << "~ProgramData Dtor" << std::endl;
 }

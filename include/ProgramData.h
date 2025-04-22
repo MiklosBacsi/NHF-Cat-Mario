@@ -7,7 +7,7 @@
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 
-enum sceneType {MENU=0, GAME, DEATH};
+enum sceneType { MENU=0, GAME, DEATH };
 
 class ProgramData {
 private:
@@ -16,6 +16,7 @@ private:
     sceneType currentScene;
     size_t currentCheckpoint;
     Language currentLanguage;
+    std::vector<LanguageModule*> LangMod;
     std::vector<Button*> menuButtons;
     std::vector<Button*> gameButtons;
     bool MouseClick;
@@ -25,11 +26,11 @@ private:
     void renderButtons(RenderWindow& window);
     void handleMenuButtons(RenderWindow& window);
     void handleGameButtons(RenderWindow& window);
-    void updateButtons(RenderWindow& window);
     void loadLevel(); // Which Level, which checkpoint ???
 public:
     ProgramData(RenderWindow& window);
     void handleEvent(SDL_Event& event, RenderWindow& window);
+    void updateButtons(RenderWindow& window);
     bool getExitProgram() const;
     void exitProgram();
     Language getLanguage() const;

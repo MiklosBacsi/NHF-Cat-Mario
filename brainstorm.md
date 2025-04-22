@@ -1,7 +1,3 @@
-ProgramData::event !!!!!!!!!!!!!!
-
-Rewrite Class Texture -> SDL_Rect !!!
-
 Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText() -> Level 1
 
 Files to read:
@@ -15,7 +11,8 @@ std::vector<Block>
 Class LanguageModule:
 több nyelv
 enum LanguageCommands = Exit, Start, Dialogue1, Dialogue2;
-std::string Lang[Language][LanguageCommands]
+LangMod[Language].getRandomQuote();
+LangMod[Language].getTranslation[CaptionType];
 
 isPaused
 isLoadingLevel
@@ -43,7 +40,7 @@ lookRight és runRight állapotokban fix időt tölt összesen
 
 Tubes:
 isEnterable
-isMalevolnet;
+isMalevolent;
 
 
-Transition (similiar to Post-Proccess)
+Transition (similiar to Post-Proccess) draw (black) rectangle with variable oppacity
