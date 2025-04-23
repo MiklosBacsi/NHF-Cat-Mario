@@ -242,6 +242,10 @@ void RenderWindow::renderText(std::string text, int x, int y, Colour colour, Fon
     SDL_DestroyTexture(captionTexture);
 }
 
+void RenderWindow::applyTransition(int transparency) {
+    boxRGBA(renderer, 0, 0, width, height, 0, 0, 0, transparency);
+}
+
 void RenderWindow::loadFonts() {
     japaneseFonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
     latinFonts.loadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
@@ -265,6 +269,32 @@ RenderWindow::~RenderWindow() {
     SDL_Quit();
     cout << "~RenderWindow Dtor" << endl;
 }
+/* ************************************************************************************ */
+
+/***** CLASS TRANSITION *****/
+void Transition::setTransition(size_t miliSeconds) {
+    timer.activate(miliSeconds);
+}
+
+int Transition::getTransparency() {
+    if (timer.getIsActive() == false)
+        return 0;
+    float percentage = timer.getPercent();
+    if (percentage > 1.0f){
+        timer.deactivate();
+        return 0;
+    }
+    // Calculating Transparency
+    if (percentage < 0.4f)
+        return percentage * 637.5f; // 637,5 = 255 / 0,4
+
+    if (percentage > 0.6f)
+        return (1.0f - percentage) * 637.5f;
+
+    return 255;
+}
+
+bool Transition::getIsActive() const { return timer.getIsActive(); }
 /* ************************************************************************************ */
 
 /***** PUBLIC FUNCTIONS *****/

@@ -6,11 +6,14 @@
 
 #include "RenderWindow.h"
 #include "LanguageModule.h"
+#include "Timer.h"
 
-enum sceneType { MENU=0, GAME, DEATH };
+enum sceneType { NONE=0, TITLE, MENU, GAME, DEATH };
 
 class ProgramData {
 private:
+    Transition transition;
+    sceneType nextScene;
     bool isExitProgram;    
     bool isPaused;
     sceneType currentScene;
@@ -34,7 +37,9 @@ public:
     bool getExitProgram() const;
     void exitProgram();
     Language getLanguage() const;
+    int getTransparency();
     void setLanguage(Language language);
+    void setTransition(size_t miliSeconds=3000);
     void renderItems(RenderWindow& window);
     ~ProgramData();
 };

@@ -13,8 +13,6 @@
                 "-I", "${workspaceFolder}/include",
                 "${workspaceFolder}/src/*.cpp",
                 "-o", "${workspaceFolder}/bin/Cat-Mario",
-                // "`sdl2-config --cflags --libs`",
-                // "-lSDL2_main",
                 "-lSDL2",
                 "-lSDL2_gfx",
                 "-lSDL2_ttf",

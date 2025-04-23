@@ -5,18 +5,18 @@ GameConfig.txt -> Level1.txt, Level2.txt
 
 Class Quotes
 
-Class TransitionModule
+roundedRectangleRGBA() !!!!!!!!!!!!!!!!!!!
 
 Class Level:
 numberOfCheckpoints
 std::vector<Enemy>
 std::vector<Block>
 
-Class LanguageModule:
-több nyelv
-enum LanguageCommands = Exit, Start, Dialogue1, Dialogue2;
 LangMod[Language].getRandomQuote();
-LangMod[Language].getTranslation[CaptionType];
+struct Quote {
+    std::string quote;
+    size_t quoteIndex;
+};
 
 isPaused
 isLoadingLevel

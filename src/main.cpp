@@ -4,6 +4,7 @@
 #include "ProgramData.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
+#include "Timer.h"
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
  * és így "mindenhol" feleselegen kéne const_cast-olni.
@@ -45,6 +46,8 @@ int main(int argc, char* arvg[]) {
     Uint32 frameStart;
     int frameTime;
 
+    Timer timer(1000);
+
     while (pd.getExitProgram() == false) {
         frameStart = SDL_GetTicks();
 
@@ -58,6 +61,13 @@ int main(int argc, char* arvg[]) {
         window.clear();
         window.render(menuScreen);
         pd.renderItems(window);
+
+        if (timer.getPercent() > 1.0f) {
+            pd.setTransition();
+            timer.deactivate();
+        }
+
+        window.applyTransition(pd.getTransparency());
 
         // std::string latin_text = "ŐŐűűűűíííéééé";
         // std::string japanse_text = "ダンススターを誕生させるには、自分の中にカオスがなければならない。";

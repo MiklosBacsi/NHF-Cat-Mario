@@ -34,11 +34,15 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
             MouseY = event.button.y;
 
             switch (currentScene) {
+            case TITLE:
+                break;
             case MENU:
                 handleMenuButtons(window);
                 break;
             case GAME:
                 handleGameButtons(window);
+                break;
+            case DEATH:
                 break;
             default:
                 throw "Wrong scene!";
@@ -68,7 +72,11 @@ void ProgramData::exitProgram() { isExitProgram = true; }
 
 Language ProgramData::getLanguage() const { return currentLanguage; }
 
+int ProgramData::getTransparency() { return transition.getTransparency(); }
+
 void ProgramData::setLanguage(Language language) { currentLanguage = language; }
+
+void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
 
 void ProgramData::renderItems(RenderWindow& window) {
     switch (currentScene) {

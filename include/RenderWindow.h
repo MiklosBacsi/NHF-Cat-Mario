@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "LanguageModule.h"
+#include "Timer.h"
 
 enum Colour { WHITE=0, BLACK };
 enum FontType { REG30=0, BOLD100, MED50, LIGHT15, FONT_COUNT=4 };
@@ -66,6 +67,7 @@ public:
     SDL_Renderer* getRenderer();
     TTF_Font* getFont(FontType font, Language language);
     void renderText(std::string text, int x, int y, Colour colour, FontType font, Language language);
+    void applyTransition(int transparency);
     ~RenderWindow();
 };
 
@@ -112,6 +114,16 @@ public:
     ImageButton(Button::Type buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected=false);
     void drawButton(RenderWindow& window);
     ~ImageButton();
+};
+
+class Transition {
+private:
+    Timer timer;
+public:
+    Transition() {}
+    void setTransition(size_t miliSeconds);
+    int getTransparency();
+    bool getIsActive() const;
 };
 
 #endif // RENDER_WINDOW_H

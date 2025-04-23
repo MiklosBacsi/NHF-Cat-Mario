@@ -23,5 +23,5 @@ size_t Timer::getTime() const {
 }
 
 float Timer::getPercent() const {
-    return getTime() / setDuration;
+    return (float) getTime() / (float) setDuration;
 }
