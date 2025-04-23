@@ -13,11 +13,11 @@ ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentSc
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
     menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100, true));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100));
 
-    menuButtons.push_back((Button*) new ImageButton(Button::ENG, {900, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
-    menuButtons.push_back((Button*) new ImageButton(Button::JP, {1150, 100, 150, 100}, "../res/img/FlagJP.png", window));
-    menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1350, 100, 150, 100}, "../res/img/FlagHUN.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
+    menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1370, 100, 150, 100}, "../res/img/FlagHUN.png", window));
     menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 }
 
@@ -159,18 +159,21 @@ void ProgramData::updateButtons(RenderWindow& window) {
                     LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
                     ENGLISH, window
                 );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
                 break;
             case JAPANESE:
                 static_cast<TextButton*>(button)->updateCaption(
                     LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
                     JAPANESE, window
                 );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
                 break;
             case HUNGARIAN:
                 static_cast<TextButton*>(button)->updateCaption(
                     LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
                     HUNGARIAN, window
                 );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
                 break;
             default:
                 throw "ButtonType not found!";

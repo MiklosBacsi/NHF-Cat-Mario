@@ -11,25 +11,27 @@
 #include "Timer.h"
 
 enum Colour { WHITE=0, BLACK };
-enum FontType { REG30=0, BOLD100, MED50, LIGHT15, FONT_COUNT=4 };
+enum FontType { REG30=0, BOLD100, MED50, MED15, FONT_COUNT=4 };
 
 SDL_Color getColour(Colour colour);
+int getRadiusFromFont(FontType font);
 
 class Texture {
 private:
     SDL_Texture* texture;
-    SDL_Rect srcRect;
+    SDL_Rect destRect;
 public:
-    Texture(SDL_Texture* texture = nullptr, SDL_Rect srcRect={.x=0, .y=0, .w=0, .h=0});
-    Texture(SDL_Texture* texture = nullptr, int width=0, int height=0);
+    Texture(SDL_Texture* texture = nullptr, SDL_Rect destRect={.x=0, .y=0, .w=0, .h=0});
     SDL_Texture*& getTexture();
-    const SDL_Rect* getSrcRect() const;
+    const SDL_Rect* getDestRect() const;
     int getWidth() const;
     int getHeight() const;
     int getX1() const;
     int getX2() const;
     int getY1() const;
     int getY2() const;
+    void setX(int x);
+    void setY(int y);
     void setWidth(int width);
     void setHeight(int height);
     ~Texture();
@@ -77,13 +79,12 @@ public:
 protected:
     Type buttonType;
     Texture texture;
+    Texture selectBox;
     bool isSelected;
     bool isTextBased;
     const int padding;
-
-    void drawSelectBox(SDL_Renderer* renderer);
 public:
-    Button(Type type, SDL_Rect srcRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
+    Button(Type type, SDL_Rect destRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
     virtual void drawButton(RenderWindow& window) = 0;
     bool isClicked(int x, int y) const;
     bool getIsSelected() const;
@@ -101,17 +102,23 @@ private:
     FontType font;
     Colour colour;
     const int backgroundOppacity;
+    const int radius;
+
+    void drawSelectBox(RenderWindow& window);
 public:
     TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
     void drawButton(RenderWindow& window);
     void updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window); // when changing Language
+    void destroySelectBoxTexture();
     Lang::CaptionType getCaptionType() const;
     ~TextButton();
 };
 
 class ImageButton : public Button {
+private:
+    void drawSelectBox(RenderWindow& window);
 public:
-    ImageButton(Button::Type buttonType, SDL_Rect srcRect, const char* path, RenderWindow& window, bool isSelected=false);
+    ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, RenderWindow& window, bool isSelected=false);
     void drawButton(RenderWindow& window);
     ~ImageButton();
 };
