@@ -12,8 +12,8 @@ ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentSc
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
-    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, REG30, currentLanguage,  window, 100));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 80, 80, BLACK, BOLD100, currentLanguage, window, 100, true));
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100, true));
 
     menuButtons.push_back((Button*) new ImageButton(Button::ENG, {900, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
     menuButtons.push_back((Button*) new ImageButton(Button::JP, {1150, 100, 150, 100}, "../res/img/FlagJP.png", window));

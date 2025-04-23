@@ -3,6 +3,10 @@ Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText()
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
+Class Quotes
+
+Class TransitionModule
+
 Class Level:
 numberOfCheckpoints
 std::vector<Enemy>

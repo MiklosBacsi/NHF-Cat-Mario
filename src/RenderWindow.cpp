@@ -249,8 +249,8 @@ void RenderWindow::loadFonts() {
     japaneseFonts.loadFont("../res/font/NotoSansJP-Bold.ttf", 100, BOLD100);
     latinFonts.loadFont("../res/font/OpenSans-Bold.ttf", 100, BOLD100);
 
-    japaneseFonts.loadFont("../res/font/NotoSansJP-Medium.ttf", 20, MED20);
-    latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 20, MED20);
+    japaneseFonts.loadFont("../res/font/NotoSansJP-Medium.ttf", 50, MED50);
+    latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 50, MED50);
 
     japaneseFonts.loadFont("../res/font/NotoSansJP-Light.ttf", 15, LIGHT15);
     latinFonts.loadFont("../res/font/OpenSans-Light.ttf", 15, LIGHT15);

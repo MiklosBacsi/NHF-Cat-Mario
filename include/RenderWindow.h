@@ -10,7 +10,7 @@
 #include "LanguageModule.h"
 
 enum Colour { WHITE=0, BLACK };
-enum FontType { REG30=0, BOLD100, MED20, LIGHT15, FONT_COUNT=4 };
+enum FontType { REG30=0, BOLD100, MED50, LIGHT15, FONT_COUNT=4 };
 
 SDL_Color getColour(Colour colour);
 
