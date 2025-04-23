@@ -10,6 +10,13 @@ using std::cout; using std::endl;
 
 /***** CLASS TEXTURE *****/
 Texture::Texture(SDL_Texture* texture, SDL_Rect destRect) : texture(texture), destRect(destRect) {}
+Texture::Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer)
+    : texture(nullptr), destRect(destRect) {
+    
+    texture = IMG_LoadTexture(renderer, path);
+    if (texture == nullptr)
+        cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
+}
 SDL_Texture*& Texture::getTexture() { return texture; }
 const SDL_Rect* Texture::getDestRect() const { return &destRect; }
 int Texture::getWidth() const { return destRect.w; }
@@ -271,11 +278,14 @@ Texture RenderWindow::loadTexture(const char* path, int width, int height) {
     if (texture == nullptr)
         cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
 
-    Texture newTexture(texture, { 0, 0, width, height });
+    Texture newTexture(texture, { 0, 0, width-1, height-1 });
     return newTexture;
 }
 
 void RenderWindow::loadTexture(const char* path, Texture& texture) {
+    if (texture.getTexture() != nullptr)
+        SDL_DestroyTexture(texture.getTexture());
+
     texture.getTexture() = IMG_LoadTexture(renderer, path);
     
     if (texture.getTexture() == nullptr)
@@ -368,18 +378,17 @@ RenderWindow::~RenderWindow() {
 /* ************************************************************************************ */
 
 /***** CLASS TRANSITION *****/
-void Transition::setTransition(size_t miliSeconds) {
-    timer.activate(miliSeconds);
-}
+void Transition::setTransition(size_t miliSeconds) { timer.activate(miliSeconds); }
 
-int Transition::getTransparency() {
+void Transition::deactivate() { timer.deactivate(); }
+
+int Transition::getTransparency() const {
     if (timer.getIsActive() == false)
         return 0;
     float percentage = timer.getPercent();
-    if (percentage > 1.0f){
-        timer.deactivate();
+    if (percentage > 1.0f)
         return 0;
-    }
+
     // Calculating Transparency
     if (percentage < 0.4f)
         return percentage * 637.5f; // 637,5 = 255 / 0,4
@@ -390,7 +399,15 @@ int Transition::getTransparency() {
     return 255;
 }
 
+float Transition::getPercent() const { return timer.getPercent(); }
+
 bool Transition::getIsActive() const { return timer.getIsActive(); }
+
+bool Transition::hasExpired() const { return timer.hasExpired(); }
+
+Transition::~Transition() {
+    cout << "~Transition Dtor" << endl;
+}
 /* ************************************************************************************ */
 
 /***** PUBLIC FUNCTIONS *****/

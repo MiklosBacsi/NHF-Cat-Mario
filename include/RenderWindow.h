@@ -22,6 +22,7 @@ private:
     SDL_Rect destRect;
 public:
     Texture(SDL_Texture* texture = nullptr, SDL_Rect destRect={.x=0, .y=0, .w=0, .h=0});
+    Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer);
     SDL_Texture*& getTexture();
     const SDL_Rect* getDestRect() const;
     int getWidth() const;
@@ -129,8 +130,12 @@ private:
 public:
     Transition() {}
     void setTransition(size_t miliSeconds);
-    int getTransparency();
+    void deactivate();
+    int getTransparency() const;
+    float getPercent() const;
     bool getIsActive() const;
+    bool hasExpired() const;
+    ~Transition();
 };
 
 #endif // RENDER_WINDOW_H

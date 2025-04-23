@@ -8,7 +8,7 @@
 enum Language { ENGLISH=0, JAPANESE, HUNGARIAN };
 
 namespace Lang {
-    enum CaptionType { NONE=0, START, EXIT_TO_MENU, PAUSE, CONTINUE, LVL1, LVL2, CAT_MARIO };
+    enum CaptionType { PRESS=0, START, EXIT_TO_MENU, PAUSE, CONTINUE, LVL1, LVL2, CAT_MARIO };
 }
 
 class LanguageModule {

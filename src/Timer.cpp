@@ -2,7 +2,7 @@
 
 #include "Timer.h"
 
-Timer::Timer() : isActive(false) {}
+Timer::Timer() : isActive(false), setDuration(1) {}
 
 Timer::Timer(size_t miliSeconds) : isActive(true), startTicks(SDL_GetTicks()), setDuration(miliSeconds) {}
 
@@ -14,13 +14,15 @@ void Timer::activate(size_t miliSeconds) {
     startTicks = SDL_GetTicks();
 }
 
-bool Timer::getIsActive() const { return isActive; }
-
 size_t Timer::getTime() const {
     if (!isActive)
         return 0;
     return SDL_GetTicks() - startTicks;
 }
+
+bool Timer::getIsActive() const { return isActive; }
+
+bool Timer::hasExpired() const { return getPercent() > 1.0f; }
 
 float Timer::getPercent() const {
     return (float) getTime() / (float) setDuration;

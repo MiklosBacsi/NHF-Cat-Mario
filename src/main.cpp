@@ -18,28 +18,7 @@ int main(int argc, char* arvg[]) {
 
     RenderWindow window("Cat Mario", 1600, 900);
     ProgramData pd(window);
-
-    // Title Screen Loop
-    Texture titleScreen = window.loadTexture("../res/img/TitleScreen.png", 1600, 900);
-    window.clear();
-    window.render(titleScreen);
-    window.renderText("Press any key to continue...", 610, 800, WHITE, REG30, ENGLISH);
-    window.display();
-    pd.updateButtons(window); // Work on TitleScreen
-    
-    while (pd.getExitProgram() == false) {
-        SDL_Event event;
-        SDL_WaitEvent(&event);
-        if (event.type == SDL_QUIT)
-            pd.exitProgram();
-        else if (event.type == SDL_KEYDOWN || event.type == SDL_MOUSEBUTTONDOWN)
-            break;
-    }
-
-    /* ************************************************************************************ */
-    
-    // Game Loop
-    Texture menuScreen = window.loadTexture("../res/img/MenuScreen.png", 1600, 900);
+    pd.updateButtons(window); // Because TextButtons are filled up with a space by the constructor
     
     const int FPS = 100;
     const int frameDelay = 1000 / FPS;
@@ -52,38 +31,27 @@ int main(int argc, char* arvg[]) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
-        // Handling events one-by-one
+        // 1. Handling events one-by-one
         while (SDL_PollEvent(&event)) {
             pd.handleEvent(event, window);
         }
-            
-        // Beginning of Update
+
+        // 2. Update
+        pd.handleSceneChanges(window);
+
+        // 3. Display
         window.clear();
-        window.render(menuScreen);
         pd.renderItems(window);
-
-        if (timer.getPercent() > 1.0f) {
-            pd.setTransition();
-            timer.deactivate();
-        }
-
         window.applyTransition(pd.getTransparency());
-
-        // std::string latin_text = "ŐŐűűűűíííéééé";
-        // std::string japanse_text = "ダンススターを誕生させるには、自分の中にカオスがなければならない。";
-        // window.renderText(latin_text, 30, 100, WHITE, REG30, HUNGARIAN);
-        // window.renderText(japanse_text, 30, 200, WHITE, REG30, JAPANESE);
-
-        // End of Update
-        
         window.display();
 
+        // Appy even FPS
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
             SDL_Delay(frameDelay - frameTime);
     }
 
-    std::cout << "Exiting Program" << std::endl;
+    std::cout << "***** Exiting Program *****" << std::endl;
 
     return 0;
 }

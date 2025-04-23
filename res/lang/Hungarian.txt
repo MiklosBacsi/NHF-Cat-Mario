@@ -1,8 +1,8 @@
 8
- 
+Nyomjon meg egy gombot a folytatáshoz...
 Játék indítása
 Kilépés a menübe
-Nyomja meg a "P" gombot a játék megállításához.
+Játszás közben nyomja "P"-t a megállításhoz.
 Folytatás
 1. Szint
 2. Szint

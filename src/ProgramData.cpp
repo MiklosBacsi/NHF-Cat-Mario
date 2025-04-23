@@ -5,8 +5,12 @@
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 
-ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentScene(MENU),
-    currentLanguage(ENGLISH), MouseClick(false), MouseX(0), MouseY(0) {
+ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentScene(TITLE), currentLanguage(ENGLISH),
+    titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
+    titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
+    menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
+    MouseClick(false), MouseX(0), MouseY(0)
+    {
     
     LangMod.push_back(new LanguageModule("../res/lang/English.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
@@ -14,28 +18,37 @@ ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentSc
     
     menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100));
     menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, window, 100));
 
     menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
     menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png", window));
     menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1370, 100, 150, 100}, "../res/img/FlagHUN.png", window));
     menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
+
+    gameButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 }
 
 void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     switch (event.type) {
     case SDL_KEYDOWN:
+        if (transition.getIsActive())
+            return;
         break;
     case SDL_KEYUP:
         break;
     case SDL_MOUSEBUTTONDOWN:
-        if (event.button.button == SDL_BUTTON_LEFT && currentScene != DEATH) {
+        if (transition.getIsActive())
+            return;
+        if (currentScene == TITLE) {
+            changeSceneFromTitleToMenu(window);
+            return;
+        }
+        if (event.button.button == SDL_BUTTON_LEFT) {
             MouseClick = true;
             MouseX = event.button.x;
             MouseY = event.button.y;
 
-            switch (currentScene) {
-            case TITLE:
-                break;
+            switch (currentScene) { // Already handled TITLE
             case MENU:
                 handleMenuButtons(window);
                 break;
@@ -53,15 +66,57 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
         if (event.button.button == SDL_BUTTON_LEFT)    
             MouseClick = false;
         break;
-    case SDL_MOUSEMOTION:
-        if (MouseClick) {
-            // Poll Buttons
-        }
-        MouseX = event.motion.x;
-        MouseY = event.motion.y;
-        break;
     case SDL_QUIT:
         exitProgram();
+        break;
+    }
+}
+
+void ProgramData::handleSceneChanges(RenderWindow& window) {
+    switch (currentScene) {
+    case TITLE:
+        switch (nextScene) {
+        case NONE:
+            break;
+        case MENU:
+            changeSceneFromTitleToMenu(window);
+            break;
+        default:
+            throw "Wrong Scene!";
+            break;
+        }
+        break;
+    case MENU:
+        switch (nextScene) {
+        case MENU:
+            break;
+        case GAME:
+            changeSceneFromMenuToGame(window);
+            break;
+        default:
+            throw "Wrong Scene!";
+            break;
+        }
+        break;
+    case GAME:
+        switch (nextScene) {
+        case GAME:
+            break;
+        case DEATH:
+            changeSceneFromGameToDeath(window);
+            break;
+        case MENU:
+            changeSceneFromGameToMenu(window);
+            break;
+        default:
+            throw "Wrong Scene!";
+        }
+        break;
+    case DEATH:
+        throw "Not implemented";
+        break;
+    default:
+        throw "Scene not found!";
         break;
     }
 }
@@ -80,10 +135,35 @@ void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(m
 
 void ProgramData::renderItems(RenderWindow& window) {
     switch (currentScene) {
+    case TITLE:
+        if (transition.getPercent() < 0.5f) {
+            window.render(titleScreen);
+            titleButton->drawButton(window);
+        }
+        else {
+            window.render(menuScreen);
+            renderMenuButtons(window);
+        }
+        break;
     case MENU:
-        renderButtons(window);
+        if (transition.getPercent() < 0.5f) {
+            window.render(menuScreen);
+            renderMenuButtons(window);
+        }
+        else {
+            window.render(menuScreen);
+            renderGameButtons(window);
+        }
         break;
     case GAME:
+        if (transition.getPercent() < 0.5f) {
+            window.render(menuScreen);
+            renderGameButtons(window);
+        }
+        else {
+            window.render(menuScreen);
+            renderMenuButtons(window);
+        }
         break;
     case DEATH:
         break;
@@ -93,17 +173,79 @@ void ProgramData::renderItems(RenderWindow& window) {
     }
 }
 
-void ProgramData::renderButtons(RenderWindow& window) {
-    switch (currentScene) {
-    case MENU:
-        for (Button* button : menuButtons)
-            button->drawButton(window);
-        break;
-    case GAME:
-        break;
-    default:
-        break;
+void ProgramData::renderMenuButtons(RenderWindow& window) {
+    for (Button* button : menuButtons)
+        button->drawButton(window);
+}
+
+void ProgramData::renderGameButtons(RenderWindow& window) {
+    for (Button* button : gameButtons)
+        button->drawButton(window);
+}
+
+void ProgramData::changeSceneFromTitleToMenu(RenderWindow& window) {
+    // Already started changes
+    if (nextScene == MENU) {
+        if (transition.hasExpired()) {
+            currentScene = MENU;
+            transition.deactivate();
+            
+            delete titleButton;
+            titleButton = nullptr;
+        }
+        return;
     }
+    
+    // Handle changes
+    nextScene = MENU;
+    transition.setTransition(2000);
+}
+
+void ProgramData::changeSceneFromMenuToGame(RenderWindow& window) {
+    // Already started changes
+    if (nextScene == GAME) {
+        if (transition.hasExpired()) {
+            currentScene = GAME;
+            transition.deactivate();
+        }
+        return;
+    }
+    
+    // Handle changes
+    nextScene = GAME;
+    transition.setTransition(2000);
+}
+
+void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
+    // Already started changes
+    if (nextScene == MENU) {
+        if (transition.hasExpired()) {
+            currentScene = MENU;
+            transition.deactivate();
+        }
+        return;
+    }
+    
+    // Handle changes
+    nextScene = MENU;
+    transition.setTransition(2000);
+}
+void ProgramData::changeSceneFromGameToDeath(RenderWindow& window) {
+    // Already started changes
+    if (nextScene == DEATH) {
+        if (transition.hasExpired()) {
+            currentScene = DEATH;
+            transition.deactivate();
+        }
+        return;
+    }
+    
+    // Handle changes
+    nextScene = DEATH;
+    transition.setTransition(3000);
+}
+void ProgramData::changeSceneFromDeathToGame(RenderWindow& window) {
+    std::cout << "Changing Scene from Death to Game" << std::endl;
 }
 
 void ProgramData::handleMenuButtons(RenderWindow& window) {
@@ -111,7 +253,7 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
         if (button->isClicked(MouseX, MouseY)) {
             switch (button->getButtonType()) {
             case Button::START:
-                loadLevel();
+                changeSceneFromMenuToGame(window);
                 return;
             case Button::EXIT:
                 exitProgram();
@@ -146,10 +288,43 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
 }
 
 void ProgramData::handleGameButtons(RenderWindow& window) {
-    throw "Not implemented!";
+    for (Button* button : gameButtons) {
+        if (button->isClicked(MouseX, MouseY)) {
+            switch (button->getButtonType()) {
+            case Button::CONTINUE:
+                // Continue
+                break;
+            case Button::EXIT:
+                changeSceneFromGameToMenu(window);
+                break;
+            case Button::ENG:
+                currentLanguage = ENGLISH;    
+                updateButtons(window);
+                break;
+            case Button::JP:
+                currentLanguage = JAPANESE;
+                updateButtons(window);
+                break;
+            case Button::HUN:
+                currentLanguage = HUNGARIAN;
+                updateButtons(window);
+                break;
+            case Button::NONE:
+                break;
+            default:
+                std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
+                throw "Wrong ButtonType!";
+            }
+        }
+    }
 }
 
 void ProgramData::updateButtons(RenderWindow& window) {
+    // Title Screen Button
+    if (titleButton != nullptr)
+        static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
+            static_cast<TextButton*>(titleButton)->getCaptionType()), ENGLISH, window);
+    // Menu Buttons
     for (Button* button : menuButtons) {
         // Captions
         if (button->getIsTextBased()) {
@@ -203,6 +378,8 @@ void ProgramData::loadLevel() {
 }
 
 ProgramData::~ProgramData() {
+    if (titleButton != nullptr)
+        delete titleButton;
     for (Button* button : menuButtons)
         delete button;
     for (Button* button : gameButtons)

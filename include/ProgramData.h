@@ -20,19 +20,29 @@ private:
     size_t currentCheckpoint;
     Language currentLanguage;
     std::vector<LanguageModule*> LangMod;
+    TextButton* titleButton;
     std::vector<Button*> menuButtons;
     std::vector<Button*> gameButtons;
+    Texture titleScreen;
+    Texture menuScreen;
     bool MouseClick;
     int MouseX;
     int MouseY;
 
-    void renderButtons(RenderWindow& window);
+    void renderMenuButtons(RenderWindow& window);
+    void renderGameButtons(RenderWindow& window);
+    void changeSceneFromTitleToMenu(RenderWindow& window);
+    void changeSceneFromMenuToGame(RenderWindow& window);
+    void changeSceneFromGameToMenu(RenderWindow& window);
+    void changeSceneFromGameToDeath(RenderWindow& window);
+    void changeSceneFromDeathToGame(RenderWindow& window);
     void handleMenuButtons(RenderWindow& window);
     void handleGameButtons(RenderWindow& window);
     void loadLevel(); // Which Level, which checkpoint ???
 public:
     ProgramData(RenderWindow& window);
     void handleEvent(SDL_Event& event, RenderWindow& window);
+    void handleSceneChanges(RenderWindow& window);
     void updateButtons(RenderWindow& window);
     bool getExitProgram() const;
     void exitProgram();

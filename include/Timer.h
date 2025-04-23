@@ -13,8 +13,9 @@ public:
     Timer(size_t miliSeconds);
     void deactivate();
     void activate(size_t miliSeconds);
-    bool getIsActive() const;
     size_t getTime() const;
+    bool getIsActive() const;
+    bool hasExpired() const;
     float getPercent() const;
 };
 
