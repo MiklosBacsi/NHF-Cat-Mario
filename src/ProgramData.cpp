@@ -49,11 +49,13 @@ ProgramData::ProgramData(RenderWindow& window) : nextScene(Scene::NONE), isExitP
     gameButtons.push_back((Button*) new ImageButton(Button::JP, {925, 200, 150, 100}, "../res/img/FlagJP.png", window));
     gameButtons.push_back((Button*) new ImageButton(Button::HUN, {1110, 200, 150, 100}, "../res/img/FlagHUN.png", window));
     gameButtons.push_back((Button*) new ImageButton(Button::CONTINUE, {1325, 175, 50, 50}, "../res/img/IconX.png", window));
+
+    loadSounds();
+    playSound(Sound::LOBBY, true);
 }
 /* ************************************************************************************ */
 
 /***** Public Functions *****/
-
 void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     switch (event.type) {
     case SDL_KEYDOWN:
@@ -62,7 +64,11 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
         anyKeyPressed = true;
 
         switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE: input.setEsc(true); break;
+        case SDLK_ESCAPE:
+            if (currentScene == Scene::GAME)
+                playSound(Sound::CLICK);
+            input.setEsc(true);
+            break;
         case SDLK_w: input.setW(true); break;
         case SDLK_a: input.setA(true); break;
         case SDLK_s: input.setS(true); break;
@@ -89,6 +95,7 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
             return;
         if (currentScene == Scene::TITLE) {
             changeSceneFromTitleToMenu(window);
+            playSound(Sound::CLICK);
             return;
         }
         if (event.button.button == SDL_BUTTON_LEFT) {
@@ -117,7 +124,7 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
         return;
     switch (currentScene) {
     case Scene::NONE: break;
-    case Scene::TITLE: changeSceneFromTitleToMenu(window); break;
+    case Scene::TITLE: changeSceneFromTitleToMenu(window); playSound(Sound::CLICK); break;
     case Scene::MENU:
         if (input.getEsc())
             exitProgram();
@@ -333,12 +340,17 @@ void ProgramData::changeSceneFromMenuToGame(RenderWindow& window) {
             currentScene = Scene::GAME;
             transition.deactivate();
         }
+        else if (transition.isMiddle()) {
+            transition.reachMiddle();
+            playSound(Sound::BACKGROUND, true);
+        }
         return;
     }
     
     // Handle changes (Runs only once)
     nextScene = Scene::GAME;
     transition.setTransition(2000);
+    stopSounds();
 }
 
 void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
@@ -348,12 +360,17 @@ void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
             currentScene = Scene::MENU;
             transition.deactivate();
         }
+        else if (transition.isMiddle()) {
+            transition.reachMiddle();
+            playSound(Sound::LOBBY, true);
+        }
         return;
     }
     
     // Handle changes (Runs only once)
     nextScene = Scene::MENU;
     transition.setTransition(2000);
+    stopSounds();
 }
 
 void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
@@ -364,9 +381,13 @@ void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
         if (percentage > 1.0f) {
             nextScene = Scene::GAME;
             transition.deactivate();
+
+            stopSounds();
+            playSound(Sound::BACKGROUND, true);
         }
         // In the Middle
-        else if (0.4f < percentage && percentage < 0.6f) {
+        else if (transition.isMiddle()) {
+            transition.reachMiddle();
             // Reset Level
             // check to only run once
         }
@@ -376,11 +397,14 @@ void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
     // Handle changes (Runs only once)
     nextScene = Scene::DEATH;
     transition.setTransition(3000);
+    stopSounds();
+    playSound(Sound::DEATH);
 }
 
 void ProgramData::handleMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons) {
         if (button->isClicked(input.getMouseX(), input.getMouseY())) {
+            playSound(Sound::CLICK);
             switch (button->getButtonType()) {
             case Button::START: changeSceneFromMenuToGame(window); return;
             case Button::EXIT: exitProgram(); return;
@@ -406,6 +430,7 @@ void ProgramData::handleGameButtons(RenderWindow& window) {
         return;
     for (Button* button : gameButtons) {
         if (button->isClicked(input.getMouseX(), input.getMouseY())) {
+            playSound(Sound::CLICK);
             switch (button->getButtonType()) {
             case Button::EXIT: changeSceneFromGameToMenu(window); isPaused = false; break;
             case Button::CONTINUE: isPaused = false; break;
@@ -471,6 +496,18 @@ void ProgramData::exitProgram() { isExitProgram = true; }
 void ProgramData::setLanguage(Language language) { currentLanguage = language; }
 
 void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
+
+void ProgramData::playSound(Sound::Type soundType, bool loop) { sounds.playSound(soundType, loop); }
+
+void ProgramData::stopSounds() { sounds.stopSound(); }
+
+void ProgramData::loadSounds() {
+    sounds.loadSound("../res/audio/Click.mp3", Sound::CLICK);
+    sounds.loadSound("../res/audio/BackgroundMusic.mp3", Sound::BACKGROUND);
+    sounds.loadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
+    sounds.loadSound("../res/audio/Death.mp3", Sound::DEATH);
+    sounds.loadSound("../res/audio/Empty.mp3", Sound::EMPTY);
+}
 
 Language ProgramData::getLanguage() const { return currentLanguage; }
 /* ************************************************************************************ */

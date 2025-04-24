@@ -45,6 +45,7 @@ private:
     TextButton* deathButton;
     std::vector<Button*> menuButtons;
     std::vector<Button*> gameButtons;
+    Sound sounds;
     Texture titleScreen;
     Texture menuScreen;
     Input input;
@@ -63,6 +64,9 @@ private:
     void exitProgram();
     void setLanguage(Language language);
     void setTransition(size_t miliSeconds=2000);
+    void playSound(Sound::Type soundType, bool loop=false);
+    void stopSounds();
+    void loadSounds();
     Language getLanguage() const;
 public:
     ProgramData(RenderWindow& window);

@@ -432,7 +432,14 @@ RenderWindow::~RenderWindow() {
 /* ************************************************************************************ */
 
 /***** CLASS TRANSITION *****/
-void Transition::setTransition(size_t miliSeconds) { timer.activate(miliSeconds); }
+void Transition::setTransition(size_t miliSeconds) {
+    #ifdef QUICK
+    timer.activate(200);
+    return;
+    #endif
+    timer.activate(miliSeconds);
+    AlreadyReachedMiddle = false;
+}
 
 void Transition::deactivate() { timer.deactivate(); }
 
@@ -458,6 +465,10 @@ float Transition::getPercent() const { return timer.getPercent(); }
 bool Transition::getIsActive() const { return timer.getIsActive(); }
 
 bool Transition::hasExpired() const { return timer.hasExpired(); }
+
+bool Transition::isMiddle() const { return AlreadyReachedMiddle == false && timer.getPercent() > 0.5f; }
+
+void Transition::reachMiddle() { AlreadyReachedMiddle = true; }
 
 Transition::~Transition() {
     #ifdef DTOR

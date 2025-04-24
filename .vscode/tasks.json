@@ -9,7 +9,7 @@
                 "-g",
                 // "-fsanitize=address",
                 // "-DDTOR",
-                "-DQUICK",
+                // "-DQUICK",
                 "-std=c++11",
                 "-I", "${workspaceFolder}/include",
                 "${workspaceFolder}/src/*.cpp",

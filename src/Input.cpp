@@ -46,5 +46,7 @@ void Input::setP(bool pressed) { P = pressed; }
 void Input::setSpace(bool pressed) { Space = pressed; }
 
 Input::~Input() {
+    #ifdef DTOR
     std::cout << "~Input Dtor" << std::endl;
+    #endif
 }

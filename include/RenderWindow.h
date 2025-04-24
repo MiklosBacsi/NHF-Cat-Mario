@@ -137,6 +137,7 @@ public:
 class Transition {
 private:
     Timer timer;
+    bool AlreadyReachedMiddle;
 public:
     Transition() {}
     void setTransition(size_t miliSeconds);
@@ -145,6 +146,8 @@ public:
     float getPercent() const;
     bool getIsActive() const;
     bool hasExpired() const;
+    bool isMiddle() const;
+    void reachMiddle();
     ~Transition();
 };
 
