@@ -24,16 +24,8 @@ struct Quote {
     size_t quoteIndex;
 };
 
-isPaused
-isLoadingLevel
-isLoadingGame
 isLevelCompleted
 isCheckpointReached
-
-class Player {
-    Vektor2D poz; // struct Pozition = {float x, float y};
-    Vektor2D a;
-};
 
 class Entity; class Element;
 
@@ -51,6 +43,3 @@ lookRight és runRight állapotokban fix időt tölt összesen
 Tubes:
 isEnterable
 isMalevolent;
-
-
-Transition (similiar to Post-Proccess) draw (black) rectangle with variable oppacity

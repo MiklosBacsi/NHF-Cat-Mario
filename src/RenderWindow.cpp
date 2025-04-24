@@ -10,6 +10,7 @@ using std::cout; using std::endl;
 
 /***** CLASS TEXTURE *****/
 Texture::Texture(SDL_Texture* texture, SDL_Rect destRect) : texture(texture), destRect(destRect) {}
+
 Texture::Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer)
     : texture(nullptr), destRect(destRect) {
     
@@ -17,17 +18,29 @@ Texture::Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer)
     if (texture == nullptr)
         cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
 }
+
 SDL_Texture*& Texture::getTexture() { return texture; }
+
 const SDL_Rect* Texture::getDestRect() const { return &destRect; }
+
 int Texture::getWidth() const { return destRect.w; }
+
 int Texture::getHeight() const { return destRect.h; }
+
 int Texture::getX1() const { return destRect.x; }
+
 int Texture::getX2() const { return destRect.x + destRect.w; }
+
 int Texture::getY1() const { return destRect.y; }
+
 int Texture::getY2() const { return destRect.y + destRect.h; }
+
 void Texture::setX(int x) { destRect.x = x; }
+
 void Texture::setY(int y) { destRect.y = y; }
+
 void Texture::setWidth(int width) { destRect.w = width; }
+
 void Texture::setHeight(int height) { destRect.h = height; }
 
 Texture::~Texture() {
@@ -410,7 +423,7 @@ Transition::~Transition() {
 }
 /* ************************************************************************************ */
 
-/***** PUBLIC FUNCTIONS *****/
+/***** GLOBAL FUNCTIONS *****/
 
 SDL_Color getColour(Colour colour) {
     switch (colour) {

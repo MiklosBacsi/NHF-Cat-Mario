@@ -40,19 +40,19 @@ private:
     void handleMenuButtons(RenderWindow& window);
     void handleGameButtons(RenderWindow& window);
     void loadLevel(); // Which Level, which checkpoint ???
+    void exitProgram();
+    void setLanguage(Language language);
+    void setTransition(size_t miliSeconds=2000);
+    Language getLanguage() const;
 public:
     ProgramData(RenderWindow& window);
     void handleEvent(SDL_Event& event, RenderWindow& window);
     void handlePressedKeys(RenderWindow& window);
     void handleSceneChanges(RenderWindow& window);
     void updateButtons(RenderWindow& window);
-    bool getExitProgram() const;
-    void exitProgram();
-    Language getLanguage() const;
-    int getTransparency();
-    void setLanguage(Language language);
-    void setTransition(size_t miliSeconds=3000);
     void renderItems(RenderWindow& window);
+    bool getExitProgram() const;
+    int getTransparency();
     ~ProgramData();
 };
 

@@ -6,6 +6,8 @@
 #include "LanguageModule.h"
 #include "Input.h"
 
+/* ************************************************************************************ */
+/***** Constructor *****/
 ProgramData::ProgramData(RenderWindow& window) : nextScene(NONE), isExitProgram(false), isPaused(false),
     currentScene(TITLE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
@@ -28,6 +30,9 @@ ProgramData::ProgramData(RenderWindow& window) : nextScene(NONE), isExitProgram(
 
     gameButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 }
+/* ************************************************************************************ */
+
+/***** Public Functions *****/
 
 void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     switch (event.type) {
@@ -87,44 +92,6 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     }
 }
 
-void ProgramData::handleSceneChanges(RenderWindow& window) {
-    switch (currentScene) {
-    case TITLE:
-        switch (nextScene) {
-        case NONE: break;
-        case MENU: changeSceneFromTitleToMenu(window); break;
-        default:
-            throw "Wrong Scene!";
-            break;
-        }
-        break;
-    case MENU:
-        switch (nextScene) {
-        case MENU: break;
-        case GAME: changeSceneFromMenuToGame(window); break;
-        default:
-            throw "Wrong Scene!";
-            break;
-        }
-        break;
-    case GAME:
-        switch (nextScene) {
-        case GAME: break;
-        case DEATH: changeSceneFromGameToDeath(window); break;
-        case MENU: changeSceneFromGameToMenu(window); break;
-        default:
-            throw "Wrong Scene!";
-        }
-        break;
-    case DEATH:
-        throw "Not implemented";
-        break;
-    default:
-        throw "Scene not found!";
-        break;
-    }
-}
-
 void ProgramData::handlePressedKeys(RenderWindow& window) {
     if (anyKeyPressed == false)
         return;
@@ -177,17 +144,90 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
     }
 }
 
-bool ProgramData::getExitProgram() const { return isExitProgram; }
+void ProgramData::handleSceneChanges(RenderWindow& window) {
+    switch (currentScene) {
+    case TITLE:
+        switch (nextScene) {
+        case NONE: break;
+        case MENU: changeSceneFromTitleToMenu(window); break;
+        default:
+            throw "Wrong Scene!";
+            break;
+        }
+        break;
+    case MENU:
+        switch (nextScene) {
+        case MENU: break;
+        case GAME: changeSceneFromMenuToGame(window); break;
+        default:
+            throw "Wrong Scene!";
+            break;
+        }
+        break;
+    case GAME:
+        switch (nextScene) {
+        case GAME: break;
+        case DEATH: changeSceneFromGameToDeath(window); break;
+        case MENU: changeSceneFromGameToMenu(window); break;
+        default:
+            throw "Wrong Scene!";
+        }
+        break;
+    case DEATH:
+        throw "Not implemented";
+        break;
+    default:
+        throw "Scene not found!";
+        break;
+    }
+}
 
-void ProgramData::exitProgram() { isExitProgram = true; }
-
-Language ProgramData::getLanguage() const { return currentLanguage; }
-
-int ProgramData::getTransparency() { return transition.getTransparency(); }
-
-void ProgramData::setLanguage(Language language) { currentLanguage = language; }
-
-void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
+void ProgramData::updateButtons(RenderWindow& window) {
+    // Title Screen Button
+    if (titleButton != nullptr)
+        static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
+            static_cast<TextButton*>(titleButton)->getCaptionType()), ENGLISH, window);
+    // Menu Buttons
+    for (Button* button : menuButtons) {
+        // Captions
+        if (button->getIsTextBased()) {
+            switch (currentLanguage) {
+            case ENGLISH:
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    ENGLISH, window
+                );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
+                break;
+            case JAPANESE:
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    JAPANESE, window
+                );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
+                break;
+            case HUNGARIAN:
+                static_cast<TextButton*>(button)->updateCaption(
+                    LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                    HUNGARIAN, window
+                );
+                static_cast<TextButton*>(button)->destroySelectBoxTexture();
+                break;
+            default:
+                throw "ButtonType not found!";
+            }
+        }
+        // Language buttons
+        else {
+            switch (currentLanguage) {
+            case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
+            case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
+            case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
+            default: break;
+            }
+        }
+    }
+}
 
 void ProgramData::renderItems(RenderWindow& window) {
     switch (currentScene) {
@@ -228,6 +268,13 @@ void ProgramData::renderItems(RenderWindow& window) {
         throw "currentScene not found! ProgramData::renderItems()";
     }
 }
+
+bool ProgramData::getExitProgram() const { return isExitProgram; }
+
+int ProgramData::getTransparency() { return transition.getTransparency(); }
+/* ************************************************************************************ */
+
+/***** Private Functions *****/
 
 void ProgramData::renderMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons)
@@ -286,6 +333,7 @@ void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
     nextScene = MENU;
     transition.setTransition(2000);
 }
+
 void ProgramData::changeSceneFromGameToDeath(RenderWindow& window) {
     // Already started changes
     if (nextScene == DEATH) {
@@ -300,6 +348,7 @@ void ProgramData::changeSceneFromGameToDeath(RenderWindow& window) {
     nextScene = DEATH;
     transition.setTransition(3000);
 }
+
 void ProgramData::changeSceneFromDeathToGame(RenderWindow& window) {
     std::cout << "Changing Scene from Death to Game" << std::endl;
 }
@@ -347,57 +396,20 @@ void ProgramData::handleGameButtons(RenderWindow& window) {
     }
 }
 
-void ProgramData::updateButtons(RenderWindow& window) {
-    // Title Screen Button
-    if (titleButton != nullptr)
-        static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
-            static_cast<TextButton*>(titleButton)->getCaptionType()), ENGLISH, window);
-    // Menu Buttons
-    for (Button* button : menuButtons) {
-        // Captions
-        if (button->getIsTextBased()) {
-            switch (currentLanguage) {
-            case ENGLISH:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    ENGLISH, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            case JAPANESE:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    JAPANESE, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            case HUNGARIAN:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    HUNGARIAN, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            default:
-                throw "ButtonType not found!";
-            }
-        }
-        // Language buttons
-        else {
-            switch (currentLanguage) {
-            case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
-            case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
-            case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
-            default: break;
-            }
-        }
-    }
-}
-
 void ProgramData::loadLevel() {
     // Not implemented
 }
 
+void ProgramData::exitProgram() { isExitProgram = true; }
+
+void ProgramData::setLanguage(Language language) { currentLanguage = language; }
+
+void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
+
+Language ProgramData::getLanguage() const { return currentLanguage; }
+/* ************************************************************************************ */
+
+/***** Destructor *****/
 ProgramData::~ProgramData() {
     if (titleButton != nullptr)
         delete titleButton;
