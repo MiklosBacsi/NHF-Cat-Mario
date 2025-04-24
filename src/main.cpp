@@ -25,8 +25,6 @@ int main(int argc, char* arvg[]) {
     Uint32 frameStart;
     int frameTime;
 
-    Timer timer(1000);
-
     while (pd.getExitProgram() == false) {
         frameStart = SDL_GetTicks();
 
@@ -47,8 +45,9 @@ int main(int argc, char* arvg[]) {
         window.applyTransition(pd.getTransparency());
         window.display();
 
-        // Appy even FPS
+        // 4. Apply even FPS
         frameTime = SDL_GetTicks() - frameStart;
+        // std::cout << "Frametime: " << frameTime << " ms" << std::endl;
         if (frameDelay > frameTime)
             SDL_Delay(frameDelay - frameTime);
     }

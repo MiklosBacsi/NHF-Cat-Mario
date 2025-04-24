@@ -43,10 +43,14 @@ std::string LanguageModule::getRandomQuote() const {
     return quotes[std::rand() % quotes.size()];
 }
 
-std::string LanguageModule::getTranslation(Lang::CaptionType capiton) const {
-    return captions[capiton];
+std::string LanguageModule::getTranslation(Lang::CaptionType caption) const {
+    if (caption == Lang::NONE)
+        return "";
+    return captions[caption];
 }
 
 LanguageModule::~LanguageModule() {
+    #ifdef DTOR
     std::cout << "~LanguageModule Dtor" << std::endl;
+    #endif
 }

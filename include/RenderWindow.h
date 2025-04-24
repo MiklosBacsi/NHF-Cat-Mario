@@ -5,7 +5,14 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+
+#include <iostream>
+#include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <ctime>
 
 #include "LanguageModule.h"
 #include "Timer.h"
@@ -35,6 +42,7 @@ public:
     void setY(int y);
     void setWidth(int width);
     void setHeight(int height);
+    void deleteTexture();
     ~Texture();
 };
 
@@ -65,12 +73,13 @@ public:
     void render(Texture& texture, int destX=0, int destY=0);
     void render(Texture& texture, const SDL_Rect* srcRect, const SDL_Rect* destRect);
     void display();
+    void renderText(std::string text, int x, int y, Colour colour, FontType font, Language language);
+    void drawBackground(int r=166, int g=181, int b=246);
+    void applyTransition(int transparency);
     int getWidth() const;
     int getHeight() const;
     SDL_Renderer* getRenderer();
     TTF_Font* getFont(FontType font, Language language);
-    void renderText(std::string text, int x, int y, Colour colour, FontType font, Language language);
-    void applyTransition(int transparency);
     ~RenderWindow();
 };
 
@@ -108,6 +117,7 @@ private:
     void drawSelectBox(RenderWindow& window);
 public:
     TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
+    TextButton(Button::Type buttonType, std::string capiton, int x, int y, Colour colour, FontType font, RenderWindow& window, int bgOpacity=0, bool isSelected=false);
     void drawButton(RenderWindow& window);
     void updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window); // when changing Language
     void destroySelectBoxTexture();

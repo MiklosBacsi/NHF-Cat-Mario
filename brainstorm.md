@@ -11,7 +11,6 @@ Class Input : SDL_Keys and Mouse
 
 CameraX or CameraRect
 
-ProgramData::changeSceneFromDeathToGame() <-- is this necessary???, instead only changeSceneFromGameToDeathToGame()
 
 Class Level:
 numberOfCheckpoints

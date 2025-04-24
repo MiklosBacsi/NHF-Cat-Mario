@@ -1,16 +1,29 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <ctime>
 
 #include "ProgramData.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 #include "Input.h"
+#include "Sound.h"
 
 /* ************************************************************************************ */
 /***** Constructor *****/
-ProgramData::ProgramData(RenderWindow& window) : nextScene(NONE), isExitProgram(false), isPaused(false),
-    currentScene(TITLE), currentLanguage(ENGLISH),
+ProgramData::ProgramData(RenderWindow& window) : nextScene(Scene::NONE), isExitProgram(false), isPaused(false),
+    currentScene(Scene::TITLE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
+    deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
     menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900}, window.getRenderer())
     {
@@ -28,7 +41,14 @@ ProgramData::ProgramData(RenderWindow& window) : nextScene(NONE), isExitProgram(
     menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1370, 100, 150, 100}, "../res/img/FlagHUN.png", window));
     menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
 
-    gameButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
+    
+    gameButtons.push_back((Button*) new TextButton(Button::CONTINUE, Lang::CONTINUE, 400, 400, BLACK, MED50, currentLanguage,  window, 100));
+    gameButtons.push_back((Button*) new TextButton(Button::EXIT, Lang::EXIT_TO_MENU, 400, 550, BLACK, MED50, currentLanguage,  window, 100));
+    
+    gameButtons.push_back((Button*) new ImageButton(Button::ENG, {690, 200, 200, 100}, "../res/img/FlagENG.png", window, true));
+    gameButtons.push_back((Button*) new ImageButton(Button::JP, {925, 200, 150, 100}, "../res/img/FlagJP.png", window));
+    gameButtons.push_back((Button*) new ImageButton(Button::HUN, {1110, 200, 150, 100}, "../res/img/FlagHUN.png", window));
+    gameButtons.push_back((Button*) new ImageButton(Button::CONTINUE, {1325, 175, 50, 50}, "../res/img/IconX.png", window));
 }
 /* ************************************************************************************ */
 
@@ -67,7 +87,7 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     case SDL_MOUSEBUTTONDOWN:
         if (transition.getIsActive())
             return;
-        if (currentScene == TITLE) {
+        if (currentScene == Scene::TITLE) {
             changeSceneFromTitleToMenu(window);
             return;
         }
@@ -77,9 +97,9 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
             input.setMouseY(event.button.y);
 
             switch (currentScene) { // Already handled TITLE
-            case MENU: handleMenuButtons(window); break;
-            case GAME: handleGameButtons(window); break;
-            case DEATH: break;
+            case Scene::MENU: handleMenuButtons(window); break;
+            case Scene::GAME: handleGameButtons(window); break;
+            case Scene::DEATH: break;
             default:
                 throw "Wrong scene!";
             }
@@ -96,15 +116,15 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
     if (anyKeyPressed == false)
         return;
     switch (currentScene) {
-    case NONE: break;
-    case TITLE: changeSceneFromTitleToMenu(window); break;
-    case MENU:
+    case Scene::NONE: break;
+    case Scene::TITLE: changeSceneFromTitleToMenu(window); break;
+    case Scene::MENU:
         if (input.getEsc())
             exitProgram();
         else if (input.getSpace())
             changeSceneFromMenuToGame(window);
         break;
-    case GAME:
+    case Scene::GAME:
         if (input.getPause())
             isPaused = true; // Also handle pause!!!!!!!!!!!!!!!!!
         if (input.getEsc()) {
@@ -113,6 +133,8 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
             else
                 changeSceneFromGameToMenu(window);
         }
+        if (isPaused)
+            return;
         // Vertically Still
         if (input.getUp() && input.getDown()) {
             // xxx
@@ -124,6 +146,8 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
         // Down
         else if (input.getDown() == true) {
             // xxx
+            // Just for testing Death Scene. Don't forget to delete it!
+            changeSceneFromGameToDeathToGame(window);
         }
 
         // Horizontally Still
@@ -139,42 +163,42 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
             // xxx
         }
         break;
-    case DEATH: break;
+    case Scene::DEATH: throw "Scene not allowed!";
     default: throw "Scene not found!";
     }
 }
 
 void ProgramData::handleSceneChanges(RenderWindow& window) {
     switch (currentScene) {
-    case TITLE:
+    case Scene::TITLE:
         switch (nextScene) {
-        case NONE: break;
-        case MENU: changeSceneFromTitleToMenu(window); break;
+        case Scene::NONE: break;
+        case Scene::MENU: changeSceneFromTitleToMenu(window); break;
         default:
             throw "Wrong Scene!";
             break;
         }
         break;
-    case MENU:
+    case Scene::MENU:
         switch (nextScene) {
-        case MENU: break;
-        case GAME: changeSceneFromMenuToGame(window); break;
+        case Scene::MENU: break;
+        case Scene::GAME: changeSceneFromMenuToGame(window); break;
         default:
             throw "Wrong Scene!";
             break;
         }
         break;
-    case GAME:
+    case Scene::GAME:
         switch (nextScene) {
-        case GAME: break;
-        case DEATH: changeSceneFromGameToDeath(window); break;
-        case MENU: changeSceneFromGameToMenu(window); break;
+        case Scene::GAME: break;
+        case Scene::DEATH: changeSceneFromGameToDeathToGame(window); break;
+        case Scene::MENU: changeSceneFromGameToMenu(window); break;
         default:
             throw "Wrong Scene!";
         }
         break;
-    case DEATH:
-        throw "Not implemented";
+    case Scene::DEATH:
+        throw "Not allowed!";
         break;
     default:
         throw "Scene not found!";
@@ -187,51 +211,19 @@ void ProgramData::updateButtons(RenderWindow& window) {
     if (titleButton != nullptr)
         static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
             static_cast<TextButton*>(titleButton)->getCaptionType()), ENGLISH, window);
+    
     // Menu Buttons
-    for (Button* button : menuButtons) {
-        // Captions
-        if (button->getIsTextBased()) {
-            switch (currentLanguage) {
-            case ENGLISH:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    ENGLISH, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            case JAPANESE:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    JAPANESE, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            case HUNGARIAN:
-                static_cast<TextButton*>(button)->updateCaption(
-                    LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                    HUNGARIAN, window
-                );
-                static_cast<TextButton*>(button)->destroySelectBoxTexture();
-                break;
-            default:
-                throw "ButtonType not found!";
-            }
-        }
-        // Language buttons
-        else {
-            switch (currentLanguage) {
-            case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
-            case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
-            case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
-            default: break;
-            }
-        }
-    }
+    for (Button* button : menuButtons)
+        updateSingeButton(button, window);
+
+    // Game Buttons
+    for (Button* button : gameButtons)
+        updateSingeButton(button, window);
 }
 
 void ProgramData::renderItems(RenderWindow& window) {
     switch (currentScene) {
-    case TITLE:
+    case Scene::TITLE:
         if (transition.getPercent() < 0.5f) {
             window.render(titleScreen);
             titleButton->drawButton(window);
@@ -241,32 +233,57 @@ void ProgramData::renderItems(RenderWindow& window) {
             renderMenuButtons(window);
         }
         break;
-    case MENU:
+    case Scene::MENU:
         if (transition.getPercent() < 0.5f) {
             window.render(menuScreen);
             renderMenuButtons(window);
         }
         else {
-            window.render(menuScreen);
-            renderGameButtons(window);
+            window.drawBackground();
         }
         break;
-    case GAME:
-        if (transition.getPercent() < 0.5f) {
-            window.render(menuScreen);
-            renderGameButtons(window);
+    case Scene::GAME:
+        switch (nextScene) {
+        // Normal Game
+        case Scene::GAME:
+            window.drawBackground();
+            if (isPaused)
+                renderPuase(window);
+            break;
+        // Death Scene
+        case Scene::DEATH:
+        {
+            float percentage = transition.getPercent();
+            if (percentage < 0.4f && percentage > 0.6f) {
+                window.drawBackground(0, 0, 0);
+                deathButton->drawButton(window);
+            }
+            else {
+                window.drawBackground();
+            }
         }
-        else {
-            window.render(menuScreen);
-            renderMenuButtons(window);
+            break;
+        // Changing back to Menu
+        case Scene::MENU:
+            if (transition.getPercent() < 0.5f) {
+                window.drawBackground();
+            }
+            else {
+                window.render(menuScreen);
+                renderMenuButtons(window);
+            }
+            break;
+        default: throw "Wrong Scene!";
         }
         break;
-    case DEATH:
-        break;
-    
+    case Scene::DEATH:
     default:
         throw "currentScene not found! ProgramData::renderItems()";
     }
+}
+
+void ProgramData::logScenes() const {
+    std::cout << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
 }
 
 bool ProgramData::getExitProgram() const { return isExitProgram; }
@@ -286,11 +303,16 @@ void ProgramData::renderGameButtons(RenderWindow& window) {
         button->drawButton(window);
 }
 
+void ProgramData::renderPuase(RenderWindow& window) {
+    roundedBoxRGBA(window.getRenderer(), 200, 150, window.getWidth()-201, window.getHeight()-151, 50, 255, 255, 255, 100);
+    renderGameButtons(window);
+}
+
 void ProgramData::changeSceneFromTitleToMenu(RenderWindow& window) {
     // Already started changes
-    if (nextScene == MENU) {
+    if (nextScene == Scene::MENU) {
         if (transition.hasExpired()) {
-            currentScene = MENU;
+            currentScene = Scene::MENU;
             transition.deactivate();
             
             delete titleButton;
@@ -299,58 +321,61 @@ void ProgramData::changeSceneFromTitleToMenu(RenderWindow& window) {
         return;
     }
     
-    // Handle changes
-    nextScene = MENU;
+    // Handle changes (Runs only once)
+    nextScene = Scene::MENU;
     transition.setTransition(2000);
 }
 
 void ProgramData::changeSceneFromMenuToGame(RenderWindow& window) {
     // Already started changes
-    if (nextScene == GAME) {
+    if (nextScene == Scene::GAME) {
         if (transition.hasExpired()) {
-            currentScene = GAME;
+            currentScene = Scene::GAME;
             transition.deactivate();
         }
         return;
     }
     
-    // Handle changes
-    nextScene = GAME;
+    // Handle changes (Runs only once)
+    nextScene = Scene::GAME;
     transition.setTransition(2000);
 }
 
 void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
     // Already started changes
-    if (nextScene == MENU) {
+    if (nextScene == Scene::MENU) {
         if (transition.hasExpired()) {
-            currentScene = MENU;
+            currentScene = Scene::MENU;
             transition.deactivate();
         }
         return;
     }
     
-    // Handle changes
-    nextScene = MENU;
+    // Handle changes (Runs only once)
+    nextScene = Scene::MENU;
     transition.setTransition(2000);
 }
 
-void ProgramData::changeSceneFromGameToDeath(RenderWindow& window) {
+void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
     // Already started changes
-    if (nextScene == DEATH) {
-        if (transition.hasExpired()) {
-            currentScene = DEATH;
+    if (nextScene == Scene::DEATH) {
+        float percentage = transition.getPercent();
+        // Has Expired
+        if (percentage > 1.0f) {
+            nextScene = Scene::GAME;
             transition.deactivate();
+        }
+        // In the Middle
+        else if (0.4f < percentage && percentage < 0.6f) {
+            // Reset Level
+            // check to only run once
         }
         return;
     }
     
-    // Handle changes
-    nextScene = DEATH;
+    // Handle changes (Runs only once)
+    nextScene = Scene::DEATH;
     transition.setTransition(3000);
-}
-
-void ProgramData::changeSceneFromDeathToGame(RenderWindow& window) {
-    std::cout << "Changing Scene from Death to Game" << std::endl;
 }
 
 void ProgramData::handleMenuButtons(RenderWindow& window) {
@@ -377,13 +402,13 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
 }
 
 void ProgramData::handleGameButtons(RenderWindow& window) {
+    if (isPaused == false)
+        return;
     for (Button* button : gameButtons) {
         if (button->isClicked(input.getMouseX(), input.getMouseY())) {
             switch (button->getButtonType()) {
-            case Button::CONTINUE:
-                // Continue
-                break;
-            case Button::EXIT: changeSceneFromGameToMenu(window); break;
+            case Button::EXIT: changeSceneFromGameToMenu(window); isPaused = false; break;
+            case Button::CONTINUE: isPaused = false; break;
             case Button::ENG: currentLanguage = ENGLISH; updateButtons(window); break;
             case Button::JP: currentLanguage = JAPANESE; updateButtons(window); break;
             case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); break;
@@ -392,6 +417,47 @@ void ProgramData::handleGameButtons(RenderWindow& window) {
                 std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
                 throw "Wrong ButtonType!";
             }
+        }
+    }
+}
+
+void ProgramData::updateSingeButton(Button* button, RenderWindow& window) {
+    // Captions
+    if (button->getIsTextBased()) {
+        switch (currentLanguage) {
+        case ENGLISH:
+            static_cast<TextButton*>(button)->updateCaption(
+                LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                ENGLISH, window
+            );
+            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            break;
+        case JAPANESE:
+            static_cast<TextButton*>(button)->updateCaption(
+                LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                JAPANESE, window
+            );
+            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            break;
+        case HUNGARIAN:
+            static_cast<TextButton*>(button)->updateCaption(
+                LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
+                HUNGARIAN, window
+            );
+            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            break;
+        default:
+            throw "ButtonType not found!";
+        }
+    }
+
+    // Language buttons
+    else {
+        switch (currentLanguage) {
+        case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
+        case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
+        case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
+        default: break;
         }
     }
 }
@@ -413,11 +479,36 @@ Language ProgramData::getLanguage() const { return currentLanguage; }
 ProgramData::~ProgramData() {
     if (titleButton != nullptr)
         delete titleButton;
+    if (deathButton != nullptr)
+        delete deathButton;
+    
     for (Button* button : menuButtons)
         delete button;
     for (Button* button : gameButtons)
         delete button;
+    
     for (LanguageModule* lang : LangMod)
         delete lang;
+    
+    
+    #ifdef DTOR
     std::cout << "~ProgramData Dtor" << std::endl;
+    #endif
+}
+/* ************************************************************************************ */
+
+/***** Global Functions *****/
+std::string toString(Scene::Type scene) {
+    switch (scene) {
+    case Scene::NONE: return "NONE";
+    case Scene::TITLE: return "TITLE";
+    case Scene::MENU: return "MENU";
+    case Scene::GAME: return "GAME";
+    case Scene::DEATH: return "DEATH";
+    default: throw "Scene not found!";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, Scene::Type scene) {
+    return os << toString(scene);
 }

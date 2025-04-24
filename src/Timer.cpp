@@ -1,5 +1,7 @@
 #include "SDL2/SDL.h"
 
+#include <iostream>
+
 #include "Timer.h"
 
 Timer::Timer() : isActive(false), setDuration(1) {}
@@ -26,4 +28,10 @@ bool Timer::hasExpired() const { return getPercent() > 1.0f; }
 
 float Timer::getPercent() const {
     return (float) getTime() / (float) setDuration;
+}
+
+Timer::~Timer() {
+    #ifdef DTOR
+    std::cout << "~Timer Dtor" << std::endl;
+    #endif
 }

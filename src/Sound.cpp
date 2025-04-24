@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+
 #include <iostream>
 
 #include "Sound.h"
@@ -28,4 +29,8 @@ void Sound::stopSound() {
 
 Sound::~Sound() {
     Mix_FreeMusic(sound);
+
+    #ifdef DTOR
+    std::cout << "~Sound Dtor" << std::endl;
+    #endif
 }

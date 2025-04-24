@@ -4,11 +4,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <ctime>
 
 enum Language { ENGLISH=0, JAPANESE, HUNGARIAN };
 
 namespace Lang {
-    enum CaptionType { PRESS=0, START, EXIT_TO_MENU, PAUSE, CONTINUE, LVL1, LVL2, CAT_MARIO };
+    enum CaptionType { PRESS=0, START, EXIT_TO_MENU, PAUSE, CONTINUE, LVL1, LVL2, CAT_MARIO, NONE };
 }
 
 class LanguageModule {

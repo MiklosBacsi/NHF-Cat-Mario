@@ -3,6 +3,8 @@
 
 #include "SDL2/SDL.h"
 
+#include <iostream>
+
 class Timer {
 private:
     bool isActive;
@@ -17,6 +19,7 @@ public:
     bool getIsActive() const;
     bool hasExpired() const;
     float getPercent() const;
+    ~Timer();
 };
 
 #endif // TIMER_H

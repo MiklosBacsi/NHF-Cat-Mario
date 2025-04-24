@@ -1,11 +1,19 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <ctime>
 
 #include "RenderWindow.h"
 #include "LanguageModule.h"
-
-using std::cout; using std::endl;
+#include "Timer.h"
 
 
 /***** CLASS TEXTURE *****/
@@ -16,7 +24,7 @@ Texture::Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer)
     
     texture = IMG_LoadTexture(renderer, path);
     if (texture == nullptr)
-        cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
+        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 }
 
 SDL_Texture*& Texture::getTexture() { return texture; }
@@ -43,9 +51,18 @@ void Texture::setWidth(int width) { destRect.w = width; }
 
 void Texture::setHeight(int height) { destRect.h = height; }
 
+void Texture::deleteTexture() {
+    if (texture != nullptr) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+}
+
 Texture::~Texture() {
-    SDL_DestroyTexture(texture);
-    cout << "~Texture Dtor" << endl;
+    deleteTexture();
+    #ifdef DTOR
+    std::cout << "~Texture Dtor" << std::endl;
+    #endif
 }
 /* ************************************************************************************ */
 
@@ -72,7 +89,10 @@ TTF_Font* Font::getFont(FontType font) {
 Font::~Font() {
     for (auto it = fonts.begin(); it != fonts.end(); ++it)
         TTF_CloseFont(*it);
-    cout << "~Font Dtor" << endl;
+    
+    #ifdef DTOR
+    std::cout << "~Font Dtor" << std::endl;
+    #endif
 }
 /* ************************************************************************************ */
 
@@ -104,13 +124,25 @@ void Button::setSelected(bool selected) {
 }
 
 Button::~Button() {
-    cout << "~Button Dtor" << endl;
+    #ifdef DTOR
+    std::cout << "~Button Dtor" << std::endl;
+    #endif
 }
 
 TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
     : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour));    
+    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+
+    texture.setWidth(surface->w);
+    texture.setHeight(surface->h);
+}
+
+TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, RenderWindow& window, int bgOpacity, bool isSelected)
+    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
+
+    surface = TTF_RenderUTF8_Blended(window.getFont(font, ENGLISH), caption.c_str(), getColour(colour));    
     texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
 
     texture.setWidth(surface->w);
@@ -235,10 +267,7 @@ void ImageButton::drawSelectBox(RenderWindow& window) {
     window.render(selectBox, nullptr, selectBox.getDestRect());
 }
 
-void TextButton::destroySelectBoxTexture() {
-    SDL_DestroyTexture(selectBox.getTexture());
-    selectBox.getTexture() = nullptr;
-}
+void TextButton::destroySelectBoxTexture() { selectBox.deleteTexture(); }
 
 Lang::CaptionType TextButton::getCaptionType() const { return captionType; }
 
@@ -257,11 +286,16 @@ void TextButton::updateCaption(std::string newCaption, Language newLanguage, Ren
 
 TextButton::~TextButton() {
     SDL_FreeSurface(surface);
-    cout << "~TextButton Dtor" << endl;
+    
+    #ifdef DTOR
+    std::cout << "~TextureButton Dtor" << std::endl;
+    #endif
 }
 
 ImageButton::~ImageButton() {
-    cout << "~ImageButton Dtor" << endl;
+    #ifdef DTOR
+    std::cout << "~ImageButton Dtor" << std::endl;
+    #endif
 }
 /* ************************************************************************************ */
 
@@ -271,13 +305,13 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
     // Create SDL Window
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (window == nullptr) {
-        cout << "SDL_CreateWindow has failed. Error: " << SDL_GetError() << endl;
+        std::cout << "SDL_CreateWindow has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
     // Create SDL Renderer
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr) {
-        cout << "SDL_CreateRenderer has failed. Error: " << SDL_GetError() << endl;
+        std::cout << "SDL_CreateRenderer has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
 
@@ -289,7 +323,7 @@ Texture RenderWindow::loadTexture(const char* path, int width, int height) {
     texture = IMG_LoadTexture(renderer, path);
     
     if (texture == nullptr)
-        cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
+        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 
     Texture newTexture(texture, { 0, 0, width-1, height-1 });
     return newTexture;
@@ -302,7 +336,7 @@ void RenderWindow::loadTexture(const char* path, Texture& texture) {
     texture.getTexture() = IMG_LoadTexture(renderer, path);
     
     if (texture.getTexture() == nullptr)
-        cout << "Failed to load texture. Error: " << SDL_GetError() << endl;
+        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 }
 
 void RenderWindow::clear() { SDL_RenderClear(renderer); }
@@ -317,25 +351,6 @@ void RenderWindow::render(Texture& texture, const SDL_Rect* srcRect, const SDL_R
 }
 
 void RenderWindow::display() { SDL_RenderPresent(renderer); }
-
-int RenderWindow::getWidth() const { return width; }
-
-int RenderWindow::getHeight() const { return height; }
-
-SDL_Renderer* RenderWindow::getRenderer() { return renderer; }
-
-TTF_Font* RenderWindow::getFont(FontType font, Language language) {
-    switch (language){
-    case ENGLISH:
-    case HUNGARIAN:
-        return latinFonts.getFont(font);
-    case JAPANESE:
-        return japaneseFonts.getFont(font);
-    
-    default:
-        throw "Language not found! RenderWindow::getFont()";
-    }
-}
 
 void RenderWindow::renderText(std::string text, int x, int y, Colour colour, FontType font, Language language) {
     SDL_Surface* captionSurface = nullptr;
@@ -365,6 +380,10 @@ void RenderWindow::applyTransition(int transparency) {
     boxRGBA(renderer, 0, 0, width-1, height-1, 0, 0, 0, transparency);
 }
 
+void RenderWindow::drawBackground(int r, int g, int b) {
+    boxRGBA(renderer, 0, 0, width-1, height-1, r, g, b, 255);
+}
+
 void RenderWindow::loadFonts() {
     japaneseFonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
     latinFonts.loadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
@@ -379,6 +398,25 @@ void RenderWindow::loadFonts() {
     latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 15, MED15);
 }
 
+int RenderWindow::getWidth() const { return width; }
+
+int RenderWindow::getHeight() const { return height; }
+
+SDL_Renderer* RenderWindow::getRenderer() { return renderer; }
+
+TTF_Font* RenderWindow::getFont(FontType font, Language language) {
+    switch (language){
+    case ENGLISH:
+    case HUNGARIAN:
+        return latinFonts.getFont(font);
+    case JAPANESE:
+        return japaneseFonts.getFont(font);
+    
+    default:
+        throw "Language not found! RenderWindow::getFont()";
+    }
+}
+
 RenderWindow::~RenderWindow() {
     if (window != nullptr)
         SDL_DestroyWindow(window);
@@ -386,7 +424,10 @@ RenderWindow::~RenderWindow() {
         SDL_DestroyRenderer(renderer);
     
     SDL_Quit();
-    cout << "~RenderWindow Dtor" << endl;
+    
+    #ifdef DTOR
+    std::cout << "~RenderWindow Dtor" << std::endl;
+    #endif
 }
 /* ************************************************************************************ */
 
@@ -419,7 +460,9 @@ bool Transition::getIsActive() const { return timer.getIsActive(); }
 bool Transition::hasExpired() const { return timer.hasExpired(); }
 
 Transition::~Transition() {
-    cout << "~Transition Dtor" << endl;
+    #ifdef DTOR
+    std::cout << "~Transition Dtor" << std::endl;
+    #endif
 }
 /* ************************************************************************************ */
 

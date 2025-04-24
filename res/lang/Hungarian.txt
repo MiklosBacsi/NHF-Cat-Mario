@@ -3,7 +3,7 @@ Nyomjon meg egy gombot a folytatáshoz...
 Játék indítása
 Kilépés a menübe
 Játszás közben nyomja "P"-t a megállításhoz.
-Folytatás
+Folytatás...
 1. Szint
 2. Szint
 Macska Márió
