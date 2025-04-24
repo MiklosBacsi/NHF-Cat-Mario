@@ -31,12 +31,14 @@ int main(int argc, char* arvg[]) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
+        pd.anyKeyPressed = false;
         // 1. Handling events one-by-one
         while (SDL_PollEvent(&event)) {
             pd.handleEvent(event, window);
         }
 
         // 2. Update
+        pd.handlePressedKeys(window);
         pd.handleSceneChanges(window);
 
         // 3. Display

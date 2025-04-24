@@ -4,12 +4,13 @@
 #include "ProgramData.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
+#include "Input.h"
 
-ProgramData::ProgramData(RenderWindow& window) : isExitProgram(false), currentScene(TITLE), currentLanguage(ENGLISH),
+ProgramData::ProgramData(RenderWindow& window) : nextScene(NONE), isExitProgram(false), isPaused(false),
+    currentScene(TITLE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
-    menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
-    MouseClick(false), MouseX(0), MouseY(0)
+    menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900}, window.getRenderer())
     {
     
     LangMod.push_back(new LanguageModule("../res/lang/English.txt"));
@@ -33,8 +34,30 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     case SDL_KEYDOWN:
         if (transition.getIsActive())
             return;
+        anyKeyPressed = true;
+
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE: input.setEsc(true); break;
+        case SDLK_w: input.setW(true); break;
+        case SDLK_a: input.setA(true); break;
+        case SDLK_s: input.setS(true); break;
+        case SDLK_d: input.setD(true); break;
+        case SDLK_p: input.setP(true); break;
+        case SDLK_SPACE: input.setSpace(true); break;
+        default: break;
+        }
         break;
     case SDL_KEYUP:
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE: input.setEsc(false); break;
+        case SDLK_w: input.setW(false); break;
+        case SDLK_a: input.setA(false); break;
+        case SDLK_s: input.setS(false); break;
+        case SDLK_d: input.setD(false); break;
+        case SDLK_p: input.setP(false); break;
+        case SDLK_SPACE: input.setSpace(false); break;
+        default: break;
+        }
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (transition.getIsActive())
@@ -44,28 +67,20 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
             return;
         }
         if (event.button.button == SDL_BUTTON_LEFT) {
-            MouseClick = true;
-            MouseX = event.button.x;
-            MouseY = event.button.y;
+            input.setMouseClick(true);
+            input.setMouseX(event.button.x);
+            input.setMouseY(event.button.y);
 
             switch (currentScene) { // Already handled TITLE
-            case MENU:
-                handleMenuButtons(window);
-                break;
-            case GAME:
-                handleGameButtons(window);
-                break;
-            case DEATH:
-                break;
+            case MENU: handleMenuButtons(window); break;
+            case GAME: handleGameButtons(window); break;
+            case DEATH: break;
             default:
                 throw "Wrong scene!";
             }
         }
         break;
-    case SDL_MOUSEBUTTONUP:
-        if (event.button.button == SDL_BUTTON_LEFT)    
-            MouseClick = false;
-        break;
+    case SDL_MOUSEBUTTONUP: if (event.button.button == SDL_BUTTON_LEFT) input.setMouseClick(false); break;
     case SDL_QUIT:
         exitProgram();
         break;
@@ -76,11 +91,8 @@ void ProgramData::handleSceneChanges(RenderWindow& window) {
     switch (currentScene) {
     case TITLE:
         switch (nextScene) {
-        case NONE:
-            break;
-        case MENU:
-            changeSceneFromTitleToMenu(window);
-            break;
+        case NONE: break;
+        case MENU: changeSceneFromTitleToMenu(window); break;
         default:
             throw "Wrong Scene!";
             break;
@@ -88,11 +100,8 @@ void ProgramData::handleSceneChanges(RenderWindow& window) {
         break;
     case MENU:
         switch (nextScene) {
-        case MENU:
-            break;
-        case GAME:
-            changeSceneFromMenuToGame(window);
-            break;
+        case MENU: break;
+        case GAME: changeSceneFromMenuToGame(window); break;
         default:
             throw "Wrong Scene!";
             break;
@@ -100,14 +109,9 @@ void ProgramData::handleSceneChanges(RenderWindow& window) {
         break;
     case GAME:
         switch (nextScene) {
-        case GAME:
-            break;
-        case DEATH:
-            changeSceneFromGameToDeath(window);
-            break;
-        case MENU:
-            changeSceneFromGameToMenu(window);
-            break;
+        case GAME: break;
+        case DEATH: changeSceneFromGameToDeath(window); break;
+        case MENU: changeSceneFromGameToMenu(window); break;
         default:
             throw "Wrong Scene!";
         }
@@ -118,6 +122,58 @@ void ProgramData::handleSceneChanges(RenderWindow& window) {
     default:
         throw "Scene not found!";
         break;
+    }
+}
+
+void ProgramData::handlePressedKeys(RenderWindow& window) {
+    if (anyKeyPressed == false)
+        return;
+    switch (currentScene) {
+    case NONE: break;
+    case TITLE: changeSceneFromTitleToMenu(window); break;
+    case MENU:
+        if (input.getEsc())
+            exitProgram();
+        else if (input.getSpace())
+            changeSceneFromMenuToGame(window);
+        break;
+    case GAME:
+        if (input.getPause())
+            isPaused = true; // Also handle pause!!!!!!!!!!!!!!!!!
+        if (input.getEsc()) {
+            if (isPaused)
+                isPaused = false; // Also handle continue!!!!!!!!!!!!!!!!!
+            else
+                changeSceneFromGameToMenu(window);
+        }
+        // Vertically Still
+        if (input.getUp() && input.getDown()) {
+            // xxx
+        }
+        // Up
+        else if (input.getUp() == true) {
+            // xxx
+        }
+        // Down
+        else if (input.getDown() == true) {
+            // xxx
+        }
+
+        // Horizontally Still
+        if (input.getRight() && input.getLeft()) {
+            // xxx
+        }
+        // Right
+        if (input.getRight() == true) {
+            // xxx
+        }
+        // Left
+        else if (input.getLeft() == true) {
+            // xxx
+        }
+        break;
+    case DEATH: break;
+    default: throw "Scene not found!";
     }
 }
 
@@ -250,35 +306,19 @@ void ProgramData::changeSceneFromDeathToGame(RenderWindow& window) {
 
 void ProgramData::handleMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons) {
-        if (button->isClicked(MouseX, MouseY)) {
+        if (button->isClicked(input.getMouseX(), input.getMouseY())) {
             switch (button->getButtonType()) {
-            case Button::START:
-                changeSceneFromMenuToGame(window);
-                return;
-            case Button::EXIT:
-                exitProgram();
-                return;
-            case Button::ENG:
-                currentLanguage = ENGLISH;    
-                updateButtons(window);
-                return;
-            case Button::JP:
-                currentLanguage = JAPANESE;
-                updateButtons(window);
-                return;
-            case Button::HUN:
-                currentLanguage = HUNGARIAN;
-                updateButtons(window);
-                return;
-            case Button::LEV1:
-                loadLevel();
-                return;
+            case Button::START: changeSceneFromMenuToGame(window); return;
+            case Button::EXIT: exitProgram(); return;
+            case Button::ENG: currentLanguage = ENGLISH; updateButtons(window); return;
+            case Button::JP: currentLanguage = JAPANESE; updateButtons(window); return;
+            case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); return;
+            case Button::LEV1: loadLevel(); return;
             case Button::LEV2:
                 if (1)
                     loadLevel();
                 return;
-            case Button::NONE:
-                return;
+            case Button::NONE: return;
             default:
                 std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
                 throw "Wrong ButtonType!";
@@ -289,28 +329,16 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
 
 void ProgramData::handleGameButtons(RenderWindow& window) {
     for (Button* button : gameButtons) {
-        if (button->isClicked(MouseX, MouseY)) {
+        if (button->isClicked(input.getMouseX(), input.getMouseY())) {
             switch (button->getButtonType()) {
             case Button::CONTINUE:
                 // Continue
                 break;
-            case Button::EXIT:
-                changeSceneFromGameToMenu(window);
-                break;
-            case Button::ENG:
-                currentLanguage = ENGLISH;    
-                updateButtons(window);
-                break;
-            case Button::JP:
-                currentLanguage = JAPANESE;
-                updateButtons(window);
-                break;
-            case Button::HUN:
-                currentLanguage = HUNGARIAN;
-                updateButtons(window);
-                break;
-            case Button::NONE:
-                break;
+            case Button::EXIT: changeSceneFromGameToMenu(window); break;
+            case Button::ENG: currentLanguage = ENGLISH; updateButtons(window); break;
+            case Button::JP: currentLanguage = JAPANESE; updateButtons(window); break;
+            case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); break;
+            case Button::NONE: break;
             default:
                 std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
                 throw "Wrong ButtonType!";
@@ -357,17 +385,10 @@ void ProgramData::updateButtons(RenderWindow& window) {
         // Language buttons
         else {
             switch (currentLanguage) {
-            case ENGLISH:
-                button->setSelected(button->getButtonType() == Button::ENG);
-                break;
-            case JAPANESE:
-                button->setSelected(button->getButtonType() == Button::JP);
-                break;
-            case HUNGARIAN:
-                button->setSelected(button->getButtonType() == Button::HUN);
-                break;
-            default:
-                break;
+            case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
+            case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
+            case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
+            default: break;
             }
         }
     }

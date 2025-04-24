@@ -7,10 +7,13 @@
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 #include "Timer.h"
+#include "Input.h"
 
 enum sceneType { NONE=0, TITLE, MENU, GAME, DEATH };
 
 class ProgramData {
+public:
+    bool anyKeyPressed;
 private:
     Transition transition;
     sceneType nextScene;
@@ -25,9 +28,7 @@ private:
     std::vector<Button*> gameButtons;
     Texture titleScreen;
     Texture menuScreen;
-    bool MouseClick;
-    int MouseX;
-    int MouseY;
+    Input input;
 
     void renderMenuButtons(RenderWindow& window);
     void renderGameButtons(RenderWindow& window);
@@ -42,6 +43,7 @@ private:
 public:
     ProgramData(RenderWindow& window);
     void handleEvent(SDL_Event& event, RenderWindow& window);
+    void handlePressedKeys(RenderWindow& window);
     void handleSceneChanges(RenderWindow& window);
     void updateButtons(RenderWindow& window);
     bool getExitProgram() const;

@@ -5,19 +5,11 @@ GameConfig.txt -> Level1.txt, Level2.txt
 
 Class Quotes
 
-Render Scenes correctly with Transition
-
-extend ProgramData::updateButtons()
-
-Transition végén: Transition::hasExpired() -> játék elkezdése és deactivate()
-
-1600 - 1???
+Class RigidBody
 
 Class Input : SDL_Keys and Mouse
 
 CameraX or CameraRect
-
-Rename: RenderWindow -> WindowRenderer
 
 ProgramData::changeSceneFromDeathToGame() <-- is this necessary???, instead only changeSceneFromGameToDeathToGame()
 
