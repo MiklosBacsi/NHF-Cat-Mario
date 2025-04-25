@@ -26,23 +26,23 @@ int getRadiusFromFont(FontType font);
 class Texture {
 private:
     SDL_Texture* texture;
+    SDL_Rect srcRect;
     SDL_Rect destRect;
 public:
-    Texture(SDL_Texture* texture = nullptr, SDL_Rect destRect={.x=0, .y=0, .w=0, .h=0});
-    Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer);
-    SDL_Texture*& getTexture();
-    const SDL_Rect* getDestRect() const;
-    int getWidth() const;
-    int getHeight() const;
-    int getX1() const;
-    int getX2() const;
-    int getY1() const;
-    int getY2() const;
-    void setX(int x);
-    void setY(int y);
-    void setWidth(int width);
-    void setHeight(int height);
+    Texture();
+    Texture(std::string path, SDL_Rect rect);
+    Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect);
+    Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect);
+    void render();
+    void loadTexture(const char* path);
     void deleteTexture();
+    SDL_Texture*& getTexture();
+    SDL_Rect& getSrcRect();
+    SDL_Rect& getDestRect();
+    int getDestX1() const;
+    int getDestX2() const;
+    int getDestY1() const;
+    int getDestY2() const;
     ~Texture();
 };
 
@@ -59,7 +59,6 @@ public:
 class RenderWindow {
 private:
     SDL_Window* window;
-    SDL_Renderer* renderer;
     int width, height;
     Font latinFonts;
     Font japaneseFonts;
@@ -67,11 +66,7 @@ private:
     void loadFonts();
 public:
     RenderWindow(const char* title, int width, int height);
-    Texture loadTexture(const char* path, int width, int height);
-    void loadTexture(const char* path, Texture& texture);
     void clear();
-    void render(Texture& texture, int destX=0, int destY=0);
-    void render(Texture& texture, const SDL_Rect* srcRect, const SDL_Rect* destRect);
     void display();
     void renderText(std::string text, int x, int y, Colour colour, FontType font, Language language);
     void drawBackground(int r=166, int g=181, int b=246);
@@ -80,6 +75,8 @@ public:
     int getHeight() const;
     SDL_Renderer* getRenderer();
     TTF_Font* getFont(FontType font, Language language);
+
+    static SDL_Renderer* renderer;
     ~RenderWindow();
 };
 
@@ -94,7 +91,7 @@ protected:
     bool isTextBased;
     const int padding;
 public:
-    Button(Type type, SDL_Rect destRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected=false);
+    Button(Type type, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected=false);
     virtual void drawButton(RenderWindow& window) = 0;
     bool isClicked(int x, int y) const;
     bool getIsSelected() const;
@@ -129,7 +126,7 @@ class ImageButton : public Button {
 private:
     void drawSelectBox(RenderWindow& window);
 public:
-    ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, RenderWindow& window, bool isSelected=false);
+    ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, bool isSelected=false);
     void drawButton(RenderWindow& window);
     ~ImageButton();
 };

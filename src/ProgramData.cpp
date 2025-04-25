@@ -24,31 +24,31 @@ ProgramData::ProgramData(RenderWindow& window) : nextScene(Scene::NONE), isExitP
     currentScene(Scene::TITLE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
     deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
-    titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}, window.getRenderer()),
-    menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900}, window.getRenderer())
+    titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}),
+    menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900})
     {
     
     LangMod.push_back(new LanguageModule("../res/lang/English.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
-    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100));
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100, true));
     menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100));
     menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, window, 100));
 
-    menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", window, true));
-    menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png", window));
-    menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1370, 100, 150, 100}, "../res/img/FlagHUN.png", window));
-    menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png", window));
+    menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", true));
+    menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png"));
+    menuButtons.push_back((Button*) new ImageButton(Button::HUN, {1370, 100, 150, 100}, "../res/img/FlagHUN.png"));
+    menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png"));
 
     
-    gameButtons.push_back((Button*) new TextButton(Button::CONTINUE, Lang::CONTINUE, 400, 400, BLACK, MED50, currentLanguage,  window, 100));
-    gameButtons.push_back((Button*) new TextButton(Button::EXIT, Lang::EXIT_TO_MENU, 400, 550, BLACK, MED50, currentLanguage,  window, 100));
+    gameButtons.push_back((Button*) new TextButton(Button::CONTINUE, Lang::CONTINUE, 400, 400, BLACK, MED50, currentLanguage,  window, 255));
+    gameButtons.push_back((Button*) new TextButton(Button::EXIT, Lang::EXIT_TO_MENU, 400, 550, BLACK, MED50, currentLanguage,  window, 255));
     
-    gameButtons.push_back((Button*) new ImageButton(Button::ENG, {690, 200, 200, 100}, "../res/img/FlagENG.png", window, true));
-    gameButtons.push_back((Button*) new ImageButton(Button::JP, {925, 200, 150, 100}, "../res/img/FlagJP.png", window));
-    gameButtons.push_back((Button*) new ImageButton(Button::HUN, {1110, 200, 150, 100}, "../res/img/FlagHUN.png", window));
-    gameButtons.push_back((Button*) new ImageButton(Button::CONTINUE, {1325, 175, 50, 50}, "../res/img/IconX.png", window));
+    gameButtons.push_back((Button*) new ImageButton(Button::ENG, {690, 200, 200, 100}, "../res/img/FlagENG.png", true));
+    gameButtons.push_back((Button*) new ImageButton(Button::JP, {925, 200, 150, 100}, "../res/img/FlagJP.png"));
+    gameButtons.push_back((Button*) new ImageButton(Button::HUN, {1110, 200, 150, 100}, "../res/img/FlagHUN.png"));
+    gameButtons.push_back((Button*) new ImageButton(Button::CONTINUE, {1325, 175, 50, 50}, "../res/img/IconX.png"));
 
     loadSounds();
     playSound(Sound::LOBBY, true);
@@ -73,7 +73,11 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
         case SDLK_a: input.setA(true); break;
         case SDLK_s: input.setS(true); break;
         case SDLK_d: input.setD(true); break;
-        case SDLK_p: input.setP(true); break;
+        case SDLK_p:
+            if (currentScene == Scene::GAME && !isPaused)
+                playSound(Sound::CLICK);
+            input.setP(true);
+            break;
         case SDLK_SPACE: input.setSpace(true); break;
         default: break;
         }
@@ -232,17 +236,17 @@ void ProgramData::renderItems(RenderWindow& window) {
     switch (currentScene) {
     case Scene::TITLE:
         if (transition.getPercent() < 0.5f) {
-            window.render(titleScreen);
+            titleScreen.render();
             titleButton->drawButton(window);
         }
         else {
-            window.render(menuScreen);
+            menuScreen.render();
             renderMenuButtons(window);
         }
         break;
     case Scene::MENU:
         if (transition.getPercent() < 0.5f) {
-            window.render(menuScreen);
+            menuScreen.render();
             renderMenuButtons(window);
         }
         else {
@@ -276,7 +280,7 @@ void ProgramData::renderItems(RenderWindow& window) {
                 window.drawBackground();
             }
             else {
-                window.render(menuScreen);
+                menuScreen.render();
                 renderMenuButtons(window);
             }
             break;
@@ -311,7 +315,7 @@ void ProgramData::renderGameButtons(RenderWindow& window) {
 }
 
 void ProgramData::renderPuase(RenderWindow& window) {
-    roundedBoxRGBA(window.getRenderer(), 200, 150, window.getWidth()-201, window.getHeight()-151, 50, 255, 255, 255, 100);
+    roundedBoxRGBA(window.getRenderer(), 200, 150, window.getWidth()-201, window.getHeight()-151, 50, 0, 0, 0, 150);
     renderGameButtons(window);
 }
 

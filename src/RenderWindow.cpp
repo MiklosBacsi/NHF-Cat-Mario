@@ -15,41 +15,38 @@
 #include "LanguageModule.h"
 #include "Timer.h"
 
+SDL_Renderer* RenderWindow::renderer = nullptr;
 
 /***** CLASS TEXTURE *****/
-Texture::Texture(SDL_Texture* texture, SDL_Rect destRect) : texture(texture), destRect(destRect) {}
+Texture::Texture() : texture(nullptr), srcRect({0,0,0,0}), destRect({0,0,0,0}) {}
 
-Texture::Texture(const char* path, SDL_Rect destRect, SDL_Renderer* renderer)
-    : texture(nullptr), destRect(destRect) {
-    
-    texture = IMG_LoadTexture(renderer, path);
+Texture::Texture(std::string path, SDL_Rect rect)
+    : texture(nullptr), srcRect(rect), destRect(rect) {
+
+    loadTexture(path.c_str());
+}
+
+Texture::Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect)
+    : texture(nullptr), srcRect(srcRect), destRect(destRect) {
+
+    loadTexture(path.c_str());
+}
+
+Texture::Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect)
+    : texture(texture), srcRect(srcRect), destRect(destRect) {
+}
+
+void Texture::render() {
+    SDL_RenderCopy(RenderWindow::renderer, texture, &srcRect, &destRect);
+}
+
+void Texture::loadTexture(const char* path) {
+    deleteTexture();
+
+    texture = IMG_LoadTexture(RenderWindow::renderer, path);
     if (texture == nullptr)
         std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 }
-
-SDL_Texture*& Texture::getTexture() { return texture; }
-
-const SDL_Rect* Texture::getDestRect() const { return &destRect; }
-
-int Texture::getWidth() const { return destRect.w; }
-
-int Texture::getHeight() const { return destRect.h; }
-
-int Texture::getX1() const { return destRect.x; }
-
-int Texture::getX2() const { return destRect.x + destRect.w; }
-
-int Texture::getY1() const { return destRect.y; }
-
-int Texture::getY2() const { return destRect.y + destRect.h; }
-
-void Texture::setX(int x) { destRect.x = x; }
-
-void Texture::setY(int y) { destRect.y = y; }
-
-void Texture::setWidth(int width) { destRect.w = width; }
-
-void Texture::setHeight(int height) { destRect.h = height; }
 
 void Texture::deleteTexture() {
     if (texture != nullptr) {
@@ -58,8 +55,23 @@ void Texture::deleteTexture() {
     }
 }
 
+int Texture::getDestX1() const { return destRect.x; }
+
+int Texture::getDestX2() const { return destRect.x + destRect.w; }
+
+int Texture::getDestY1() const { return destRect.y; }
+
+int Texture::getDestY2() const { return destRect.y + destRect.h; }
+
+SDL_Texture*& Texture::getTexture() { return texture; }
+
+SDL_Rect& Texture::getSrcRect() { return srcRect; }
+
+SDL_Rect& Texture::getDestRect() { return destRect; }
+
 Texture::~Texture() {
     deleteTexture();
+
     #ifdef DTOR
     std::cout << "~Texture Dtor" << std::endl;
     #endif
@@ -97,12 +109,12 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
-Button::Button(Button::Type buttonType, SDL_Rect destRect, RenderWindow& window, bool isTextBased, int padding, bool isSelected)
-    : buttonType(buttonType), texture(nullptr, destRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
+Button::Button(Button::Type buttonType, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected)
+    : buttonType(buttonType), texture(nullptr, srcRect, destRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
 }
 
 bool Button::isClicked(int x, int y) const {
-    if (x >= texture.getX1() && x <= texture.getX2() && y >= texture.getY1() && y <= texture.getY2())
+    if (x >= texture.getDestX1() && x <= texture.getDestX2() && y >= texture.getDestY1() && y <= texture.getDestY2())
         return true;
     return false;
 }
@@ -117,10 +129,8 @@ void Button::setSelected(bool selected) {
     isSelected = selected;
     
     // Destroying old selectBox texture
-    if (selected == false) {
-        SDL_DestroyTexture(selectBox.getTexture());
-        selectBox.getTexture() = nullptr;
-    }
+    if (selected == false)
+        selectBox.deleteTexture();
 }
 
 Button::~Button() {
@@ -130,43 +140,51 @@ Button::~Button() {
 }
 
 TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
 
-    surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour));    
-    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+    surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour)); 
+    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.setWidth(surface->w);
-    texture.setHeight(surface->h);
+    SDL_FreeSurface(surface);
+
+    texture.getSrcRect().w = surface->w;
+    texture.getSrcRect().h = surface->h;
+    texture.getDestRect().w = surface->w;
+    texture.getDestRect().h = surface->h;
 }
 
 TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {x, y, 0, 0}, window, true, 5, isSelected), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, ENGLISH), caption.c_str(), getColour(colour));    
-    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.setWidth(surface->w);
-    texture.setHeight(surface->h);
+    SDL_FreeSurface(surface);
+
+    texture.getSrcRect().w = surface->w;
+    texture.getSrcRect().h = surface->h;
+    texture.getDestRect().w = surface->w;
+    texture.getDestRect().h = surface->h;
 }
 
-ImageButton::ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, RenderWindow& window, bool isSelected)
-    : Button(buttonType, destRect, window, false, 5, isSelected) {
+ImageButton::ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, bool isSelected)
+    : Button(buttonType, {0,0,destRect.w,destRect.h}, destRect, false, 5, isSelected) {
     
-    window.loadTexture(path, texture);
+    texture.loadTexture(path);
 }
 
 void TextButton::drawButton(RenderWindow& window) {
     if (backgroundOppacity > 0)
-        roundedBoxRGBA(window.getRenderer(), texture.getX1() - radius, texture.getY1() - radius, texture.getX2() + radius, texture.getY2() + radius, radius, 255, 255, 255, backgroundOppacity);
+        roundedBoxRGBA(RenderWindow::renderer, texture.getDestX1() - radius, texture.getDestY1() - radius, texture.getDestX2() + radius, texture.getDestY2() + radius, radius, 255, 255, 255, backgroundOppacity);
     
-    window.render(texture, nullptr, texture.getDestRect());
+    texture.render();
 
     if (isSelected)
         drawSelectBox(window);
 }
 
 void ImageButton::drawButton(RenderWindow& window) {
-    window.render(texture, nullptr, texture.getDestRect());
+    texture.render();
     if (isSelected)
         drawSelectBox(window);
 }
@@ -174,7 +192,7 @@ void ImageButton::drawButton(RenderWindow& window) {
 void TextButton::drawSelectBox(RenderWindow& window) {
     // Texture already loaded in
     if (selectBox.getTexture() != nullptr) {
-        window.render(selectBox, nullptr, selectBox.getDestRect());
+        selectBox.render();
         return;
     }
 
@@ -182,47 +200,54 @@ void TextButton::drawSelectBox(RenderWindow& window) {
     SDL_DestroyTexture(selectBox.getTexture());
 
     const int r=255, g=215, b=0, a=255;
-    SDL_Renderer* renderer = window.getRenderer();
 
-    int frameWidth = texture.getX2() - texture.getX1() + padding * 2;
-    int frameHeight = texture.getY2() - texture.getY1() + padding * 2;
+    int margin = radius - padding;
+    if (margin < 3) margin = 3;
+
+    int frameWidth = texture.getDestX2() - texture.getDestX1() + radius * 2;
+    int frameHeight = texture.getDestY2() - texture.getDestY1() + radius * 2;
 
     // Create a transparent target texture
-    selectBox.getTexture() = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
+    selectBox.getTexture() = SDL_CreateTexture(RenderWindow::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
     SDL_SetTextureBlendMode(selectBox.getTexture(), SDL_BLENDMODE_BLEND);
 
     // Set render target to our texture
-    SDL_SetRenderTarget(renderer, selectBox.getTexture());
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // Transparent
-    SDL_RenderClear(renderer);
+    SDL_SetRenderTarget(RenderWindow::renderer, selectBox.getTexture());
+    SDL_SetRenderDrawColor(RenderWindow::renderer, 0, 0, 0, 0); // Transparent
+    SDL_RenderClear(RenderWindow::renderer);
 
     // Draw rounded box on the texture
-    roundedBoxRGBA(renderer, 0, 0, frameWidth - 1, frameHeight - 1, padding, r, g, b, a);
+    roundedBoxRGBA(RenderWindow::renderer, 0, 0, frameWidth - 1, frameHeight - 1, margin, r, g, b, a);
 
     // Clear center
-    SDL_Rect innerRect = { padding, padding, frameWidth - 2 * padding, frameHeight - 2 * padding };
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderFillRect(renderer, &innerRect);
+    SDL_Rect innerRect = { margin, margin, frameWidth - 2 * margin, frameHeight - 2 * margin };
+    SDL_SetRenderDrawBlendMode(RenderWindow::renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(RenderWindow::renderer, 0, 0, 0, 0);
+    SDL_RenderFillRect(RenderWindow::renderer, &innerRect);
 
 
     // Reset render target to default (screen)
-    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_SetRenderTarget(RenderWindow::renderer, nullptr);
 
     // Set destRect and Ready
-    selectBox.setX(texture.getX1() - padding);
-    selectBox.setY(texture.getY1() - padding);
-    selectBox.setWidth(frameWidth);
-    selectBox.setHeight(frameHeight);
+    selectBox.getDestRect().x = texture.getDestX1() - radius;
+    selectBox.getDestRect().y = texture.getDestY1() - radius;
+    selectBox.getDestRect().w = frameWidth;
+    selectBox.getDestRect().h = frameHeight;
+
+    selectBox.getSrcRect().x = 0;
+    selectBox.getSrcRect().y = 0;
+    selectBox.getSrcRect().w = frameWidth;
+    selectBox.getSrcRect().h = frameHeight;
 
     // Render Texture
-    window.render(selectBox, nullptr, selectBox.getDestRect());
+    selectBox.render();
 }
 
 void ImageButton::drawSelectBox(RenderWindow& window) {
     // Texture already loaded in
     if (selectBox.getTexture() != nullptr) {
-        window.render(selectBox, nullptr, selectBox.getDestRect());
+        selectBox.render();
         return;
     }
 
@@ -230,10 +255,10 @@ void ImageButton::drawSelectBox(RenderWindow& window) {
     SDL_DestroyTexture(selectBox.getTexture());
 
     const int r=255, g=215, b=0, a=255;
-    SDL_Renderer* renderer = window.getRenderer();
+    SDL_Renderer* renderer = RenderWindow::renderer;
 
-    int frameWidth = texture.getX2() - texture.getX1() + padding * 2;
-    int frameHeight = texture.getY2() - texture.getY1() + padding * 2;
+    int frameWidth = texture.getDestX2() - texture.getDestX1() + padding * 2;
+    int frameHeight = texture.getDestY2() - texture.getDestY1() + padding * 2;
     
     // Create a transparent target texture
     selectBox.getTexture() = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
@@ -258,13 +283,18 @@ void ImageButton::drawSelectBox(RenderWindow& window) {
     SDL_SetRenderTarget(renderer, nullptr);
 
     // Set destRect and Ready
-    selectBox.setX(texture.getX1() - padding);
-    selectBox.setY(texture.getY1() - padding);
-    selectBox.setWidth(frameWidth);
-    selectBox.setHeight(frameHeight);
+    selectBox.getDestRect().x = texture.getDestX1() - padding;
+    selectBox.getDestRect().y = texture.getDestY1() - padding;
+    selectBox.getDestRect().w = frameWidth;
+    selectBox.getDestRect().h = frameHeight;
+
+    selectBox.getSrcRect().x = 0;
+    selectBox.getSrcRect().y = 0;
+    selectBox.getSrcRect().w = frameWidth;
+    selectBox.getSrcRect().h = frameHeight;
 
     // Render Texture
-    window.render(selectBox, nullptr, selectBox.getDestRect());
+    selectBox.render();
 }
 
 void TextButton::destroySelectBoxTexture() { selectBox.deleteTexture(); }
@@ -274,19 +304,20 @@ Lang::CaptionType TextButton::getCaptionType() const { return captionType; }
 void TextButton::updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window) {
     caption = newCaption;
 
-    SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture.getTexture());
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, newLanguage), caption.c_str(), getColour(colour));    
-    texture.getTexture() = SDL_CreateTextureFromSurface(window.getRenderer(), surface);
+    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.setWidth(surface->w);
-    texture.setHeight(surface->h);
+    SDL_FreeSurface(surface);
+
+    texture.getSrcRect().w = surface->w;
+    texture.getSrcRect().h = surface->h;
+    texture.getDestRect().w = surface->w;
+    texture.getDestRect().h = surface->h;
 }
 
-TextButton::~TextButton() {
-    SDL_FreeSurface(surface);
-    
+TextButton::~TextButton() {    
     #ifdef DTOR
     std::cout << "~TextureButton Dtor" << std::endl;
     #endif
@@ -301,7 +332,7 @@ ImageButton::~ImageButton() {
 
 /***** CLASS RENDER_WINDOW *****/
 RenderWindow::RenderWindow(const char* title, int width, int height)
-    : window(nullptr), renderer(nullptr), width(width), height(height) {
+    : window(nullptr), width(width), height(height) {
     // Create SDL Window
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (window == nullptr) {
@@ -318,37 +349,7 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
     loadFonts();
 }
 
-Texture RenderWindow::loadTexture(const char* path, int width, int height) {
-    SDL_Texture* texture = nullptr;
-    texture = IMG_LoadTexture(renderer, path);
-    
-    if (texture == nullptr)
-        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
-
-    Texture newTexture(texture, { 0, 0, width-1, height-1 });
-    return newTexture;
-}
-
-void RenderWindow::loadTexture(const char* path, Texture& texture) {
-    if (texture.getTexture() != nullptr)
-        SDL_DestroyTexture(texture.getTexture());
-
-    texture.getTexture() = IMG_LoadTexture(renderer, path);
-    
-    if (texture.getTexture() == nullptr)
-        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
-}
-
 void RenderWindow::clear() { SDL_RenderClear(renderer); }
-
-void RenderWindow::render(Texture& texture, int destX, int destY) {
-    SDL_Rect destination = {destX, destY, texture.getWidth(), texture.getHeight()};
-    SDL_RenderCopy(renderer, texture.getTexture(), nullptr, &destination);
-}
-
-void RenderWindow::render(Texture& texture, const SDL_Rect* srcRect, const SDL_Rect* destRect) {
-    SDL_RenderCopy(renderer, texture.getTexture(), srcRect, destRect);
-}
 
 void RenderWindow::display() { SDL_RenderPresent(renderer); }
 

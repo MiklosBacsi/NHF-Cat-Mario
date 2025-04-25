@@ -18,7 +18,7 @@ int main(int argc, char* arvg[]) {
 
     RenderWindow window("Cat Mario", 1600, 900);
     ProgramData pd(window);
-    pd.updateButtons(window); // Because TextButtons are filled up with a space by the constructor
+    pd.updateButtons(window); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
     
     const int FPS = 100;
     const int frameDelay = 1000 / FPS;
