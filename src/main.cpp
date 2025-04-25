@@ -1,18 +1,37 @@
-#include "SDL2/SDL.h"
+#ifndef CPORTA
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
+
+#endif // CPORTA
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <ctime>
 
 #include "ProgramData.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 #include "Timer.h"
+#include "Input.h"
+#include "Sound.h"
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
  * és így "mindenhol" feleselegen kéne const_cast-olni.
  */
 
 int main(int argc, char* arvg[]) {
+    #ifndef CPORTA
+
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        std::cout << "SDL_Init has failed. Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_Init has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
 
@@ -52,7 +71,9 @@ int main(int argc, char* arvg[]) {
             SDL_Delay(frameDelay - frameTime);
     }
 
-    std::cout << "***** Exiting Program *****" << std::endl;
+    #endif // CPORTA
+
+    std::clog << "***** Exiting Program *****" << std::endl;
 
     return 0;
 }

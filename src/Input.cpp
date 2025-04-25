@@ -47,6 +47,6 @@ void Input::setSpace(bool pressed) { Space = pressed; }
 
 Input::~Input() {
     #ifdef DTOR
-    std::cout << "~Input Dtor" << std::endl;
+    std::clog << "~Input Dtor" << std::endl;
     #endif
 }

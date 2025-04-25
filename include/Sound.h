@@ -1,6 +1,8 @@
 #ifndef SOUND_H
 #define SOUND_H
 
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
@@ -24,5 +26,7 @@ public:
     void stopSound();
     ~Sound();
 };
+
+#endif // CPORTA
 
 #endif // SOUND_H

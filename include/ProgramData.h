@@ -1,6 +1,8 @@
 #ifndef PROGRAM_DATA_H
 #define PROGRAM_DATA_H
 
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
@@ -80,5 +82,7 @@ public:
     int getTransparency();
     ~ProgramData();
 };
+
+#endif // CPORTA
 
 #endif // PROGRAM_DATA_H

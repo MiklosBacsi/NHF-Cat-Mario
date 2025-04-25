@@ -1,6 +1,8 @@
 #ifndef RENDER_WINDOW_H
 #define RENDER_WINDOW_H
 
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
@@ -147,5 +149,7 @@ public:
     void reachMiddle();
     ~Transition();
 };
+
+#endif // CPORTA
 
 #endif // RENDER_WINDOW_H

@@ -1,3 +1,5 @@
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
@@ -7,7 +9,7 @@
 
 Sound::Sound() : sounds( Sound::COUNT, nullptr) {
     if ((Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)) == -1) {
-        std::cout << "Audio Library not working!" << Mix_GetError() << std::endl;
+        std::cerr << "Audio Library not working!" << Mix_GetError() << std::endl;
         exit(1);
     }
     Mix_AllocateChannels(8);
@@ -59,6 +61,8 @@ Sound::~Sound() {
             Mix_FreeChunk(sound);
 
     #ifdef DTOR
-    std::cout << "~Sound Dtor" << std::endl;
+    std::clog << "~Sound Dtor" << std::endl;
     #endif
 }
+
+#endif // CPORTA

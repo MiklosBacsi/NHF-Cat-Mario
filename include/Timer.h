@@ -1,6 +1,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#ifndef CPORTA
+
 #include "SDL2/SDL.h"
 
 #include <iostream>
@@ -21,5 +23,7 @@ public:
     float getPercent() const;
     ~Timer();
 };
+
+#endif // CPORTA
 
 #endif // TIMER_H

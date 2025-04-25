@@ -3,7 +3,7 @@ Press any key to continue...
 Start Game
 Exit to Menu
 Press button "P" while playing to pause game.
-Continue...
+Continue
 Level 1
 Level 2
 Cat Mario

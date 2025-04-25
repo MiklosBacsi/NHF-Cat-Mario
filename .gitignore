@@ -2,3 +2,6 @@
 /bin/Cat-Mario
 
 /.vscode/settings.json
+
+# Object files
+*.o

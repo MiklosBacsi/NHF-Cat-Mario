@@ -20,7 +20,7 @@ private:
     std::vector<std::string> captions;
     std::vector<std::string> quotes;
 public:
-    LanguageModule(const char* path);
+    LanguageModule(std::string path);
     std::string getRandomQuote() const;
     std::string getTranslation(Lang::CaptionType caption) const;
     ~LanguageModule();

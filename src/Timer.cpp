@@ -1,3 +1,5 @@
+#ifndef CPORTA
+
 #include "SDL2/SDL.h"
 
 #include <iostream>
@@ -32,6 +34,8 @@ float Timer::getPercent() const {
 
 Timer::~Timer() {
     #ifdef DTOR
-    std::cout << "~Timer Dtor" << std::endl;
+    std::clog << "~Timer Dtor" << std::endl;
     #endif
 }
+
+#endif // CPORTA

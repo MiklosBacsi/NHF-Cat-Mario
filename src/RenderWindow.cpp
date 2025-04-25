@@ -1,3 +1,5 @@
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
@@ -45,7 +47,7 @@ void Texture::loadTexture(const char* path) {
 
     texture = IMG_LoadTexture(RenderWindow::renderer, path);
     if (texture == nullptr)
-        std::cout << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
+        std::cerr << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 }
 
 void Texture::deleteTexture() {
@@ -73,7 +75,7 @@ Texture::~Texture() {
     deleteTexture();
 
     #ifdef DTOR
-    std::cout << "~Texture Dtor" << std::endl;
+    std::clog << "~Texture Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -103,7 +105,7 @@ Font::~Font() {
         TTF_CloseFont(*it);
     
     #ifdef DTOR
-    std::cout << "~Font Dtor" << std::endl;
+    std::clog << "~Font Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -135,7 +137,7 @@ void Button::setSelected(bool selected) {
 
 Button::~Button() {
     #ifdef DTOR
-    std::cout << "~Button Dtor" << std::endl;
+    std::clog << "~Button Dtor" << std::endl;
     #endif
 }
 
@@ -144,8 +146,6 @@ TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour)); 
     texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
-
-    SDL_FreeSurface(surface);
 
     texture.getSrcRect().w = surface->w;
     texture.getSrcRect().h = surface->h;
@@ -158,8 +158,6 @@ TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int 
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, ENGLISH), caption.c_str(), getColour(colour));    
     texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
-
-    SDL_FreeSurface(surface);
 
     texture.getSrcRect().w = surface->w;
     texture.getSrcRect().h = surface->h;
@@ -305,11 +303,11 @@ void TextButton::updateCaption(std::string newCaption, Language newLanguage, Ren
     caption = newCaption;
 
     SDL_DestroyTexture(texture.getTexture());
+    SDL_FreeSurface(surface);
+    surface = nullptr;
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, newLanguage), caption.c_str(), getColour(colour));    
     texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
-
-    SDL_FreeSurface(surface);
 
     texture.getSrcRect().w = surface->w;
     texture.getSrcRect().h = surface->h;
@@ -317,15 +315,17 @@ void TextButton::updateCaption(std::string newCaption, Language newLanguage, Ren
     texture.getDestRect().h = surface->h;
 }
 
-TextButton::~TextButton() {    
+TextButton::~TextButton() {
+    SDL_FreeSurface(surface);
+
     #ifdef DTOR
-    std::cout << "~TextureButton Dtor" << std::endl;
+    std::clog << "~TextureButton Dtor" << std::endl;
     #endif
 }
 
 ImageButton::~ImageButton() {
     #ifdef DTOR
-    std::cout << "~ImageButton Dtor" << std::endl;
+    std::clog << "~ImageButton Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -336,13 +336,13 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
     // Create SDL Window
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (window == nullptr) {
-        std::cout << "SDL_CreateWindow has failed. Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_CreateWindow has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
     // Create SDL Renderer
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr) {
-        std::cout << "SDL_CreateRenderer has failed. Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_CreateRenderer has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
 
@@ -427,7 +427,7 @@ RenderWindow::~RenderWindow() {
     SDL_Quit();
     
     #ifdef DTOR
-    std::cout << "~RenderWindow Dtor" << std::endl;
+    std::clog << "~RenderWindow Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -473,7 +473,7 @@ void Transition::reachMiddle() { AlreadyReachedMiddle = true; }
 
 Transition::~Transition() {
     #ifdef DTOR
-    std::cout << "~Transition Dtor" << std::endl;
+    std::clog << "~Transition Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -507,3 +507,5 @@ int getRadiusFromFont(FontType font) {
         throw "Font not found!";
     }
 }
+
+#endif // CPORTA

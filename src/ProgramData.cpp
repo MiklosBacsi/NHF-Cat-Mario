@@ -1,3 +1,5 @@
+#ifndef CPORTA
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
@@ -294,7 +296,7 @@ void ProgramData::renderItems(RenderWindow& window) {
 }
 
 void ProgramData::logScenes() const {
-    std::cout << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
+    std::clog << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
 }
 
 bool ProgramData::getExitProgram() const { return isExitProgram; }
@@ -422,7 +424,7 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
                 return;
             case Button::NONE: return;
             default:
-                std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
+                std::cerr << "Wrong ButtonType: " << button->getButtonType() << std::endl;
                 throw "Wrong ButtonType!";
             }
         }
@@ -443,7 +445,7 @@ void ProgramData::handleGameButtons(RenderWindow& window) {
             case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); break;
             case Button::NONE: break;
             default:
-                std::cout << "Wrong ButtonType: " << button->getButtonType() << std::endl;
+                std::cerr << "Wrong ButtonType: " << button->getButtonType() << std::endl;
                 throw "Wrong ButtonType!";
             }
         }
@@ -533,7 +535,7 @@ ProgramData::~ProgramData() {
     
     
     #ifdef DTOR
-    std::cout << "~ProgramData Dtor" << std::endl;
+    std::clog << "~ProgramData Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
@@ -553,3 +555,5 @@ std::string toString(Scene::Type scene) {
 std::ostream& operator<<(std::ostream& os, Scene::Type scene) {
     return os << toString(scene);
 }
+
+#endif // CPORTA

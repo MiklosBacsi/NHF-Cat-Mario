@@ -10,6 +10,7 @@
                 // "-fsanitize=address",
                 // "-DDTOR",
                 // "-DQUICK",
+                // "-DCPORTA",
                 "-std=c++11",
                 "-I", "${workspaceFolder}/include",
                 "${workspaceFolder}/src/*.cpp",

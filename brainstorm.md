@@ -3,11 +3,7 @@ Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText()
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
-Class Quotes
-
 Class RigidBody
-
-Class Input : SDL_Keys and Mouse
 
 CameraX or CameraRect
 
@@ -42,3 +38,21 @@ lookRight és runRight állapotokban fix időt tölt összesen
 Tubes:
 isEnterable
 isMalevolent;
+
+Class Level would hold all the data (player too)
+(static) Level* ProgramData::currentLevel;
+
+3. Beadás - Specifikáció
+- Minden osztály és publikus függvény deklaráció!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+- Csak egy zip feltöltése *.h, *.cpp fájlokkal, nincs almappa!!!!!!!!
+- argumentum: -c
+- TESZTPROGRAM!!!
+- Dokumentáció itt még nem kell
+
+Muszáj deklarálni beadáshoz:
+- Class Rigid (és Vector2D) + TESZT !!!!
+- Class Entity + Player + Enemy
+- Class Block
+- Class Level
+- Class Animation
+- Struct Quote
