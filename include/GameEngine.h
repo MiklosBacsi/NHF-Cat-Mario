@@ -1,5 +1,5 @@
-#ifndef PROGRAM_DATA_H
-#define PROGRAM_DATA_H
+#ifndef GAME_ENGINE_H
+#define GAME_ENGINE_H
 
 #ifndef CPORTA
 
@@ -22,6 +22,8 @@
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
+#include "RigidBody.h"
+#include "Entity.h"
 
 namespace Scene {
     enum Type { NONE=0, TITLE, MENU, GAME, DEATH };
@@ -30,7 +32,7 @@ namespace Scene {
 std::string toString(Scene::Type scene);
 std::ostream& operator<<(std::ostream& os, Scene::Type scene);
 
-class ProgramData {
+class GameEngine {
 public:
     bool anyKeyPressed;
 private:
@@ -71,7 +73,7 @@ private:
     void loadSounds();
     Language getLanguage() const;
 public:
-    ProgramData(RenderWindow& window);
+    GameEngine(RenderWindow& window);
     void handleEvent(SDL_Event& event, RenderWindow& window);
     void handlePressedKeys(RenderWindow& window);
     void handleSceneChanges(RenderWindow& window);
@@ -80,9 +82,9 @@ public:
     void logScenes() const;
     bool getExitProgram() const;
     int getTransparency();
-    ~ProgramData();
+    ~GameEngine();
 };
 
 #endif // CPORTA
 
-#endif // PROGRAM_DATA_H
+#endif // GAME_ENGINE_H

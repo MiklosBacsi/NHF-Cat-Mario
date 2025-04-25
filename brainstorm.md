@@ -53,6 +53,7 @@ Muszáj deklarálni beadáshoz:
 - Class Rigid (és Vector2D) + TESZT !!!!
 - Class Entity + Player + Enemy
 - Class Block
+- Class Element
 - Class Level
 - Class Animation
 - Struct Quote

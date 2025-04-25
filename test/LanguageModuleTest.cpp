@@ -3,6 +3,8 @@
 #include "gtest_lite.h"
 #include "LanguageModule.h"
 
+#define COUNT 100
+
 int main() {
     GTINIT(std::cin); // Csak C(J)PORTA működéséhez kell
     
@@ -29,7 +31,51 @@ int main() {
     } END
 
 
-    /***** Checking method: getRandomQuote *****/
+    /***** Checking Quotes *****/
+    // It's enough to check the first and the last quote,
+    // because the constuctor ensures that the count will match.
+
+    // Checks the first quote
+    TEST(Quote, FirstQuote) {
+        LanguageModule english("../res/lang/English.txt");
+        EXPECT_NO_THROW(english.getQuote(0));
+        EXPECT_STREQ("Retreat, hell! We just got here.", english.getQuote(0).quote.c_str());
+
+        LanguageModule japanese("../res/lang/Japanese.txt");
+        EXPECT_NO_THROW(japanese.getQuote(0));
+        EXPECT_STREQ("撤退、地獄！着いたばかりだ", japanese.getQuote(0).quote.c_str());
+
+        LanguageModule hungrian("../res/lang/Hungarian.txt");
+        EXPECT_NO_THROW(hungrian.getQuote(0));
+        EXPECT_STREQ("Visszavonulás, a pokolba! Most értünk ide.", hungrian.getQuote(0).quote.c_str());
+    } END
+
+    // Checks the last quote
+    TEST(Quote, LastQuote) {
+        LanguageModule english("../res/lang/English.txt");
+        EXPECT_NO_THROW(english.getQuote(COUNT - 1));
+        EXPECT_STREQ("Hooooo, that was close!", english.getQuote(COUNT - 1).quote.c_str());
+
+        LanguageModule japanese("../res/lang/Japanese.txt");
+        EXPECT_NO_THROW(japanese.getQuote(COUNT - 1));
+        EXPECT_STREQ("フーッ、危なかった！", japanese.getQuote(COUNT - 1).quote.c_str());
+
+        LanguageModule hungrian("../res/lang/Hungarian.txt");
+        EXPECT_NO_THROW(hungrian.getQuote(COUNT - 1));
+        EXPECT_STREQ("Húúúúú, ez közel volt!", hungrian.getQuote(COUNT - 1).quote.c_str());
+    } END
+
+    // Checks for throws (It must be valid quote, if previous tests pass, so there is no need to check for that)
+    TEST(Quote, getRandomQuote) {
+        LanguageModule english("../res/lang/English.txt");
+        EXPECT_NO_THROW(english.getRandomQuote());
+
+        LanguageModule japanese("../res/lang/Japanese.txt");
+        EXPECT_NO_THROW(japanese.getRandomQuote());
+
+        LanguageModule hungrian("../res/lang/Hungarian.txt");
+        EXPECT_NO_THROW(hungrian.getRandomQuote());
+    } END
 
 
     /***** Checking getTranslation *****/

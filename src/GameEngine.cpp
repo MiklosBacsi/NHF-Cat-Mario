@@ -14,15 +14,16 @@
 #include <random>
 #include <ctime>
 
-#include "ProgramData.h"
+#include "GameEngine.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 #include "Input.h"
 #include "Sound.h"
+#include "RigidBody.h"
 
 /* ************************************************************************************ */
 /***** Constructor *****/
-ProgramData::ProgramData(RenderWindow& window) : nextScene(Scene::NONE), isExitProgram(false), isPaused(false),
+GameEngine::GameEngine(RenderWindow& window) : nextScene(Scene::NONE), isExitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
     deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
@@ -58,7 +59,7 @@ ProgramData::ProgramData(RenderWindow& window) : nextScene(Scene::NONE), isExitP
 /* ************************************************************************************ */
 
 /***** Public Functions *****/
-void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
+void GameEngine::handleEvent(SDL_Event& event, RenderWindow& window) {
     switch (event.type) {
     case SDL_KEYDOWN:
         if (transition.getIsActive())
@@ -125,7 +126,7 @@ void ProgramData::handleEvent(SDL_Event& event, RenderWindow& window) {
     }
 }
 
-void ProgramData::handlePressedKeys(RenderWindow& window) {
+void GameEngine::handlePressedKeys(RenderWindow& window) {
     if (anyKeyPressed == false)
         return;
     switch (currentScene) {
@@ -181,7 +182,7 @@ void ProgramData::handlePressedKeys(RenderWindow& window) {
     }
 }
 
-void ProgramData::handleSceneChanges(RenderWindow& window) {
+void GameEngine::handleSceneChanges(RenderWindow& window) {
     switch (currentScene) {
     case Scene::TITLE:
         switch (nextScene) {
@@ -219,7 +220,7 @@ void ProgramData::handleSceneChanges(RenderWindow& window) {
     }
 }
 
-void ProgramData::updateButtons(RenderWindow& window) {
+void GameEngine::updateButtons(RenderWindow& window) {
     // Title Screen Button
     if (titleButton != nullptr)
         static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
@@ -234,7 +235,7 @@ void ProgramData::updateButtons(RenderWindow& window) {
         updateSingeButton(button, window);
 }
 
-void ProgramData::renderItems(RenderWindow& window) {
+void GameEngine::renderItems(RenderWindow& window) {
     switch (currentScene) {
     case Scene::TITLE:
         if (transition.getPercent() < 0.5f) {
@@ -291,37 +292,37 @@ void ProgramData::renderItems(RenderWindow& window) {
         break;
     case Scene::DEATH:
     default:
-        throw "currentScene not found! ProgramData::renderItems()";
+        throw "currentScene not found! GameEngine::renderItems()";
     }
 }
 
-void ProgramData::logScenes() const {
+void GameEngine::logScenes() const {
     std::clog << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
 }
 
-bool ProgramData::getExitProgram() const { return isExitProgram; }
+bool GameEngine::getExitProgram() const { return isExitProgram; }
 
-int ProgramData::getTransparency() { return transition.getTransparency(); }
+int GameEngine::getTransparency() { return transition.getTransparency(); }
 /* ************************************************************************************ */
 
 /***** Private Functions *****/
 
-void ProgramData::renderMenuButtons(RenderWindow& window) {
+void GameEngine::renderMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons)
         button->drawButton(window);
 }
 
-void ProgramData::renderGameButtons(RenderWindow& window) {
+void GameEngine::renderGameButtons(RenderWindow& window) {
     for (Button* button : gameButtons)
         button->drawButton(window);
 }
 
-void ProgramData::renderPuase(RenderWindow& window) {
+void GameEngine::renderPuase(RenderWindow& window) {
     roundedBoxRGBA(window.getRenderer(), 200, 150, window.getWidth()-201, window.getHeight()-151, 50, 0, 0, 0, 150);
     renderGameButtons(window);
 }
 
-void ProgramData::changeSceneFromTitleToMenu(RenderWindow& window) {
+void GameEngine::changeSceneFromTitleToMenu(RenderWindow& window) {
     // Already started changes
     if (nextScene == Scene::MENU) {
         if (transition.hasExpired()) {
@@ -339,7 +340,7 @@ void ProgramData::changeSceneFromTitleToMenu(RenderWindow& window) {
     transition.setTransition(2000);
 }
 
-void ProgramData::changeSceneFromMenuToGame(RenderWindow& window) {
+void GameEngine::changeSceneFromMenuToGame(RenderWindow& window) {
     // Already started changes
     if (nextScene == Scene::GAME) {
         if (transition.hasExpired()) {
@@ -359,7 +360,7 @@ void ProgramData::changeSceneFromMenuToGame(RenderWindow& window) {
     stopSounds();
 }
 
-void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
+void GameEngine::changeSceneFromGameToMenu(RenderWindow& window) {
     // Already started changes
     if (nextScene == Scene::MENU) {
         if (transition.hasExpired()) {
@@ -379,7 +380,7 @@ void ProgramData::changeSceneFromGameToMenu(RenderWindow& window) {
     stopSounds();
 }
 
-void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
+void GameEngine::changeSceneFromGameToDeathToGame(RenderWindow& window) {
     // Already started changes
     if (nextScene == Scene::DEATH) {
         float percentage = transition.getPercent();
@@ -407,7 +408,7 @@ void ProgramData::changeSceneFromGameToDeathToGame(RenderWindow& window) {
     playSound(Sound::DEATH);
 }
 
-void ProgramData::handleMenuButtons(RenderWindow& window) {
+void GameEngine::handleMenuButtons(RenderWindow& window) {
     for (Button* button : menuButtons) {
         if (button->isClicked(input.getMouseX(), input.getMouseY())) {
             playSound(Sound::CLICK);
@@ -431,7 +432,7 @@ void ProgramData::handleMenuButtons(RenderWindow& window) {
     }
 }
 
-void ProgramData::handleGameButtons(RenderWindow& window) {
+void GameEngine::handleGameButtons(RenderWindow& window) {
     if (isPaused == false)
         return;
     for (Button* button : gameButtons) {
@@ -452,7 +453,7 @@ void ProgramData::handleGameButtons(RenderWindow& window) {
     }
 }
 
-void ProgramData::updateSingeButton(Button* button, RenderWindow& window) {
+void GameEngine::updateSingeButton(Button* button, RenderWindow& window) {
     // Captions
     if (button->getIsTextBased()) {
         switch (currentLanguage) {
@@ -493,21 +494,21 @@ void ProgramData::updateSingeButton(Button* button, RenderWindow& window) {
     }
 }
 
-void ProgramData::loadLevel() {
+void GameEngine::loadLevel() {
     // Not implemented
 }
 
-void ProgramData::exitProgram() { isExitProgram = true; }
+void GameEngine::exitProgram() { isExitProgram = true; }
 
-void ProgramData::setLanguage(Language language) { currentLanguage = language; }
+void GameEngine::setLanguage(Language language) { currentLanguage = language; }
 
-void ProgramData::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
+void GameEngine::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
 
-void ProgramData::playSound(Sound::Type soundType, bool loop) { sounds.playSound(soundType, loop); }
+void GameEngine::playSound(Sound::Type soundType, bool loop) { sounds.playSound(soundType, loop); }
 
-void ProgramData::stopSounds() { sounds.stopSound(); }
+void GameEngine::stopSounds() { sounds.stopSound(); }
 
-void ProgramData::loadSounds() {
+void GameEngine::loadSounds() {
     sounds.loadSound("../res/audio/Click.mp3", Sound::CLICK);
     sounds.loadSound("../res/audio/BackgroundMusic.mp3", Sound::BACKGROUND);
     sounds.loadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
@@ -515,11 +516,11 @@ void ProgramData::loadSounds() {
     sounds.loadSound("../res/audio/Empty.mp3", Sound::EMPTY);
 }
 
-Language ProgramData::getLanguage() const { return currentLanguage; }
+Language GameEngine::getLanguage() const { return currentLanguage; }
 /* ************************************************************************************ */
 
 /***** Destructor *****/
-ProgramData::~ProgramData() {
+GameEngine::~GameEngine() {
     if (titleButton != nullptr)
         delete titleButton;
     if (deathButton != nullptr)
@@ -535,7 +536,7 @@ ProgramData::~ProgramData() {
     
     
     #ifdef DTOR
-    std::clog << "~ProgramData Dtor" << std::endl;
+    std::clog << "~GameEngine Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */

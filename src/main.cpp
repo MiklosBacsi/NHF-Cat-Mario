@@ -16,12 +16,14 @@
 #include <random>
 #include <ctime>
 
-#include "ProgramData.h"
+#include "GameEngine.h"
 #include "RenderWindow.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
+#include "RigidBody.h"
+#include "Entity.h"
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
  * és így "mindenhol" feleselegen kéne const_cast-olni.
@@ -36,32 +38,32 @@ int main(int argc, char* arvg[]) {
     }
 
     RenderWindow window("Cat Mario", 1600, 900);
-    ProgramData pd(window);
-    pd.updateButtons(window); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
+    GameEngine engine(window);
+    engine.updateButtons(window); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
     
     const int FPS = 100;
     const int frameDelay = 1000 / FPS;
     Uint32 frameStart;
     int frameTime;
 
-    while (pd.getExitProgram() == false) {
+    while (engine.getExitProgram() == false) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
-        pd.anyKeyPressed = false;
+        engine.anyKeyPressed = false;
         // 1. Handling events one-by-one
         while (SDL_PollEvent(&event)) {
-            pd.handleEvent(event, window);
+            engine.handleEvent(event, window);
         }
 
         // 2. Update
-        pd.handlePressedKeys(window);
-        pd.handleSceneChanges(window);
+        engine.handlePressedKeys(window);
+        engine.handleSceneChanges(window);
 
         // 3. Display
         window.clear();
-        pd.renderItems(window);
-        window.applyTransition(pd.getTransparency());
+        engine.renderItems(window);
+        window.applyTransition(engine.getTransparency());
         window.display();
 
         // 4. Apply even FPS
