@@ -34,7 +34,7 @@ int GameEngine::frameTime = 0;
 /***** Constructor *****/
 GameEngine::GameEngine(RenderWindow& window) : isExitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
-    titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
+    titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, window, 80)),
     deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}),
     menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900})
@@ -44,9 +44,9 @@ GameEngine::GameEngine(RenderWindow& window) : isExitProgram(false), isPaused(fa
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
-    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 100, true));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 100));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, window, 100));
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 200, true));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 200));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, window, 200));
 
     menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", true));
     menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png"));

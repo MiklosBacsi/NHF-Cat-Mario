@@ -53,12 +53,16 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
-Button::Button(Button::Type buttonType, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected)
-    : buttonType(buttonType), texture(nullptr, srcRect, destRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding) {
+Button::Button(Button::Type buttonType, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected, int radius)
+    : buttonType(buttonType), texture(nullptr, srcRect, destRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding), radius(radius) {
 }
 
 bool Button::isClicked(int x, int y) const {
-    if (x >= texture.getDestX1() && x <= texture.getDestX2() && y >= texture.getDestY1() && y <= texture.getDestY2())
+    // Text
+    if (isTextBased && x >= texture.getDestX1() - radius && x <= texture.getDestX2() + radius && y >= texture.getDestY1() - radius && y <= texture.getDestY2() + radius)
+        return true;
+    // Image
+    else if (!isTextBased && x >= texture.getDestX1() && x <= texture.getDestX2() && y >= texture.getDestY1() && y <= texture.getDestY2())
         return true;
     return false;
 }
@@ -84,7 +88,7 @@ Button::~Button() {
 }
 
 TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, getRadiusFromFont(font)), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour)); 
     texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
@@ -96,7 +100,7 @@ TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x
 }
 
 TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity), radius(getRadiusFromFont(font)) {
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, getRadiusFromFont(font)), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
     surface = TTF_RenderUTF8_Blended(window.getFont(font, ENGLISH), caption.c_str(), getColour(colour));    
     texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
@@ -144,8 +148,8 @@ void TextButton::drawSelectBox(RenderWindow& window) {
     int margin = radius - padding;
     if (margin < 3) margin = 3;
 
-    int frameWidth = texture.getDestX2() - texture.getDestX1() + radius * 2;
-    int frameHeight = texture.getDestY2() - texture.getDestY1() + radius * 2;
+    int frameWidth = texture.getDestX2() - texture.getDestX1() + radius * 2 +1;
+    int frameHeight = texture.getDestY2() - texture.getDestY1() + radius * 2 +1;
 
     // Create a transparent target texture
     selectBox.getTexture() = SDL_CreateTexture(RenderWindow::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);

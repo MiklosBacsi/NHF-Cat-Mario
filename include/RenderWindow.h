@@ -70,8 +70,9 @@ protected:
     bool isSelected;
     bool isTextBased;
     const int padding;
+    const int radius;
 public:
-    Button(Type type, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected=false);
+    Button(Type type, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected=false, int radius=0);
     virtual void drawButton(RenderWindow& window) = 0;
     bool isClicked(int x, int y) const;
     bool getIsSelected() const;
@@ -89,7 +90,6 @@ private:
     FontType font;
     Colour colour;
     const int backgroundOppacity;
-    const int radius;
 
     void drawSelectBox(RenderWindow& window);
 public:
