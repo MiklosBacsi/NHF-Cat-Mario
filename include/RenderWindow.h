@@ -16,6 +16,7 @@
 #include <random>
 #include <ctime>
 
+#include "Texture.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 
@@ -24,29 +25,6 @@ enum FontType { REG30=0, BOLD100, MED50, MED15, FONT_COUNT=4 };
 
 SDL_Color getColour(Colour colour);
 int getRadiusFromFont(FontType font);
-
-class Texture {
-private:
-    SDL_Texture* texture;
-    SDL_Rect srcRect;
-    SDL_Rect destRect;
-public:
-    Texture();
-    Texture(std::string path, SDL_Rect rect);
-    Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect);
-    Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect);
-    void render();
-    void loadTexture(const char* path);
-    void deleteTexture();
-    SDL_Texture*& getTexture();
-    SDL_Rect& getSrcRect();
-    SDL_Rect& getDestRect();
-    int getDestX1() const;
-    int getDestX2() const;
-    int getDestY1() const;
-    int getDestY2() const;
-    ~Texture();
-};
 
 class Font {
 private:

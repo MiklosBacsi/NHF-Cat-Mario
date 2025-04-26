@@ -16,18 +16,24 @@
 
 #include "GameEngine.h"
 #include "RenderWindow.h"
+#include "Level.h"
+#include "Entity.h"
+#include "RigidBody.h"
+#include "Animation.h"
+#include "Texture.h"
+#include "Block.h"
+#include "Element.h"
 #include "LanguageModule.h"
+#include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
-#include "RigidBody.h"
 
-const int GameEngine::FPS = 100;
 const int GameEngine::frameDelay = 1000 / FPS;
 int GameEngine::frameTime = 0;
 /* ************************************************************************************ */
 /***** Constructor *****/
-GameEngine::GameEngine(RenderWindow& window) : nextScene(Scene::NONE), isExitProgram(false), isPaused(false),
-    currentScene(Scene::TITLE), currentLanguage(ENGLISH),
+GameEngine::GameEngine(RenderWindow& window) : isExitProgram(false), isPaused(false),
+    currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 800, WHITE, REG30, currentLanguage, window, 100)),
     deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}),

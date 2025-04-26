@@ -18,12 +18,18 @@
 
 #include "GameEngine.h"
 #include "RenderWindow.h"
+#include "Level.h"
+#include "Entity.h"
+#include "RigidBody.h"
+#include "Animation.h"
+#include "Texture.h"
+#include "Block.h"
+#include "Element.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
-#include "RigidBody.h"
-#include "Entity.h"
+
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
  * és így "mindenhol" feleselegen kéne const_cast-olni.

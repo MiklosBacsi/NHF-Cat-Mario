@@ -14,25 +14,32 @@ std::vector<Block>
 isLevelCompleted
 isCheckpointReached
 
-class Entity; class Element;
-
 When an entity kills a player, a randomly selected message shows up (Japanese/English).
 When an entity goes off-screen on the left, it dies.
 
 Player Animations:
-enum = {lookRight, lookLeft, runRight, runLeft, inAirRight, isAirLeft, dieRight, dieLeft};
+namespace Anim {
+    enum = { STAND, RUN, IN_AIR, DIE };
+}
+bool faceRight;
 
 player jump: shortJump, longJump (x idő múlva is nyomva van a W gomb)
 
 lookRight és runRight állapotokban fix időt tölt összesen
 (az számít amikor a gomb le van nyomva), majd a másik állapotpa vált
 
+In class Element:
+enum Type = { COULD, TUBE, MOUNTAIN ... };
+
 Tubes:
 isEnterable
 isMalevolent;
 
 Class Level would hold all the data (player too)
-(static) Level* ProgramData::currentLevel;
+(static) Level* GameEngine::currentLevel;
+
+Textrue egy külön fájlba!
+bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 
 3. Beadás - Specifikáció
 - Minden osztály és publikus függvény deklaráció!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

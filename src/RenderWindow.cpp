@@ -14,70 +14,12 @@
 #include <ctime>
 
 #include "RenderWindow.h"
+#include "Texture.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 
 SDL_Renderer* RenderWindow::renderer = nullptr;
 
-/***** CLASS TEXTURE *****/
-Texture::Texture() : texture(nullptr), srcRect({0,0,0,0}), destRect({0,0,0,0}) {}
-
-Texture::Texture(std::string path, SDL_Rect rect)
-    : texture(nullptr), srcRect(rect), destRect(rect) {
-
-    loadTexture(path.c_str());
-}
-
-Texture::Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect)
-    : texture(nullptr), srcRect(srcRect), destRect(destRect) {
-
-    loadTexture(path.c_str());
-}
-
-Texture::Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect)
-    : texture(texture), srcRect(srcRect), destRect(destRect) {
-}
-
-void Texture::render() {
-    SDL_RenderCopy(RenderWindow::renderer, texture, &srcRect, &destRect);
-}
-
-void Texture::loadTexture(const char* path) {
-    deleteTexture();
-
-    texture = IMG_LoadTexture(RenderWindow::renderer, path);
-    if (texture == nullptr)
-        std::cerr << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
-}
-
-void Texture::deleteTexture() {
-    if (texture != nullptr) {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
-}
-
-int Texture::getDestX1() const { return destRect.x; }
-
-int Texture::getDestX2() const { return destRect.x + destRect.w; }
-
-int Texture::getDestY1() const { return destRect.y; }
-
-int Texture::getDestY2() const { return destRect.y + destRect.h; }
-
-SDL_Texture*& Texture::getTexture() { return texture; }
-
-SDL_Rect& Texture::getSrcRect() { return srcRect; }
-
-SDL_Rect& Texture::getDestRect() { return destRect; }
-
-Texture::~Texture() {
-    deleteTexture();
-
-    #ifdef DTOR
-    std::clog << "~Texture Dtor" << std::endl;
-    #endif
-}
 /* ************************************************************************************ */
 
 /***** CLASS FONT *****/
@@ -345,6 +287,8 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
         std::cerr << "SDL_CreateRenderer has failed. Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
+
+    Texture::renderer = renderer;
 
     loadFonts();
 }

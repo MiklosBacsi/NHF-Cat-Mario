@@ -18,12 +18,19 @@
 #include <ctime>
 
 #include "RenderWindow.h"
+#include "Level.h"
+#include "Entity.h"
+#include "RigidBody.h"
+#include "Animation.h"
+#include "Texture.h"
+#include "Block.h"
+#include "Element.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
-#include "RigidBody.h"
-#include "Entity.h"
+
+#define FPS 100
 
 namespace Scene {
     enum Type { NONE=0, TITLE, MENU, GAME, DEATH };
@@ -35,17 +42,16 @@ std::ostream& operator<<(std::ostream& os, Scene::Type scene);
 class GameEngine {
 public:
     bool anyKeyPressed;
-    const static int FPS;
     const static int frameDelay;
     static int frameTime;
 private:
     Transition transition;
-    Scene::Type nextScene;
+    Level* level;
     bool isExitProgram;    
     bool isPaused;
     int deathCount;
     Scene::Type currentScene;
-    size_t currentCheckpoint;
+    Scene::Type nextScene;
     Language currentLanguage;
     std::vector<LanguageModule*> LangMod;
     TextButton* titleButton;
