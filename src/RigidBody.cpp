@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+float RigidBody::gravity = 10.0f;
+
 /* ************************************************************************************ */
 
 /***** Class Vector2D *****/
@@ -79,6 +81,30 @@ Vector2D Vector2D::operator/(float rhs) const {
     return Vector2D(x / rhs, y / rhs);
 }
 
+Vector2D& Vector2D::operator+=(float rhs) {
+    x += rhs;
+    y += rhs;
+    return *this;
+}
+
+Vector2D& Vector2D::operator-=(float rhs) {
+    x -= rhs;
+    y -= rhs;
+    return *this;
+}
+
+Vector2D& Vector2D::operator*=(float rhs) {
+    x *= rhs;
+    y *= rhs;
+    return *this;
+}
+
+Vector2D& Vector2D::operator/=(float rhs) {
+    x /= rhs;
+    y /= rhs;
+    return *this;
+}
+
 Vector2D operator+(float lhs, const Vector2D& rhs) {
     return Vector2D(rhs.x + lhs, rhs.y + lhs);
 }
@@ -92,7 +118,7 @@ Vector2D operator*(float lhs, const Vector2D& rhs) {
 }
 
 Vector2D operator/(float lhs, const Vector2D& rhs) {
-    return Vector2D(rhs.x / lhs, rhs.y / lhs);
+    return Vector2D(lhs / rhs.x, lhs / rhs.y);
 }
 
 std::ostream& operator<<(std::ostream& os, const Vector2D& vec) {

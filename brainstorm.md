@@ -3,8 +3,6 @@ Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText()
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
-Class RigidBody
-
 CameraX or CameraRect
 
 
@@ -12,12 +10,6 @@ Class Level:
 numberOfCheckpoints
 std::vector<Enemy>
 std::vector<Block>
-
-LangMod[Language].getRandomQuote();
-struct Quote {
-    std::string quote;
-    size_t quoteIndex;
-};
 
 isLevelCompleted
 isCheckpointReached
@@ -50,10 +42,8 @@ Class Level would hold all the data (player too)
 - Dokumentáció itt még nem kell
 
 Muszáj deklarálni beadáshoz:
-- Class Rigid (és Vector2D) + TESZT !!!!
 - Class Entity + Player + Enemy
 - Class Block
 - Class Element
 - Class Level
 - Class Animation
-- Struct Quote

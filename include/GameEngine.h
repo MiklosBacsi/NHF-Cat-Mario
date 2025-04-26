@@ -35,6 +35,9 @@ std::ostream& operator<<(std::ostream& os, Scene::Type scene);
 class GameEngine {
 public:
     bool anyKeyPressed;
+    const static int FPS;
+    const static int frameDelay;
+    static int frameTime;
 private:
     Transition transition;
     Scene::Type nextScene;

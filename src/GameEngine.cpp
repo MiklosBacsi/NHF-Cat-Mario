@@ -21,6 +21,9 @@
 #include "Sound.h"
 #include "RigidBody.h"
 
+const int GameEngine::FPS = 100;
+const int GameEngine::frameDelay = 1000 / FPS;
+int GameEngine::frameTime = 0;
 /* ************************************************************************************ */
 /***** Constructor *****/
 GameEngine::GameEngine(RenderWindow& window) : nextScene(Scene::NONE), isExitProgram(false), isPaused(false),

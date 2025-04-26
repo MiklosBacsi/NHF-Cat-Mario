@@ -41,10 +41,7 @@ int main(int argc, char* arvg[]) {
     GameEngine engine(window);
     engine.updateButtons(window); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
     
-    const int FPS = 100;
-    const int frameDelay = 1000 / FPS;
     Uint32 frameStart;
-    int frameTime;
 
     while (engine.getExitProgram() == false) {
         frameStart = SDL_GetTicks();
@@ -67,10 +64,11 @@ int main(int argc, char* arvg[]) {
         window.display();
 
         // 4. Apply even FPS
-        frameTime = SDL_GetTicks() - frameStart;
-        // std::cout << "Frametime: " << frameTime << " ms" << std::endl;
-        if (frameDelay > frameTime)
-            SDL_Delay(frameDelay - frameTime);
+        GameEngine::frameTime = SDL_GetTicks() - frameStart;
+        if (GameEngine::frameDelay > GameEngine::frameTime)
+            SDL_Delay(GameEngine::frameDelay - GameEngine::frameTime);
+            
+        // std::clog << "Frametime: " << GameEngine::frameTime << " ms" << std::endl;
     }
 
     #endif // CPORTA

@@ -28,6 +28,11 @@ struct Vector2D {
     Vector2D operator*(float rhs) const;
     Vector2D operator/(float rhs) const;
 
+    Vector2D& operator+=(float rhs);
+    Vector2D& operator-=(float rhs);
+    Vector2D& operator*=(float rhs);
+    Vector2D& operator/=(float rhs);
+
     friend Vector2D operator+(float lhs, const Vector2D& rhs);
     friend Vector2D operator-(float lhs, const Vector2D& rhs);
     friend Vector2D operator*(float lhs, const Vector2D& rhs);
@@ -39,7 +44,7 @@ struct Vector2D {
 
 class RigidBody {
 private:
-    static const float gravity = 10.0f;
+    static float gravity;
     float mass;
     Vector2D force;
     Vector2D position;
