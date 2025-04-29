@@ -43,8 +43,9 @@ struct Vector2D {
 };
 
 class RigidBody {
-private:
+public:
     static float gravity;
+private:
     float mass;
     Vector2D force;
     Vector2D position;

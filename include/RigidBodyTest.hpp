@@ -3,9 +3,7 @@
 #include "gtest_lite.h"
 #include "RigidBody.h"
 
-int main() {
-    GTINIT(std::cin); // Csak C(J)PORTA működéséhez kell
-    
+void  TEST_RigidBody() {    
     /***** Checking struct Vector2D *****/
 
     // Checks for throwing error for non-existing file
@@ -319,7 +317,4 @@ int main() {
         EXPECT_FLOAT_EQ(0.0f, body2.getPosition().x);
         EXPECT_FLOAT_EQ(40.0f, body2.getPosition().y);
     } END
-
-    GTEND(std::cerr); // Csak C(J)PORTA működéséhez kell
-    return 0;
 }

@@ -5,11 +5,21 @@ GameConfig.txt -> Level1.txt, Level2.txt
 
 CameraX or CameraRect
 
+Redesign classes!!!!!!!!!!!
+class GameObject
+static size_t cameraX
+Vector2D position
+SDL_Rect hitBox
+Texture
 
 Class Level:
 numberOfCheckpoints
 std::vector<Enemy>
 std::vector<Block>
+
+Class Block:
+enum Block::Texture
+currentTexture, nextTexture
 
 isLevelCompleted
 isCheckpointReached
@@ -47,10 +57,3 @@ bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 - argumentum: -c
 - TESZTPROGRAM!!!
 - Dokumentáció itt még nem kell
-
-Muszáj deklarálni beadáshoz:
-- Class Entity + Player + Enemy
-- Class Block
-- Class Element
-- Class Level
-- Class Animation

@@ -5,9 +5,7 @@
 
 #define COUNT 100
 
-int main() {
-    GTINIT(std::cin); // Csak C(J)PORTA működéséhez kell
-    
+void TEST_LanguageModule() {
     /***** Checking the Constructor *****/
 
     // Checks for throwing error for non-existing file
@@ -175,7 +173,4 @@ int main() {
         LanguageModule hungarian("../res/lang/Hungarian.txt");
         EXPECT_STREQ("Macska Márió", hungarian.getTranslation(Lang::CAT_MARIO).c_str());
     } END
-
-    GTEND(std::cerr); // Csak C(J)PORTA működéséhez kell
-    return 0;
 }
