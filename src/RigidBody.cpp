@@ -133,22 +133,22 @@ void Vector2D::log() const {
 /***** Class RigidBody *****/
 RigidBody::RigidBody(float mass) : mass(mass) {}
 
-void RigidBody::update(float dt) {
+void RigidBody::Update(float dt) {
     acceleration.x = force.x / mass;
     acceleration.y = gravity + force.y / mass;
     velocity = acceleration * dt;
     position = velocity * dt;
 }
 
-Vector2D RigidBody::getPosition() const { return position; }
+Vector2D RigidBody::GetPosition() const { return position; }
 
-void RigidBody::applyForce(Vector2D F) { force = F;}
+void RigidBody::ApplyForce(Vector2D F) { force = F;}
 
-void RigidBody::applyForceX(float Fx) { force.x = Fx; }
+void RigidBody::ApplyForceX(float Fx) { force.x = Fx; }
 
-void RigidBody::applyForceY(float Fy) { force.y = Fy; }
+void RigidBody::ApplyForceY(float Fy) { force.y = Fy; }
 
-void RigidBody::removeForces() { force = Vector2D(0,0); }
+void RigidBody::RemoveForces() { force = Vector2D(0,0); }
 
 RigidBody::~RigidBody() {
     #ifdef DTOR

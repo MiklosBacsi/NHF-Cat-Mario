@@ -15,12 +15,12 @@ private:
 public:
     Timer();
     Timer(size_t miliSeconds);
-    void deactivate();
-    void activate(size_t miliSeconds);
-    size_t getTime() const;
-    bool getIsActive() const;
-    bool hasExpired() const;
-    float getPercent() const;
+    void Deactivate();
+    void Activate(size_t miliSeconds);
+    size_t GetTime() const;
+    bool IsActive() const;
+    bool HasExpired() const;
+    float GetPercent() const;
     ~Timer();
 };
 

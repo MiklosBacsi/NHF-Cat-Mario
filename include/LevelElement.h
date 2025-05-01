@@ -1,5 +1,5 @@
-#ifndef BLOCK_H
-#define BLOCK_H
+#ifndef LEVEL_ELEMENT_H
+#define LEVEL_ELEMENT_H
 
 #ifndef CPORTA
 
@@ -12,22 +12,33 @@
 #include "Texture.h"
 #include "RigidBody.h"
 
-// Forward declaration
+//Forward declaration
 class Entity;
 
-class Block : public GameObject {
+class LevelElement : public GameObject {
 protected:
     static SDL_Texture* textures;
 public:
-    Block();
+    LevelElement();
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
     virtual void TouchedBy(Entity* entity) = 0;
-    ~Block();
+    virtual ~LevelElement();
 };
+
+// RigidBody rigidBody; For: TrickyMyteryBox, FallingBlocks, Fish, Laser, EndFlag???
+// Vector2D spawnPoint; For: TrickyMyteryBox, FallingBlocks, Fish, Laser, EndFlag???
+
+
+
+
+
+
+
+
 
 
 #endif // CPORTA
 
-#endif // BLOCK_H
+#endif // LEVEL_ELEMENT_H

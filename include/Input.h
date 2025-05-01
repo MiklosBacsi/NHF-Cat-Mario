@@ -15,26 +15,26 @@ private:
     bool Space;
 public:
     Input();
-    int getMouseX() const;
-    int getMouseY() const;
-    bool getMouseClick() const;
-    bool getEsc() const;
-    bool getUp() const; // W
-    bool getLeft() const;  // A
-    bool getDown() const;  // S
-    bool getRight() const;  // D
-    bool getPause() const;
-    bool getSpace() const;
-    void setMouseX(int x);
-    void setMouseY(int y);
-    void setMouseClick(bool pressed);
-    void setEsc(bool pressed);
-    void setW(bool pressed);
-    void setA(bool pressed);
-    void setS(bool pressed);
-    void setD(bool pressed);
-    void setP(bool pressed);
-    void setSpace(bool pressed);
+    int GetMouseX() const;
+    int GetMouseY() const;
+    bool GetMouseClick() const;
+    bool GetEsc() const;
+    bool GetUp() const; // W
+    bool GetLeft() const;  // A
+    bool GetDown() const;  // S
+    bool GetRight() const;  // D
+    bool GetPause() const;
+    bool GetSpace() const;
+    void SetMouseX(int x);
+    void SetMouseY(int y);
+    void SetMouseClick(bool pressed);
+    void SetEsc(bool pressed);
+    void SetW(bool pressed);
+    void SetA(bool pressed);
+    void SetS(bool pressed);
+    void SetD(bool pressed);
+    void SetP(bool pressed);
+    void SetSpace(bool pressed);
     ~Input();
 };
 

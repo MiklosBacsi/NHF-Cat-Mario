@@ -17,36 +17,40 @@
 #include "GameEngine.h"
 #include "RenderWindow.h"
 #include "Level.h"
-#include "Entity.h"
-#include "RigidBody.h"
-#include "Animation.h"
+#include "GameObject.h"
 #include "Texture.h"
+#include "RigidBody.h"
+#include "Entity.h"
 #include "Block.h"
-#include "Element.h"
+#include "LevelElement.h"
 #include "LanguageModule.h"
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
+#include "Animation.h" // ????
 
 const int GameEngine::frameDelay = 1000 / FPS;
 int GameEngine::frameTime = 0;
+RenderWindow* GameEngine::window = nullptr;
 /* ************************************************************************************ */
 /***** Constructor *****/
-GameEngine::GameEngine(RenderWindow& window) : isExitProgram(false), isPaused(false),
+GameEngine::GameEngine(RenderWindow& window) : level(nullptr), currentLevel(Level::NONE), completedLevels(Level::NONE),
+    exitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
-    titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, window, 80)),
-    deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30, window)),
+    titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, 80)),
+    deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}),
     menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900})
     {
+    GameEngine::window = &window;
     
     LangMod.push_back(new LanguageModule("../res/lang/English.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
-    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage,  window, 200, true));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, window, 200));
-    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, window, 200));
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage, 200, true));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, 200));
+    menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, 200));
 
     menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", true));
     menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png"));
@@ -54,135 +58,135 @@ GameEngine::GameEngine(RenderWindow& window) : isExitProgram(false), isPaused(fa
     menuButtons.push_back((Button*) new ImageButton(Button::EXIT, {1540, 10, 50, 50}, "../res/img/IconX.png"));
 
     
-    gameButtons.push_back((Button*) new TextButton(Button::CONTINUE, Lang::CONTINUE, 400, 400, BLACK, MED50, currentLanguage,  window, 255));
-    gameButtons.push_back((Button*) new TextButton(Button::EXIT, Lang::EXIT_TO_MENU, 400, 550, BLACK, MED50, currentLanguage,  window, 255));
+    gameButtons.push_back((Button*) new TextButton(Button::CONTINUE, Lang::CONTINUE, 400, 400, BLACK, MED50, currentLanguage, 255));
+    gameButtons.push_back((Button*) new TextButton(Button::EXIT, Lang::EXIT_TO_MENU, 400, 550, BLACK, MED50, currentLanguage, 255));
     
     gameButtons.push_back((Button*) new ImageButton(Button::ENG, {690, 200, 200, 100}, "../res/img/FlagENG.png", true));
     gameButtons.push_back((Button*) new ImageButton(Button::JP, {925, 200, 150, 100}, "../res/img/FlagJP.png"));
     gameButtons.push_back((Button*) new ImageButton(Button::HUN, {1110, 200, 150, 100}, "../res/img/FlagHUN.png"));
     gameButtons.push_back((Button*) new ImageButton(Button::CONTINUE, {1325, 175, 50, 50}, "../res/img/IconX.png"));
 
-    loadSounds();
-    playSound(Sound::LOBBY, true);
+    LoadSounds();
+    PlaySound(Sound::LOBBY, true);
 }
 /* ************************************************************************************ */
 
 /***** Public Functions *****/
-void GameEngine::handleEvent(SDL_Event& event, RenderWindow& window) {
+void GameEngine::HandleEvent(SDL_Event& event) {
     switch (event.type) {
     case SDL_KEYDOWN:
-        if (transition.getIsActive())
+        if (transition.IsActive())
             return;
         anyKeyPressed = true;
 
         switch (event.key.keysym.sym) {
         case SDLK_ESCAPE:
             if (currentScene == Scene::GAME)
-                playSound(Sound::CLICK);
-            input.setEsc(true);
+                PlaySound(Sound::CLICK);
+            input.SetEsc(true);
             break;
-        case SDLK_w: input.setW(true); break;
-        case SDLK_a: input.setA(true); break;
-        case SDLK_s: input.setS(true); break;
-        case SDLK_d: input.setD(true); break;
+        case SDLK_w: input.SetW(true); break;
+        case SDLK_a: input.SetA(true); break;
+        case SDLK_s: input.SetS(true); break;
+        case SDLK_d: input.SetD(true); break;
         case SDLK_p:
             if (currentScene == Scene::GAME && !isPaused)
-                playSound(Sound::CLICK);
-            input.setP(true);
+                PlaySound(Sound::CLICK);
+            input.SetP(true);
             break;
-        case SDLK_SPACE: input.setSpace(true); break;
+        case SDLK_SPACE: input.SetSpace(true); break;
         default: break;
         }
         break;
     case SDL_KEYUP:
         switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE: input.setEsc(false); break;
-        case SDLK_w: input.setW(false); break;
-        case SDLK_a: input.setA(false); break;
-        case SDLK_s: input.setS(false); break;
-        case SDLK_d: input.setD(false); break;
-        case SDLK_p: input.setP(false); break;
-        case SDLK_SPACE: input.setSpace(false); break;
+        case SDLK_ESCAPE: input.SetEsc(false); break;
+        case SDLK_w: input.SetW(false); break;
+        case SDLK_a: input.SetA(false); break;
+        case SDLK_s: input.SetS(false); break;
+        case SDLK_d: input.SetD(false); break;
+        case SDLK_p: input.SetP(false); break;
+        case SDLK_SPACE: input.SetSpace(false); break;
         default: break;
         }
         break;
     case SDL_MOUSEBUTTONDOWN:
-        if (transition.getIsActive())
+        if (transition.IsActive())
             return;
         if (currentScene == Scene::TITLE) {
-            changeSceneFromTitleToMenu(window);
-            playSound(Sound::CLICK);
+            ChangeSceneFromTitleToMenu();
+            PlaySound(Sound::CLICK);
             return;
         }
         if (event.button.button == SDL_BUTTON_LEFT) {
-            input.setMouseClick(true);
-            input.setMouseX(event.button.x);
-            input.setMouseY(event.button.y);
+            input.SetMouseClick(true);
+            input.SetMouseX(event.button.x);
+            input.SetMouseY(event.button.y);
 
             switch (currentScene) { // Already handled TITLE
-            case Scene::MENU: handleMenuButtons(window); break;
-            case Scene::GAME: handleGameButtons(window); break;
+            case Scene::MENU: HandleMenuButtons(); break;
+            case Scene::GAME: HandleGameButtons(); break;
             case Scene::DEATH: break;
             default:
                 throw "Wrong scene!";
             }
         }
         break;
-    case SDL_MOUSEBUTTONUP: if (event.button.button == SDL_BUTTON_LEFT) input.setMouseClick(false); break;
+    case SDL_MOUSEBUTTONUP: if (event.button.button == SDL_BUTTON_LEFT) input.SetMouseClick(false); break;
     case SDL_QUIT:
-        exitProgram();
+        ExitProgram();
         break;
     }
 }
 
-void GameEngine::handlePressedKeys(RenderWindow& window) {
+void GameEngine::HandlePressedKeys() {
     if (anyKeyPressed == false)
         return;
     switch (currentScene) {
     case Scene::NONE: break;
-    case Scene::TITLE: changeSceneFromTitleToMenu(window); playSound(Sound::CLICK); break;
+    case Scene::TITLE: ChangeSceneFromTitleToMenu(); PlaySound(Sound::CLICK); break;
     case Scene::MENU:
-        if (input.getEsc())
-            exitProgram();
-        else if (input.getSpace())
-            changeSceneFromMenuToGame(window);
+        if (input.GetEsc())
+            ExitProgram();
+        else if (input.GetSpace())
+            ChangeSceneFromMenuToGame(Level::LVL1);
         break;
     case Scene::GAME:
-        if (input.getPause())
+        if (input.GetPause())
             isPaused = true; // Also handle pause!!!!!!!!!!!!!!!!!
-        if (input.getEsc()) {
+        if (input.GetEsc()) {
             if (isPaused)
                 isPaused = false; // Also handle continue!!!!!!!!!!!!!!!!!
             else
-                changeSceneFromGameToMenu(window);
+                ChangeSceneFromGameToMenu();
         }
         if (isPaused)
             return;
         // Vertically Still
-        if (input.getUp() && input.getDown()) {
+        if (input.GetUp() && input.GetDown()) {
             // xxx
         }
         // Up
-        else if (input.getUp() == true) {
+        else if (input.GetUp() == true) {
             // xxx
         }
         // Down
-        else if (input.getDown() == true) {
+        else if (input.GetDown() == true) {
             // xxx
             // Just for testing Death Scene. Don't forget to delete it!
-            changeSceneFromGameToDeathToGame(window);
+            ChangeSceneFromGameToDeathToGame();
         }
 
         // Horizontally Still
-        if (input.getRight() && input.getLeft()) {
+        if (input.GetRight() && input.GetLeft()) {
             // xxx
         }
         // Right
-        if (input.getRight() == true) {
+        if (input.GetRight() == true) {
             // xxx
         }
         // Left
-        else if (input.getLeft() == true) {
+        else if (input.GetLeft() == true) {
             // xxx
         }
         break;
@@ -191,12 +195,12 @@ void GameEngine::handlePressedKeys(RenderWindow& window) {
     }
 }
 
-void GameEngine::handleSceneChanges(RenderWindow& window) {
+void GameEngine::HandleSceneChanges() {
     switch (currentScene) {
     case Scene::TITLE:
         switch (nextScene) {
         case Scene::NONE: break;
-        case Scene::MENU: changeSceneFromTitleToMenu(window); break;
+        case Scene::MENU: ChangeSceneFromTitleToMenu(); break;
         default:
             throw "Wrong Scene!";
             break;
@@ -205,7 +209,7 @@ void GameEngine::handleSceneChanges(RenderWindow& window) {
     case Scene::MENU:
         switch (nextScene) {
         case Scene::MENU: break;
-        case Scene::GAME: changeSceneFromMenuToGame(window); break;
+        case Scene::GAME: ChangeSceneFromMenuToGame(currentLevel); break;
         default:
             throw "Wrong Scene!";
             break;
@@ -214,8 +218,8 @@ void GameEngine::handleSceneChanges(RenderWindow& window) {
     case Scene::GAME:
         switch (nextScene) {
         case Scene::GAME: break;
-        case Scene::DEATH: changeSceneFromGameToDeathToGame(window); break;
-        case Scene::MENU: changeSceneFromGameToMenu(window); break;
+        case Scene::DEATH: ChangeSceneFromGameToDeathToGame(); break;
+        case Scene::MENU: ChangeSceneFromGameToMenu(); break;
         default:
             throw "Wrong Scene!";
         }
@@ -229,71 +233,80 @@ void GameEngine::handleSceneChanges(RenderWindow& window) {
     }
 }
 
-void GameEngine::updateButtons(RenderWindow& window) {
+void GameEngine::UpdateButtons() {
     // Title Screen Button
     if (titleButton != nullptr)
-        static_cast<TextButton*>(titleButton)->updateCaption(LangMod[ENGLISH]->getTranslation(
-            static_cast<TextButton*>(titleButton)->getCaptionType()), ENGLISH, window);
+        static_cast<TextButton*>(titleButton)->UpdateCaption(LangMod[ENGLISH]->GetTranslation(
+            static_cast<TextButton*>(titleButton)->GetCaptionType()), ENGLISH);
     
     // Menu Buttons
     for (Button* button : menuButtons)
-        updateSingeButton(button, window);
+        UpdateSingeButton(button);
 
     // Game Buttons
     for (Button* button : gameButtons)
-        updateSingeButton(button, window);
+        UpdateSingeButton(button);
 }
 
-void GameEngine::renderItems(RenderWindow& window) {
+void GameEngine::UpdateGame() {
+    if (level != nullptr)
+        level->Update(frameDelay);
+}
+
+void GameEngine::RenderItems() {
     switch (currentScene) {
     case Scene::TITLE:
-        if (transition.getPercent() < 0.5f) {
-            titleScreen.render();
-            titleButton->drawButton(window);
+        if (transition.GetPercent() < 0.5f) {
+            titleScreen.Render();
+            titleButton->DrawButton();
         }
         else {
-            menuScreen.render();
-            renderMenuButtons(window);
+            menuScreen.Render();
+            RenderMenuButtons();
         }
         break;
     case Scene::MENU:
-        if (transition.getPercent() < 0.5f) {
-            menuScreen.render();
-            renderMenuButtons(window);
+        if (transition.GetPercent() < 0.5f) {
+            menuScreen.Render();
+            RenderMenuButtons();
         }
         else {
-            window.drawBackground();
+            if (level != nullptr)
+                level->Render();
         }
         break;
     case Scene::GAME:
         switch (nextScene) {
         // Normal Game
         case Scene::GAME:
-            window.drawBackground();
+            if (level != nullptr)
+                level->Render();
             if (isPaused)
-                renderPuase(window);
+                RenderPuase();
             break;
         // Death Scene
         case Scene::DEATH:
         {
-            float percentage = transition.getPercent();
+            float percentage = transition.GetPercent();
             if (percentage < 0.4f && percentage > 0.6f) {
-                window.drawBackground(0, 0, 0);
-                deathButton->drawButton(window);
+                window->DrawBackground(0, 0, 0);
+                deathButton->DrawButton();
             }
             else {
-                window.drawBackground();
+                if (level != nullptr)
+                    level->Render();
             }
         }
             break;
         // Changing back to Menu
         case Scene::MENU:
-            if (transition.getPercent() < 0.5f) {
-                window.drawBackground();
+            if (transition.GetPercent() < 0.5f) {
+                if (level != nullptr)
+                    level->Render();
             }
             else {
-                menuScreen.render();
-                renderMenuButtons(window);
+                menuScreen.Render();
+                RenderMenuButtons();
             }
             break;
         default: throw "Wrong Scene!";
@@ -305,38 +318,38 @@ void GameEngine::renderItems(RenderWindow& window) {
     }
 }
 
-void GameEngine::logScenes() const {
+void GameEngine::LogScenes() const {
     std::clog << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
 }
 
-bool GameEngine::getExitProgram() const { return isExitProgram; }
+bool GameEngine::GetExitProgram() const { return exitProgram; }
 
-int GameEngine::getTransparency() { return transition.getTransparency(); }
+int GameEngine::GetTransparency() { return transition.GetTransparency(); }
 /* ************************************************************************************ */
 
 /***** Private Functions *****/
 
-void GameEngine::renderMenuButtons(RenderWindow& window) {
+void GameEngine::RenderMenuButtons() {
     for (Button* button : menuButtons)
-        button->drawButton(window);
+        button->DrawButton();
 }
 
-void GameEngine::renderGameButtons(RenderWindow& window) {
+void GameEngine::RenderGameButtons() {
     for (Button* button : gameButtons)
-        button->drawButton(window);
+        button->DrawButton();
 }
 
-void GameEngine::renderPuase(RenderWindow& window) {
-    roundedBoxRGBA(window.getRenderer(), 200, 150, window.getWidth()-201, window.getHeight()-151, 50, 0, 0, 0, 150);
-    renderGameButtons(window);
+void GameEngine::RenderPuase() {
+    roundedBoxRGBA(window->GetRenderer(), 200, 150, window->GetWidth()-201, window->GetHeight()-151, 50, 0, 0, 0, 150);
+    RenderGameButtons();
 }
 
-void GameEngine::changeSceneFromTitleToMenu(RenderWindow& window) {
+void GameEngine::ChangeSceneFromTitleToMenu() {
     // Already started changes
     if (nextScene == Scene::MENU) {
-        if (transition.hasExpired()) {
+        if (transition.HasExpired()) {
             currentScene = Scene::MENU;
-            transition.deactivate();
+            transition.Deactivate();
             
             delete titleButton;
             titleButton = nullptr;
@@ -346,146 +359,147 @@ void GameEngine::changeSceneFromTitleToMenu(RenderWindow& window) {
     
     // Handle changes (Runs only once)
     nextScene = Scene::MENU;
-    transition.setTransition(2000);
+    transition.SetTransition(2000);
 }
 
-void GameEngine::changeSceneFromMenuToGame(RenderWindow& window) {
+void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
     // Already started changes
     if (nextScene == Scene::GAME) {
-        if (transition.hasExpired()) {
+        if (transition.HasExpired()) {
             currentScene = Scene::GAME;
-            transition.deactivate();
+            transition.Deactivate();
         }
-        else if (transition.isMiddle()) {
-            transition.reachMiddle();
-            playSound(Sound::BACKGROUND, true);
+        else if (transition.IsMiddle()) {
+            transition.ReachMiddle();
+            PlaySound(Sound::BACKGROUND, true);
+            LoadLevel(levelType);
         }
         return;
     }
     
     // Handle changes (Runs only once)
     nextScene = Scene::GAME;
-    transition.setTransition(2000);
-    stopSounds();
+    currentLevel = levelType;
+    transition.SetTransition(2000);
+    StopSounds();
 }
 
-void GameEngine::changeSceneFromGameToMenu(RenderWindow& window) {
+void GameEngine::ChangeSceneFromGameToMenu() {
     // Already started changes
     if (nextScene == Scene::MENU) {
-        if (transition.hasExpired()) {
+        if (transition.HasExpired()) {
             currentScene = Scene::MENU;
-            transition.deactivate();
+            transition.Deactivate();
         }
-        else if (transition.isMiddle()) {
-            transition.reachMiddle();
-            playSound(Sound::LOBBY, true);
+        else if (transition.IsMiddle()) {
+            transition.ReachMiddle();
+            PlaySound(Sound::LOBBY, true);
+            
+            delete level;
+            level = nullptr;
         }
         return;
     }
     
     // Handle changes (Runs only once)
     nextScene = Scene::MENU;
-    transition.setTransition(2000);
-    stopSounds();
+    transition.SetTransition(2000);
+    StopSounds();
 }
 
-void GameEngine::changeSceneFromGameToDeathToGame(RenderWindow& window) {
+void GameEngine::ChangeSceneFromGameToDeathToGame() {
     // Already started changes
     if (nextScene == Scene::DEATH) {
-        float percentage = transition.getPercent();
+        float percentage = transition.GetPercent();
         // Has Expired
         if (percentage > 1.0f) {
             nextScene = Scene::GAME;
-            transition.deactivate();
+            transition.Deactivate();
 
-            stopSounds();
-            playSound(Sound::BACKGROUND, true);
+            StopSounds();
+            PlaySound(Sound::BACKGROUND, true);
         }
         // In the Middle
-        else if (transition.isMiddle()) {
-            transition.reachMiddle();
-            // Reset Level
-            // check to only run once
+        else if (transition.IsMiddle()) {
+            transition.ReachMiddle();
+            
+            level->Reset();
         }
         return;
     }
     
     // Handle changes (Runs only once)
     nextScene = Scene::DEATH;
-    transition.setTransition(3000);
-    stopSounds();
-    playSound(Sound::DEATH);
+    transition.SetTransition(3000);
+    StopSounds();
+    PlaySound(Sound::DEATH);
 }
 
-void GameEngine::handleMenuButtons(RenderWindow& window) {
+void GameEngine::HandleMenuButtons() {
     for (Button* button : menuButtons) {
-        if (button->isClicked(input.getMouseX(), input.getMouseY())) {
-            playSound(Sound::CLICK);
-            switch (button->getButtonType()) {
-            case Button::START: changeSceneFromMenuToGame(window); return;
-            case Button::EXIT: exitProgram(); return;
-            case Button::ENG: currentLanguage = ENGLISH; updateButtons(window); return;
-            case Button::JP: currentLanguage = JAPANESE; updateButtons(window); return;
-            case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); return;
-            case Button::LEV1: loadLevel(); return;
+        if (button->IsClicked(input.GetMouseX(), input.GetMouseY())) {
+            PlaySound(Sound::CLICK);
+            switch (button->GetButtonType()) {
+            case Button::EXIT: ExitProgram(); return;
+            case Button::ENG: currentLanguage = ENGLISH; UpdateButtons(); return;
+            case Button::JP: currentLanguage = JAPANESE; UpdateButtons(); return;
+            case Button::HUN: currentLanguage = HUNGARIAN; UpdateButtons(); return;
+            case Button::START:
+            case Button::LEV1: ChangeSceneFromMenuToGame(Level::LVL1); return;
             case Button::LEV2:
-                if (1)
-                    loadLevel();
+                if (completedLevels == Level::NONE)
+                    PlaySound(Sound::ERROR);
+                else
+                    ChangeSceneFromMenuToGame(Level::LVL2);
                 return;
             case Button::NONE: return;
             default:
-                std::cerr << "Wrong ButtonType: " << button->getButtonType() << std::endl;
+                std::cerr << "Wrong ButtonType: " << button->GetButtonType() << std::endl;
                 throw "Wrong ButtonType!";
             }
         }
     }
 }
 
-void GameEngine::handleGameButtons(RenderWindow& window) {
+void GameEngine::HandleGameButtons() {
     if (isPaused == false)
         return;
     for (Button* button : gameButtons) {
-        if (button->isClicked(input.getMouseX(), input.getMouseY())) {
-            playSound(Sound::CLICK);
-            switch (button->getButtonType()) {
-            case Button::EXIT: changeSceneFromGameToMenu(window); isPaused = false; break;
+        if (button->IsClicked(input.GetMouseX(), input.GetMouseY())) {
+            PlaySound(Sound::CLICK);
+            switch (button->GetButtonType()) {
+            case Button::EXIT: ChangeSceneFromGameToMenu(); isPaused = false; break;
             case Button::CONTINUE: isPaused = false; break;
-            case Button::ENG: currentLanguage = ENGLISH; updateButtons(window); break;
-            case Button::JP: currentLanguage = JAPANESE; updateButtons(window); break;
-            case Button::HUN: currentLanguage = HUNGARIAN; updateButtons(window); break;
+            case Button::ENG: currentLanguage = ENGLISH; UpdateButtons(); break;
+            case Button::JP: currentLanguage = JAPANESE; UpdateButtons(); break;
+            case Button::HUN: currentLanguage = HUNGARIAN; UpdateButtons(); break;
             case Button::NONE: break;
             default:
-                std::cerr << "Wrong ButtonType: " << button->getButtonType() << std::endl;
+                std::cerr << "Wrong ButtonType: " << button->GetButtonType() << std::endl;
                 throw "Wrong ButtonType!";
             }
         }
     }
 }
 
-void GameEngine::updateSingeButton(Button* button, RenderWindow& window) {
+void GameEngine::UpdateSingeButton(Button* button) {
     // Captions
-    if (button->getIsTextBased()) {
+    if (button->IsTextBased()) {
         switch (currentLanguage) {
         case ENGLISH:
-            static_cast<TextButton*>(button)->updateCaption(
-                LangMod[ENGLISH]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                ENGLISH, window
-            );
-            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            static_cast<TextButton*>(button)->UpdateCaption(LangMod[ENGLISH]->GetTranslation(
+                static_cast<TextButton*>(button)->GetCaptionType()), ENGLISH);
+            static_cast<TextButton*>(button)->DestroySelectBoxTexture();
             break;
         case JAPANESE:
-            static_cast<TextButton*>(button)->updateCaption(
-                LangMod[JAPANESE]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                JAPANESE, window
-            );
-            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            static_cast<TextButton*>(button)->UpdateCaption(LangMod[JAPANESE]->GetTranslation(
+                static_cast<TextButton*>(button)->GetCaptionType()),JAPANESE);
+            static_cast<TextButton*>(button)->DestroySelectBoxTexture();
             break;
         case HUNGARIAN:
-            static_cast<TextButton*>(button)->updateCaption(
-                LangMod[HUNGARIAN]->getTranslation(static_cast<TextButton*>(button)->getCaptionType()),
-                HUNGARIAN, window
-            );
-            static_cast<TextButton*>(button)->destroySelectBoxTexture();
+            static_cast<TextButton*>(button)->UpdateCaption(LangMod[HUNGARIAN]->GetTranslation(
+                static_cast<TextButton*>(button)->GetCaptionType()), HUNGARIAN);
+            static_cast<TextButton*>(button)->DestroySelectBoxTexture();
             break;
         default:
             throw "ButtonType not found!";
@@ -495,34 +509,45 @@ void GameEngine::updateSingeButton(Button* button, RenderWindow& window) {
     // Language buttons
     else {
         switch (currentLanguage) {
-        case ENGLISH: button->setSelected(button->getButtonType() == Button::ENG); break;
-        case JAPANESE: button->setSelected(button->getButtonType() == Button::JP); break;
-        case HUNGARIAN: button->setSelected(button->getButtonType() == Button::HUN); break;
+        case ENGLISH: button->SetSelected(button->GetButtonType() == Button::ENG); break;
+        case JAPANESE: button->SetSelected(button->GetButtonType() == Button::JP); break;
+        case HUNGARIAN: button->SetSelected(button->GetButtonType() == Button::HUN); break;
         default: break;
         }
     }
 }
 
-void GameEngine::loadLevel() {
-    // Not implemented
+void GameEngine::LoadLevel(Level::Type levelType) {
+    if (level != nullptr)
+        delete level;
+
+    switch (levelType) {
+    case Level::LVL1: level = new Level("../res/levels/Level1.txt", window); currentLevel = Level::LVL1; break;
+    case Level::LVL2: level = new Level("../res/levels/Level1.txt", window); currentLevel = Level::LVL2; break;
+    case Level::NONE: throw "Level type not allowed!";
+    default: throw "Level not found!";
+    }
+    if (level == nullptr)
+        throw "Failed to load level!";
 }
 
-void GameEngine::exitProgram() { isExitProgram = true; }
+void GameEngine::ExitProgram() { exitProgram = true; }
 
-void GameEngine::setLanguage(Language language) { currentLanguage = language; }
+void GameEngine::SetLanguage(Language language) { currentLanguage = language; }
 
-void GameEngine::setTransition(size_t miliSeconds) { transition.setTransition(miliSeconds); }
+void GameEngine::SetTransition(size_t miliSeconds) { transition.SetTransition(miliSeconds); }
 
-void GameEngine::playSound(Sound::Type soundType, bool loop) { sounds.playSound(soundType, loop); }
+void GameEngine::PlaySound(Sound::Type soundType, bool loop) { sounds.PlaySound(soundType, loop); }
 
-void GameEngine::stopSounds() { sounds.stopSound(); }
+void GameEngine::StopSounds() { sounds.StopSound(); }
 
-void GameEngine::loadSounds() {
-    sounds.loadSound("../res/audio/Click.mp3", Sound::CLICK);
-    sounds.loadSound("../res/audio/BackgroundMusic.mp3", Sound::BACKGROUND);
-    sounds.loadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
-    sounds.loadSound("../res/audio/Death.mp3", Sound::DEATH);
-    sounds.loadSound("../res/audio/Empty.mp3", Sound::EMPTY);
+void GameEngine::LoadSounds() {
+    sounds.LoadSound("../res/audio/Click.mp3", Sound::CLICK);
+    sounds.LoadSound("../res/audio/BackgroundMusic.mp3", Sound::BACKGROUND);
+    sounds.LoadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
+    sounds.LoadSound("../res/audio/Death.mp3", Sound::DEATH);
+    sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
+    sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
 }
 
 Language GameEngine::getLanguage() const { return currentLanguage; }
@@ -551,7 +576,7 @@ GameEngine::~GameEngine() {
 /* ************************************************************************************ */
 
 /***** Global Functions *****/
-std::string toString(Scene::Type scene) {
+std::string ToString(Scene::Type scene) {
     switch (scene) {
     case Scene::NONE: return "NONE";
     case Scene::TITLE: return "TITLE";
@@ -563,7 +588,7 @@ std::string toString(Scene::Type scene) {
 }
 
 std::ostream& operator<<(std::ostream& os, Scene::Type scene) {
-    return os << toString(scene);
+    return os << ToString(scene);
 }
 
 #endif // CPORTA

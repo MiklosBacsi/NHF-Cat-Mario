@@ -265,56 +265,56 @@ void  TEST_RigidBody() {
     } END
 
     /***** Checking class RigidBody *****/
-    TEST(RigidBody, 'Constructor & getPosition()') {
+    TEST(RigidBody, 'Constructor & GetPosition()') {
         EXPECT_NO_THROW(RigidBody());
         EXPECT_NO_THROW(RigidBody(2.0f));
         RigidBody body;
-        EXPECT_NO_THROW(body.getPosition());
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().y);
+        EXPECT_NO_THROW(body.GetPosition());
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
     } END
 
     TEST(RigidBody, 'Update') {
         RigidBody body(0.1f);
-        EXPECT_NO_THROW(body.update(0.5f));
-        EXPECT_NO_THROW(body.applyForce({10,10}));
-        EXPECT_NO_THROW(body.removeForces());
-        body.update(0.5f);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(2.5f, body.getPosition().y);
+        EXPECT_NO_THROW(body.Update(0.5f));
+        EXPECT_NO_THROW(body.ApplyForce({10,10}));
+        EXPECT_NO_THROW(body.RemoveForces());
+        body.Update(0.5f);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(2.5f, body.GetPosition().y);
 
-        body.applyForce({-10,-1.0});
-        body.update(0.5f);
-        EXPECT_FLOAT_EQ(-25.0f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().y);
+        body.ApplyForce({-10,-1.0});
+        body.Update(0.5f);
+        EXPECT_FLOAT_EQ(-25.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
     } END
 
     TEST(RigidBody, 'Apply & Remove Force') {
         RigidBody body;
-        body.applyForceY(-10.0f);
-        body.update(0.1f);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().y);
+        body.ApplyForceY(-10.0f);
+        body.Update(0.1f);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
 
-        body.applyForceX(50.0f);
-        body.update(0.1f);
-        EXPECT_FLOAT_EQ(0.5f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().y);
+        body.ApplyForceX(50.0f);
+        body.Update(0.1f);
+        EXPECT_FLOAT_EQ(0.5f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
 
-        body.removeForces();
-        body.update(0.5f);
-        EXPECT_FLOAT_EQ(0.0f, body.getPosition().x);
-        EXPECT_FLOAT_EQ(2.5f, body.getPosition().y);
+        body.RemoveForces();
+        body.Update(0.5f);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(2.5f, body.GetPosition().y);
 
         RigidBody body2(2.0f);
-        body2.applyForce({-10.0f,5.0f});
-        body2.update(2.0f);
-        EXPECT_FLOAT_EQ(-20.0f, body2.getPosition().x);
-        EXPECT_FLOAT_EQ(50.0f, body2.getPosition().y);
+        body2.ApplyForce({-10.0f,5.0f});
+        body2.Update(2.0f);
+        EXPECT_FLOAT_EQ(-20.0f, body2.GetPosition().x);
+        EXPECT_FLOAT_EQ(50.0f, body2.GetPosition().y);
 
-        body2.removeForces();
-        body2.update(2.0f);
-        EXPECT_FLOAT_EQ(0.0f, body2.getPosition().x);
-        EXPECT_FLOAT_EQ(40.0f, body2.getPosition().y);
+        body2.RemoveForces();
+        body2.Update(2.0f);
+        EXPECT_FLOAT_EQ(0.0f, body2.GetPosition().x);
+        EXPECT_FLOAT_EQ(40.0f, body2.GetPosition().y);
     } END
 }

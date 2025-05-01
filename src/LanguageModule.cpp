@@ -49,16 +49,16 @@ LanguageModule::LanguageModule(std::string path) {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
-Quote LanguageModule::getQuote(size_t index) const { return quotes.at(index); }
+Quote LanguageModule::GetQuote(size_t index) const { return quotes.at(index); }
 
-Quote LanguageModule::getRandomQuote() const {
+Quote LanguageModule::GetRandomQuote() const {
     if (quotes.empty())
         throw std::runtime_error("No quotes available!");
     
-    return getQuote(std::rand() % quotes.size());
+    return GetQuote(std::rand() % quotes.size());
 }
 
-std::string LanguageModule::getTranslation(Lang::CaptionType caption) const {
+std::string LanguageModule::GetTranslation(Lang::CaptionType caption) const {
     if (caption == Lang::NONE)
         return " ";
     if (caption >= captions.size())

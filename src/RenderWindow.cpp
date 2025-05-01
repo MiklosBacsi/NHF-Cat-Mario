@@ -25,7 +25,7 @@ SDL_Renderer* RenderWindow::renderer = nullptr;
 /***** CLASS FONT *****/
 Font::Font() : fonts(FONT_COUNT, nullptr) { TTF_Init(); }
 
-void Font::loadFont(const char* path, int size, FontType fontType) {
+void Font::LoadFont(const char* path, int size, FontType fontType) {
     if (fonts[fontType] != nullptr)
         TTF_CloseFont(fonts[fontType]);
 
@@ -36,9 +36,9 @@ void Font::loadFont(const char* path, int size, FontType fontType) {
     }
 }
 
-TTF_Font* Font::getFont(FontType font) {
+TTF_Font* Font::GetFont(FontType font) {
     if (font == FONT_COUNT)
-        throw "You are trying to get the count instead of a font! Font::getFont()";
+        throw "You are trying to get the count instead of a font! Font::GetFont()";
     return fonts.at(font);
 }
 
@@ -53,32 +53,33 @@ Font::~Font() {
 /* ************************************************************************************ */
 
 /***** CLASS BUTTON *****/
+RenderWindow* Button::window = nullptr;
 Button::Button(Button::Type buttonType, SDL_Rect srcRect, SDL_Rect destRect, bool isTextBased, int padding, bool isSelected, int radius)
     : buttonType(buttonType), texture(nullptr, srcRect, destRect), isSelected(isSelected), isTextBased(isTextBased), padding(padding), radius(radius) {
 }
 
-bool Button::isClicked(int x, int y) const {
+bool Button::IsClicked(int x, int y) const {
     // Text
-    if (isTextBased && x >= texture.getDestX1() - radius && x <= texture.getDestX2() + radius && y >= texture.getDestY1() - radius && y <= texture.getDestY2() + radius)
+    if (isTextBased && x >= texture.GetDestX1() - radius && x <= texture.GetDestX2() + radius && y >= texture.GetDestY1() - radius && y <= texture.GetDestY2() + radius)
         return true;
     // Image
-    else if (!isTextBased && x >= texture.getDestX1() && x <= texture.getDestX2() && y >= texture.getDestY1() && y <= texture.getDestY2())
+    else if (!isTextBased && x >= texture.GetDestX1() && x <= texture.GetDestX2() && y >= texture.GetDestY1() && y <= texture.GetDestY2())
         return true;
     return false;
 }
 
-bool Button::getIsSelected() const { return isSelected; }
+bool Button::IsSelected() const { return isSelected; }
 
-bool Button::getIsTextBased() const { return isTextBased; }
+bool Button::IsTextBased() const { return isTextBased; }
 
-Button::Type Button::getButtonType() const { return buttonType; }
+Button::Type Button::GetButtonType() const { return buttonType; }
 
-void Button::setSelected(bool selected) {
+void Button::SetSelected(bool selected) {
     isSelected = selected;
     
     // Destroying old selectBox texture
     if (selected == false)
-        selectBox.deleteTexture();
+        selectBox.DeleteTexture();
 }
 
 Button::~Button() {
@@ -87,76 +88,78 @@ Button::~Button() {
     #endif
 }
 
-TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, getRadiusFromFont(font)), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, int bgOpacity, bool isSelected)
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
 
-    surface = TTF_RenderUTF8_Blended(window.getFont(font, language), " ", getColour(colour)); 
-    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
+    surface = TTF_RenderUTF8_Blended(window->GetFont(font, language), " ", GetColour(colour)); 
+    texture.GetTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.getSrcRect().w = surface->w;
-    texture.getSrcRect().h = surface->h;
-    texture.getDestRect().w = surface->w;
-    texture.getDestRect().h = surface->h;
+    texture.SrcRect().w = surface->w;
+    texture.SrcRect().h = surface->h;
+    texture.DestRect().w = surface->w;
+    texture.DestRect().h = surface->h;
 }
 
-TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, RenderWindow& window, int bgOpacity, bool isSelected)
-    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, getRadiusFromFont(font)), caption(caption), captionType(Lang::NONE), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, int bgOpacity, bool isSelected)
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(caption), captionType(Lang::NONE),
+        surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity)
+    {
 
-    surface = TTF_RenderUTF8_Blended(window.getFont(font, ENGLISH), caption.c_str(), getColour(colour));    
-    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
+    surface = TTF_RenderUTF8_Blended(window->GetFont(font, ENGLISH), caption.c_str(), GetColour(colour));    
+    texture.GetTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.getSrcRect().w = surface->w;
-    texture.getSrcRect().h = surface->h;
-    texture.getDestRect().w = surface->w;
-    texture.getDestRect().h = surface->h;
+    texture.SrcRect().w = surface->w;
+    texture.SrcRect().h = surface->h;
+    texture.DestRect().w = surface->w;
+    texture.DestRect().h = surface->h;
 }
 
 ImageButton::ImageButton(Button::Type buttonType, SDL_Rect destRect, const char* path, bool isSelected)
     : Button(buttonType, {0,0,destRect.w,destRect.h}, destRect, false, 5, isSelected) {
     
-    texture.loadTexture(path);
+    texture.LoadTexture(path);
 }
 
-void TextButton::drawButton(RenderWindow& window) {
+void TextButton::DrawButton() {
     if (backgroundOppacity > 0)
-        roundedBoxRGBA(RenderWindow::renderer, texture.getDestX1() - radius, texture.getDestY1() - radius, texture.getDestX2() + radius, texture.getDestY2() + radius, radius, 255, 255, 255, backgroundOppacity);
+        roundedBoxRGBA(RenderWindow::renderer, texture.GetDestX1() - radius, texture.GetDestY1() - radius, texture.GetDestX2() + radius, texture.GetDestY2() + radius, radius, 255, 255, 255, backgroundOppacity);
     
-    texture.render();
+    texture.Render();
 
     if (isSelected)
-        drawSelectBox(window);
+        DrawSelectBox();
 }
 
-void ImageButton::drawButton(RenderWindow& window) {
-    texture.render();
+void ImageButton::DrawButton() {
+    texture.Render();
     if (isSelected)
-        drawSelectBox(window);
+        DrawSelectBox();
 }
 
-void TextButton::drawSelectBox(RenderWindow& window) {
+void TextButton::DrawSelectBox() {
     // Texture already loaded in
-    if (selectBox.getTexture() != nullptr) {
-        selectBox.render();
+    if (selectBox.GetTexture() != nullptr) {
+        selectBox.Render();
         return;
     }
 
     /*** Loading Texture ***/
-    SDL_DestroyTexture(selectBox.getTexture());
+    SDL_DestroyTexture(selectBox.GetTexture());
 
     const int r=255, g=215, b=0, a=255;
 
     int margin = radius - padding;
     if (margin < 3) margin = 3;
 
-    int frameWidth = texture.getDestX2() - texture.getDestX1() + radius * 2 +1;
-    int frameHeight = texture.getDestY2() - texture.getDestY1() + radius * 2 +1;
+    int frameWidth = texture.GetDestX2() - texture.GetDestX1() + radius * 2 +1;
+    int frameHeight = texture.GetDestY2() - texture.GetDestY1() + radius * 2 +1;
 
     // Create a transparent target texture
-    selectBox.getTexture() = SDL_CreateTexture(RenderWindow::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
-    SDL_SetTextureBlendMode(selectBox.getTexture(), SDL_BLENDMODE_BLEND);
+    selectBox.GetTexture() = SDL_CreateTexture(RenderWindow::renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
+    SDL_SetTextureBlendMode(selectBox.GetTexture(), SDL_BLENDMODE_BLEND);
 
     // Set render target to our texture
-    SDL_SetRenderTarget(RenderWindow::renderer, selectBox.getTexture());
+    SDL_SetRenderTarget(RenderWindow::renderer, selectBox.GetTexture());
     SDL_SetRenderDrawColor(RenderWindow::renderer, 0, 0, 0, 0); // Transparent
     SDL_RenderClear(RenderWindow::renderer);
 
@@ -174,42 +177,42 @@ void TextButton::drawSelectBox(RenderWindow& window) {
     SDL_SetRenderTarget(RenderWindow::renderer, nullptr);
 
     // Set destRect and Ready
-    selectBox.getDestRect().x = texture.getDestX1() - radius;
-    selectBox.getDestRect().y = texture.getDestY1() - radius;
-    selectBox.getDestRect().w = frameWidth;
-    selectBox.getDestRect().h = frameHeight;
+    selectBox.DestRect().x = texture.GetDestX1() - radius;
+    selectBox.DestRect().y = texture.GetDestY1() - radius;
+    selectBox.DestRect().w = frameWidth;
+    selectBox.DestRect().h = frameHeight;
 
-    selectBox.getSrcRect().x = 0;
-    selectBox.getSrcRect().y = 0;
-    selectBox.getSrcRect().w = frameWidth;
-    selectBox.getSrcRect().h = frameHeight;
+    selectBox.SrcRect().x = 0;
+    selectBox.SrcRect().y = 0;
+    selectBox.SrcRect().w = frameWidth;
+    selectBox.SrcRect().h = frameHeight;
 
     // Render Texture
-    selectBox.render();
+    selectBox.Render();
 }
 
-void ImageButton::drawSelectBox(RenderWindow& window) {
+void ImageButton::DrawSelectBox() {
     // Texture already loaded in
-    if (selectBox.getTexture() != nullptr) {
-        selectBox.render();
+    if (selectBox.GetTexture() != nullptr) {
+        selectBox.Render();
         return;
     }
 
     /*** Loading Texture ***/
-    SDL_DestroyTexture(selectBox.getTexture());
+    SDL_DestroyTexture(selectBox.GetTexture());
 
     const int r=255, g=215, b=0, a=255;
     SDL_Renderer* renderer = RenderWindow::renderer;
 
-    int frameWidth = texture.getDestX2() - texture.getDestX1() + padding * 2;
-    int frameHeight = texture.getDestY2() - texture.getDestY1() + padding * 2;
+    int frameWidth = texture.GetDestX2() - texture.GetDestX1() + padding * 2;
+    int frameHeight = texture.GetDestY2() - texture.GetDestY1() + padding * 2;
     
     // Create a transparent target texture
-    selectBox.getTexture() = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
-    SDL_SetTextureBlendMode(selectBox.getTexture(), SDL_BLENDMODE_BLEND);
+    selectBox.GetTexture() = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, frameWidth, frameHeight);
+    SDL_SetTextureBlendMode(selectBox.GetTexture(), SDL_BLENDMODE_BLEND);
 
     // Set render target to our texture
-    SDL_SetRenderTarget(renderer, selectBox.getTexture());
+    SDL_SetRenderTarget(renderer, selectBox.GetTexture());
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // Transparent
     SDL_RenderClear(renderer);
 
@@ -227,38 +230,38 @@ void ImageButton::drawSelectBox(RenderWindow& window) {
     SDL_SetRenderTarget(renderer, nullptr);
 
     // Set destRect and Ready
-    selectBox.getDestRect().x = texture.getDestX1() - padding;
-    selectBox.getDestRect().y = texture.getDestY1() - padding;
-    selectBox.getDestRect().w = frameWidth;
-    selectBox.getDestRect().h = frameHeight;
+    selectBox.DestRect().x = texture.GetDestX1() - padding;
+    selectBox.DestRect().y = texture.GetDestY1() - padding;
+    selectBox.DestRect().w = frameWidth;
+    selectBox.DestRect().h = frameHeight;
 
-    selectBox.getSrcRect().x = 0;
-    selectBox.getSrcRect().y = 0;
-    selectBox.getSrcRect().w = frameWidth;
-    selectBox.getSrcRect().h = frameHeight;
+    selectBox.SrcRect().x = 0;
+    selectBox.SrcRect().y = 0;
+    selectBox.SrcRect().w = frameWidth;
+    selectBox.SrcRect().h = frameHeight;
 
     // Render Texture
-    selectBox.render();
+    selectBox.Render();
 }
 
-void TextButton::destroySelectBoxTexture() { selectBox.deleteTexture(); }
+void TextButton::DestroySelectBoxTexture() { selectBox.DeleteTexture(); }
 
-Lang::CaptionType TextButton::getCaptionType() const { return captionType; }
+Lang::CaptionType TextButton::GetCaptionType() const { return captionType; }
 
-void TextButton::updateCaption(std::string newCaption, Language newLanguage, RenderWindow& window) {
+void TextButton::UpdateCaption(std::string newCaption, Language newLanguage) {
     caption = newCaption;
 
-    SDL_DestroyTexture(texture.getTexture());
+    SDL_DestroyTexture(texture.GetTexture());
     SDL_FreeSurface(surface);
     surface = nullptr;
 
-    surface = TTF_RenderUTF8_Blended(window.getFont(font, newLanguage), caption.c_str(), getColour(colour));    
-    texture.getTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
+    surface = TTF_RenderUTF8_Blended(window->GetFont(font, newLanguage), caption.c_str(), GetColour(colour));    
+    texture.GetTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
-    texture.getSrcRect().w = surface->w;
-    texture.getSrcRect().h = surface->h;
-    texture.getDestRect().w = surface->w;
-    texture.getDestRect().h = surface->h;
+    texture.SrcRect().w = surface->w;
+    texture.SrcRect().h = surface->h;
+    texture.DestRect().w = surface->w;
+    texture.DestRect().h = surface->h;
 }
 
 TextButton::~TextButton() {
@@ -293,23 +296,24 @@ RenderWindow::RenderWindow(const char* title, int width, int height)
     }
 
     Texture::renderer = renderer;
+    Button::window = this;
 
-    loadFonts();
+    LoadFonts();
 }
 
-void RenderWindow::clear() { SDL_RenderClear(renderer); }
+void RenderWindow::Clear() { SDL_RenderClear(renderer); }
 
-void RenderWindow::display() { SDL_RenderPresent(renderer); }
+void RenderWindow::Display() { SDL_RenderPresent(renderer); }
 
-void RenderWindow::renderText(std::string text, int x, int y, Colour colour, FontType font, Language language) {
+void RenderWindow::RenderText(std::string text, int x, int y, Colour colour, FontType font, Language language) {
     SDL_Surface* captionSurface = nullptr;
     switch (language) {
     case ENGLISH:
     case HUNGARIAN:
-        captionSurface = TTF_RenderUTF8_Blended(latinFonts.getFont(font), text.c_str(), getColour(colour));
+        captionSurface = TTF_RenderUTF8_Blended(latinFonts.GetFont(font), text.c_str(), GetColour(colour));
         break;
     case JAPANESE:
-        captionSurface = TTF_RenderUTF8_Blended(japaneseFonts.getFont(font), text.c_str(), getColour(colour));
+        captionSurface = TTF_RenderUTF8_Blended(japaneseFonts.GetFont(font), text.c_str(), GetColour(colour));
         break;
     
     default:
@@ -325,44 +329,44 @@ void RenderWindow::renderText(std::string text, int x, int y, Colour colour, Fon
     SDL_DestroyTexture(captionTexture);
 }
 
-void RenderWindow::applyTransition(int transparency) {
+void RenderWindow::ApplyTransition(int transparency) {
     boxRGBA(renderer, 0, 0, width-1, height-1, 0, 0, 0, transparency);
 }
 
-void RenderWindow::drawBackground(int r, int g, int b) {
+void RenderWindow::DrawBackground(int r, int g, int b) {
     boxRGBA(renderer, 0, 0, width-1, height-1, r, g, b, 255);
 }
 
-void RenderWindow::loadFonts() {
-    japaneseFonts.loadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
-    latinFonts.loadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
+void RenderWindow::LoadFonts() {
+    japaneseFonts.LoadFont("../res/font/NotoSansJP-Regular.ttf", 30, REG30);
+    latinFonts.LoadFont("../res/font/OpenSans-Regular.ttf", 30, REG30);
     
-    japaneseFonts.loadFont("../res/font/NotoSansJP-Bold.ttf", 100, BOLD100);
-    latinFonts.loadFont("../res/font/OpenSans-Bold.ttf", 100, BOLD100);
+    japaneseFonts.LoadFont("../res/font/NotoSansJP-Bold.ttf", 100, BOLD100);
+    latinFonts.LoadFont("../res/font/OpenSans-Bold.ttf", 100, BOLD100);
 
-    japaneseFonts.loadFont("../res/font/NotoSansJP-Medium.ttf", 50, MED50);
-    latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 50, MED50);
+    japaneseFonts.LoadFont("../res/font/NotoSansJP-Medium.ttf", 50, MED50);
+    latinFonts.LoadFont("../res/font/OpenSans-Medium.ttf", 50, MED50);
 
-    japaneseFonts.loadFont("../res/font/NotoSansJP-Medium.ttf", 15, MED15);
-    latinFonts.loadFont("../res/font/OpenSans-Medium.ttf", 15, MED15);
+    japaneseFonts.LoadFont("../res/font/NotoSansJP-Medium.ttf", 15, MED15);
+    latinFonts.LoadFont("../res/font/OpenSans-Medium.ttf", 15, MED15);
 }
 
-int RenderWindow::getWidth() const { return width; }
+int RenderWindow::GetWidth() const { return width; }
 
-int RenderWindow::getHeight() const { return height; }
+int RenderWindow::GetHeight() const { return height; }
 
-SDL_Renderer* RenderWindow::getRenderer() { return renderer; }
+SDL_Renderer* RenderWindow::GetRenderer() { return renderer; }
 
-TTF_Font* RenderWindow::getFont(FontType font, Language language) {
+TTF_Font* RenderWindow::GetFont(FontType font, Language language) {
     switch (language){
     case ENGLISH:
     case HUNGARIAN:
-        return latinFonts.getFont(font);
+        return latinFonts.GetFont(font);
     case JAPANESE:
-        return japaneseFonts.getFont(font);
+        return japaneseFonts.GetFont(font);
     
     default:
-        throw "Language not found! RenderWindow::getFont()";
+        throw "Language not found! RenderWindow::GetFont()";
     }
 }
 
@@ -381,21 +385,21 @@ RenderWindow::~RenderWindow() {
 /* ************************************************************************************ */
 
 /***** CLASS TRANSITION *****/
-void Transition::setTransition(size_t miliSeconds) {
+void Transition::SetTransition(size_t miliSeconds) {
     #ifdef QUICK
-    timer.activate(200);
+    timer.Activate(200);
     return;
     #endif
-    timer.activate(miliSeconds);
+    timer.Activate(miliSeconds);
     AlreadyReachedMiddle = false;
 }
 
-void Transition::deactivate() { timer.deactivate(); }
+void Transition::Deactivate() { timer.Deactivate(); }
 
-int Transition::getTransparency() const {
-    if (timer.getIsActive() == false)
+int Transition::GetTransparency() const {
+    if (timer.IsActive() == false)
         return 0;
-    float percentage = timer.getPercent();
+    float percentage = timer.GetPercent();
     if (percentage > 1.0f)
         return 0;
 
@@ -409,15 +413,15 @@ int Transition::getTransparency() const {
     return 255;
 }
 
-float Transition::getPercent() const { return timer.getPercent(); }
+float Transition::GetPercent() const { return timer.GetPercent(); }
 
-bool Transition::getIsActive() const { return timer.getIsActive(); }
+bool Transition::IsActive() const { return timer.IsActive(); }
 
-bool Transition::hasExpired() const { return timer.hasExpired(); }
+bool Transition::HasExpired() const { return timer.HasExpired(); }
 
-bool Transition::isMiddle() const { return AlreadyReachedMiddle == false && timer.getPercent() > 0.5f; }
+bool Transition::IsMiddle() const { return AlreadyReachedMiddle == false && timer.GetPercent() > 0.5f; }
 
-void Transition::reachMiddle() { AlreadyReachedMiddle = true; }
+void Transition::ReachMiddle() { AlreadyReachedMiddle = true; }
 
 Transition::~Transition() {
     #ifdef DTOR
@@ -428,7 +432,7 @@ Transition::~Transition() {
 
 /***** GLOBAL FUNCTIONS *****/
 
-SDL_Color getColour(Colour colour) {
+SDL_Color GetColour(Colour colour) {
     switch (colour) {
     case WHITE:
         return (SDL_Color) {255, 255, 255};
@@ -436,12 +440,12 @@ SDL_Color getColour(Colour colour) {
         return (SDL_Color) {0, 0, 0};
     
     default:
-        throw "\nColour not found! getColour()\n";
+        throw "\nColour not found! GetColour()\n";
         break;
     }
 }
 
-int getRadiusFromFont(FontType font) {
+int GetRadiusFromFont(FontType font) {
     switch (font){
     case REG30:
         return 10;

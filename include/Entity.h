@@ -8,43 +8,53 @@
 
 #include <iostream>
 
-#include "RigidBody.h"
-#include "Animation.h"
+#include "GameObject.h"
 #include "Texture.h"
+#include "RigidBody.h"
 
-class Entity {
-public:
-    static SDL_Texture* textures;
+class Entity : public GameObject {
 protected:
-    Vector2D transform;
-    Vector2D dimension;
+    static SDL_Texture* textures;
     RigidBody rigidBody;
     Vector2D spawnPoint;
+    Vector2D previousPosition;
     bool isDead;
 public:
     Entity();
-    virtual void update(float dt) = 0;
-    virtual void render(float cameraX) = 0;
+    virtual void Update(float dt) = 0;
+    virtual void Render() = 0;
+    virtual void Reset() = 0;
+    virtual void Touch(GameObject* object) = 0;
+    virtual void TouchedBy(Entity* entity) = 0;
     virtual ~Entity();
 };
 
 class Player : public Entity {
 private:
+    bool isForcedByFlag;
+    bool isForcedByRobot;
 public:
     Player();
-    void update(float dt);
-    void render(float cameraX);
+    void Update(float dt);
+    void Render();
+    void Reset();
+    void Touch(GameObject* object);
+    void TouchedBy(Entity* entity);
     ~Player();
 };
 
 class Enemy : public Entity {
-private:
+protected:
     bool isActivated;
     float activationPoint;
+    struct Quote quote;
 public:
     Enemy();
-    void update(float dt);
-    void render(float cameraX);
+    virtual void Update(float dt) = 0;
+    virtual void Render() = 0;
+    virtual void Reset() = 0;
+    virtual void Touch(GameObject* object) = 0;
+    virtual void TouchedBy(Entity* entity) = 0;
     ~Enemy();
 };
 

@@ -10,26 +10,26 @@ Timer::Timer() : isActive(false), setDuration(1) {}
 
 Timer::Timer(size_t miliSeconds) : isActive(true), startTicks(SDL_GetTicks()), setDuration(miliSeconds) {}
 
-void Timer::deactivate() { isActive = false; }
+void Timer::Deactivate() { isActive = false; }
 
-void Timer::activate(size_t miliSeconds) {
+void Timer::Activate(size_t miliSeconds) {
     isActive = true;
     setDuration = miliSeconds;
     startTicks = SDL_GetTicks();
 }
 
-size_t Timer::getTime() const {
+size_t Timer::GetTime() const {
     if (!isActive)
         return 0;
     return SDL_GetTicks() - startTicks;
 }
 
-bool Timer::getIsActive() const { return isActive; }
+bool Timer::IsActive() const { return isActive; }
 
-bool Timer::hasExpired() const { return getPercent() > 1.0f; }
+bool Timer::HasExpired() const { return GetPercent() > 1.0f; }
 
-float Timer::getPercent() const {
-    return (float) getTime() / (float) setDuration;
+float Timer::GetPercent() const {
+    return (float) GetTime() / (float) setDuration;
 }
 
 Timer::~Timer() {

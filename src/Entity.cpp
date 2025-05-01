@@ -7,8 +7,8 @@
 
 #include "Entity.h"
 #include "RigidBody.h"
-#include "Animation.h"
 #include "Texture.h"
+#include "Animation.h" // ???
 
 SDL_Texture* Entity::textures = nullptr;
 
@@ -28,12 +28,20 @@ Entity::~Entity() {
 /***** Class Player *****/
 Player::Player() {}
 
-void Player::update(float dt) {
-    rigidBody.update(dt);
-    transform += rigidBody.getPosition();
+void Player::Update(float dt) {
+    rigidBody.Update(dt);
+    position += rigidBody.GetPosition();
 }
 
-void Player::render(float cameraX) {}
+void Player::Render() {}
+
+void Player::Reset() {}
+
+void Player::Touch(GameObject* object) {}
+
+void Player::TouchedBy(Entity* entity) {
+    Touch(entity);
+}
 
 Player::~Player() {
     #ifdef DTOR
@@ -45,9 +53,9 @@ Player::~Player() {
 /***** Class Enemy *****/
 Enemy::Enemy() {}
 
-void Enemy::update(float dt) {}
+void Enemy::Update(float dt) {}
 
-void Enemy::render(float cameraX) {}
+void Enemy::Render() {}
 
 Enemy::~Enemy() {
     #ifdef DTOR

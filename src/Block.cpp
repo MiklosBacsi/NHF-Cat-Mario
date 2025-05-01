@@ -7,8 +7,9 @@
 
 #include "Block.h"
 #include "Texture.h"
+#include "RigidBody.h"
 
-
+SDL_Texture* Block::textures = nullptr;
 
 
 

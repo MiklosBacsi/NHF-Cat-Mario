@@ -11,25 +11,9 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <random>
-#include <ctime>
 
 #include "GameEngine.h"
 #include "RenderWindow.h"
-#include "Level.h"
-#include "Entity.h"
-#include "RigidBody.h"
-#include "Animation.h"
-#include "Texture.h"
-#include "Block.h"
-#include "Element.h"
-#include "LanguageModule.h"
-#include "Timer.h"
-#include "Input.h"
-#include "Sound.h"
 
 
 /* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
@@ -46,29 +30,30 @@ int main(int argc, char* arvg[]) {
 
     RenderWindow window("Cat Mario", 1600, 900);
     GameEngine engine(window);
-    engine.updateButtons(window); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
+    engine.UpdateButtons(); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
     
     Uint32 frameStart;
 
-    while (engine.getExitProgram() == false) {
+    while (engine.GetExitProgram() == false) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
         engine.anyKeyPressed = false;
         // 1. Handling events one-by-one
         while (SDL_PollEvent(&event)) {
-            engine.handleEvent(event, window);
+            engine.HandleEvent(event);
         }
 
         // 2. Update
-        engine.handlePressedKeys(window);
-        engine.handleSceneChanges(window);
+        engine.HandlePressedKeys();
+        engine.HandleSceneChanges();
+        engine.UpdateGame();
 
         // 3. Display
-        window.clear();
-        engine.renderItems(window);
-        window.applyTransition(engine.getTransparency());
-        window.display();
+        window.Clear();
+        engine.RenderItems();
+        window.ApplyTransition(engine.GetTransparency());
+        window.Display();
 
         // 4. Apply even FPS
         GameEngine::frameTime = SDL_GetTicks() - frameStart;

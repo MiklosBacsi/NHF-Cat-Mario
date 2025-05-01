@@ -54,12 +54,12 @@ private:
 
 public:
     RigidBody(float mass = 1.0f);
-    void update(float dt);
-    Vector2D getPosition() const;
-    void applyForce(Vector2D F);
-    void applyForceX(float Fx);
-    void applyForceY(float Fy);
-    void removeForces();
+    void Update(float dt);
+    Vector2D GetPosition() const;
+    void ApplyForce(Vector2D F);
+    void ApplyForceX(float Fx);
+    void ApplyForceY(float Fy);
+    void RemoveForces();
     ~RigidBody();
 };
 

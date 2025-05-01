@@ -27,9 +27,9 @@ private:
     std::vector<Quote> quotes;
 public:
     LanguageModule(std::string path);
-    Quote getQuote(size_t index) const;
-    Quote getRandomQuote() const;
-    std::string getTranslation(Lang::CaptionType caption) const;
+    Quote GetQuote(size_t index) const;
+    Quote GetRandomQuote() const;
+    std::string GetTranslation(Lang::CaptionType caption) const;
     ~LanguageModule();
 };
 

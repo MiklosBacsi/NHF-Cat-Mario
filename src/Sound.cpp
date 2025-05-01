@@ -12,21 +12,21 @@ Sound::Sound() : sounds( Sound::COUNT, nullptr) {
         std::cerr << "Audio Library not working!" << Mix_GetError() << std::endl;
         exit(1);
     }
-    Mix_AllocateChannels(8);
+    Mix_AllocateChannels(MAX_CHANNELS);
 }
 
-void Sound::loadSound(const char* path, Sound::Type soundType) {
+void Sound::LoadSound(const char* path, Sound::Type soundType) {
     if (soundType == Sound::COUNT)
         throw "Wrong type!";
     
-    freeSound(soundType);
+    FreeSound(soundType);
     
     sounds[soundType] = Mix_LoadWAV(path);
     if (sounds[soundType] == nullptr)
         throw "Failed to load Audio";
 }
 
-void Sound::playSound(Sound::Type soundType, bool loop) {
+void Sound::PlaySound(Sound::Type soundType, bool loop) {
     if (soundType == COUNT)
         throw "Wrong type!";
     if (sounds[soundType] == nullptr)
@@ -36,19 +36,19 @@ void Sound::playSound(Sound::Type soundType, bool loop) {
     if (loop)
         Loop = -1;
     
-    int channel = soundType % 7;
+    int channel = soundType % (MAX_CHANNELS - 1);
     if (soundType == Sound::BACKGROUND || soundType == Sound::LOBBY)
-        channel = 7;
+        channel = MAX_CHANNELS - 1;
 
     Mix_PlayChannel(channel, sounds[soundType], Loop);
 }
 
-void Sound::stopSound() {
+void Sound::StopSound() {
     Mix_HaltMusic();
-    Mix_PlayChannel(7, sounds[EMPTY], 0);
+    Mix_PlayChannel(MAX_CHANNELS - 1, sounds[EMPTY], 0);
 }
 
-void Sound::freeSound(Sound::Type soundType) {
+void Sound::FreeSound(Sound::Type soundType) {
     if (sounds[soundType] != nullptr) {
         Mix_FreeChunk(sounds[soundType]);
         sounds[soundType] = nullptr;

@@ -14,7 +14,7 @@ class Animation {
 private:
 public:
     Animation();
-    void render(float cameraX);
+    void Render(float cameraX);
     ~Animation();
 };
 

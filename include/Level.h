@@ -9,31 +9,35 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
-#include "Entity.h"
-#include "RigidBody.h"
-#include "Animation.h"
+#include "GameObject.h"
 #include "Texture.h"
+#include "RigidBody.h"
+#include "Entity.h"
 #include "Block.h"
-#include "Element.h"
+#include "LevelElement.h"
+#include "Animation.h" // ???
 
+// Forward declaration
+class RenderWindow;
 
 class Level {
 public:
-    enum Type { LVL1, LVL2 };
+    enum Type { NONE=0, LVL1, LVL2 };
 private:
-    float cameraX;
-    Player player;
-    std::vector<Enemy*> enemies;
-    std::vector<Block*> blocks;
-    std::vector<Element*> elements;
+    std::unique_ptr<Player> player;
+    std::vector<std::unique_ptr<Enemy>> enemies;
+    std::vector<std::unique_ptr<Block>> blocks;
+    std::vector<std::unique_ptr<LevelElement>> levelElements;
     size_t numberOfCheckpoints;
     size_t currentCheckpoint;
     std::string nextLevel;
 public:
-    Level(const char* path);
-    void update(float dt);
-    void render(float cameraX);
+    Level(std::string configFile, RenderWindow* window);
+    void Update(float dt);
+    void Render();
+    void Reset();
     ~Level();
 };
 

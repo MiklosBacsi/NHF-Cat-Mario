@@ -12,14 +12,16 @@
                 // "-DQUICK",
                 // "-DCPORTA",
                 // "-DMEMTRACE",
-                "-std=c++11",
+                "-std=c++17",
                 "-I", "${workspaceFolder}/include",
-                // "${workspaceFolder}/src/*.cpp",
 
-                // TEST
-                "${workspaceFolder}/test/TestMain.cpp",
-                "${workspaceFolder}/src/RigidBody.cpp",
-                "${workspaceFolder}/src/LanguageModule.cpp",
+                /***** GAME *****/
+                "${workspaceFolder}/src/*.cpp",
+
+                /***** TEST *****/
+                // "${workspaceFolder}/test/TestMain.cpp",
+                // "${workspaceFolder}/src/RigidBody.cpp",
+                // "${workspaceFolder}/src/LanguageModule.cpp",
 
                 "-o", "${workspaceFolder}/bin/Cat-Mario",
                 "-lSDL2",

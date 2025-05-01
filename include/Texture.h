@@ -22,16 +22,16 @@ public:
     Texture(std::string path, SDL_Rect rect, bool isStatic = false);
     Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect, bool isStatic = false);
     Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect, bool isStatic = false);
-    void render();
-    void loadTexture(const char* path);
-    void deleteTexture();
-    SDL_Texture*& getTexture();
-    SDL_Rect& getSrcRect();
-    SDL_Rect& getDestRect();
-    int getDestX1() const;
-    int getDestX2() const;
-    int getDestY1() const;
-    int getDestY2() const;
+    void Render();
+    void LoadTexture(const char* path);
+    void DeleteTexture();
+    SDL_Texture*& GetTexture();
+    SDL_Rect& SrcRect();
+    SDL_Rect& DestRect();
+    int GetDestX1() const;
+    int GetDestX2() const;
+    int GetDestY1() const;
+    int GetDestY2() const;
     ~Texture();
 };
 

@@ -3,7 +3,7 @@ Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText()
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
-CameraX or CameraRect
+static RenderWindow* GameEngine::window; ---> Refactor code!!!!!!!
 
 Redesign classes!!!!!!!!!!!
 class GameObject
