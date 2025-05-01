@@ -11,7 +11,11 @@
 
 SDL_Texture* LevelElement::textures = nullptr;
 
-LevelElement::LevelElement() {}
+LevelElement::LevelElement(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
+    : GameObject(hitBox, srcRect, destRect, LevelElement::textures)
+    {
+    //
+}
 
 LevelElement::~LevelElement() {
     #ifdef DTOR

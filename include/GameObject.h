@@ -18,15 +18,14 @@ public:
     static float CameraX;
 protected:
     Texture texture;
-    Vector2D position;
-    Vector2D hitBox;
+    SDL_Rect hitBox;
+    bool isRemoved;
 public:
-    GameObject();
+    GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
-    Vector2D& Position();
-    const Vector2D& HitBox();
+    SDL_Rect& HitBox();
     virtual ~GameObject();
 };
 

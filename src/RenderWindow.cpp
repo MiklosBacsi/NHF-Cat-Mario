@@ -386,12 +386,12 @@ RenderWindow::~RenderWindow() {
 
 /***** CLASS TRANSITION *****/
 void Transition::SetTransition(size_t miliSeconds) {
+    AlreadyReachedMiddle = false;
     #ifdef QUICK
-    timer.Activate(200);
-    return;
+        timer.Activate(200);
+        return;
     #endif
     timer.Activate(miliSeconds);
-    AlreadyReachedMiddle = false;
 }
 
 void Transition::Deactivate() { timer.Deactivate(); }

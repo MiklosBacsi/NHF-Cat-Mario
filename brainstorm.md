@@ -3,7 +3,7 @@ Menu->Level kép X vagy Pipa hogy teljesítve van-e, illetve window.renderText()
 Files to read:
 GameConfig.txt -> Level1.txt, Level2.txt
 
-static RenderWindow* GameEngine::window; ---> Refactor code!!!!!!!
+Rewrite RigidBody TEST!!!!!!
 
 Redesign classes!!!!!!!!!!!
 class GameObject
@@ -37,9 +37,6 @@ player jump: shortJump, longJump (x idő múlva is nyomva van a W gomb)
 
 lookRight és runRight állapotokban fix időt tölt összesen
 (az számít amikor a gomb le van nyomva), majd a másik állapotpa vált
-
-In class Element:
-enum Type = { COULD, TUBE, MOUNTAIN ... };
 
 Tubes:
 isEnterable

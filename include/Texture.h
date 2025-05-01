@@ -12,6 +12,7 @@
 class Texture {
 public:
     static SDL_Renderer* renderer;
+    static SDL_Texture* LoadStaticTexture(std::string path);
 private:
     SDL_Texture* texture;
     SDL_Rect srcRect;
@@ -23,7 +24,7 @@ public:
     Texture(std::string path, SDL_Rect srcRect, SDL_Rect destRect, bool isStatic = false);
     Texture(SDL_Texture* texture, SDL_Rect srcRect, SDL_Rect destRect, bool isStatic = false);
     void Render();
-    void LoadTexture(const char* path);
+    void LoadTexture(std::string path);
     void DeleteTexture();
     SDL_Texture*& GetTexture();
     SDL_Rect& SrcRect();

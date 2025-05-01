@@ -31,18 +31,10 @@ int main(int argc, char* arvg[]) {
     RenderWindow window("Cat Mario", 1600, 900);
     GameEngine engine(window);
     engine.UpdateButtons(); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
-    
-    Uint32 frameStart;
 
     while (engine.GetExitProgram() == false) {
-        frameStart = SDL_GetTicks();
-
-        SDL_Event event;
-        engine.anyKeyPressed = false;
         // 1. Handling events one-by-one
-        while (SDL_PollEvent(&event)) {
-            engine.HandleEvent(event);
-        }
+        engine.HandleEvents();
 
         // 2. Update
         engine.HandlePressedKeys();
@@ -55,10 +47,8 @@ int main(int argc, char* arvg[]) {
         window.ApplyTransition(engine.GetTransparency());
         window.Display();
 
-        // 4. Apply even FPS
-        GameEngine::frameTime = SDL_GetTicks() - frameStart;
-        if (GameEngine::frameDelay > GameEngine::frameTime)
-            SDL_Delay(GameEngine::frameDelay - GameEngine::frameTime);
+        // 4. Applys even FPS by delaying
+        engine.ApplyEvenFPS();
             
         // std::clog << "Frametime: " << GameEngine::frameTime << " ms" << std::endl;
     }

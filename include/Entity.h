@@ -13,43 +13,48 @@
 #include "RigidBody.h"
 
 class Entity : public GameObject {
-protected:
-    static SDL_Texture* textures;
-    RigidBody rigidBody;
-    Vector2D spawnPoint;
-    Vector2D previousPosition;
-    bool isDead;
 public:
-    Entity();
+    static SDL_Texture* textures;
+protected:
+    RigidBody rigidBody;
+    SDL_Rect spawnPoint;
+    SDL_Rect previousPosition;
+public:
+    Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
     virtual void Touch(GameObject* object) = 0;
     virtual void TouchedBy(Entity* entity) = 0;
+    bool IsDead() const;
+    RigidBody& GetRigidBody();
     virtual ~Entity();
 };
 
 class Player : public Entity {
 private:
+    int deathCount;
     bool isForcedByFlag;
     bool isForcedByRobot;
 public:
-    Player();
+    Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     void Update(float dt);
     void Render();
     void Reset();
     void Touch(GameObject* object);
     void TouchedBy(Entity* entity);
+    void Kill();
     ~Player();
 };
 
 class Enemy : public Entity {
 protected:
     bool isActivated;
+    bool hasQuote;
     float activationPoint;
     struct Quote quote;
 public:
-    Enemy();
+    Enemy(SDL_Rect hitBox, float activationPoint, SDL_Rect srcRect, SDL_Rect destRect);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;

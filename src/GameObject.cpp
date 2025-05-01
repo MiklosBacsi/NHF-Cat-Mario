@@ -12,11 +12,13 @@
 RenderWindow* GameObject::window = nullptr;
 float GameObject::CameraX = 0.0f;
 
-GameObject::GameObject() {}
+GameObject::GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture)
+    : texture(texture, srcRect, destRect, true), hitBox(hitBox), isRemoved(false)
+    {
+    //
+}
 
-Vector2D& GameObject::Position() { return position; }
-
-const Vector2D& GameObject::HitBox() { return hitBox; }
+SDL_Rect& GameObject::HitBox() { return hitBox; }
 
 GameObject::~GameObject() {
     #ifdef DTOR

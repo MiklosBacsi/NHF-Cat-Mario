@@ -23,13 +23,15 @@
 class RenderWindow;
 
 class Level {
+    friend class GameEngine;
 public:
     enum Type { NONE=0, LVL1, LVL2 };
 private:
+    SDL_Rect screen;
     std::unique_ptr<Player> player;
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::vector<std::unique_ptr<Block>> blocks;
-    std::vector<std::unique_ptr<LevelElement>> levelElements;
+    std::vector<std::unique_ptr<LevelElement>> elements;
     size_t numberOfCheckpoints;
     size_t currentCheckpoint;
     std::string nextLevel;

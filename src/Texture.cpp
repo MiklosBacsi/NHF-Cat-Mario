@@ -10,6 +10,15 @@
 
 SDL_Renderer* Texture::renderer = nullptr;
 
+SDL_Texture* Texture::LoadStaticTexture(std::string path) {
+    SDL_Texture* staticTexture = IMG_LoadTexture(Texture::renderer, path.c_str());
+    
+    if (staticTexture == nullptr)
+        std::cerr << "Failed to load static texture. Error: " << SDL_GetError() << std::endl;
+
+    return staticTexture;
+}
+
 Texture::Texture(bool isStatic) : texture(nullptr), srcRect({0,0,0,0}), destRect({0,0,0,0}), isStatic(isStatic) {}
 
 Texture::Texture(std::string path, SDL_Rect rect, bool isStatic)
@@ -32,14 +41,14 @@ void Texture::Render() {
     SDL_RenderCopy(Texture::renderer, texture, &srcRect, &destRect);
 }
 
-void Texture::LoadTexture(const char* path) {
+void Texture::LoadTexture(std::string path) {
     if (isStatic && texture != nullptr)
         return;
     
     if (isStatic == false)
         DeleteTexture();
 
-    texture = IMG_LoadTexture(Texture::renderer, path);
+    texture = IMG_LoadTexture(Texture::renderer, path.c_str());
     if (texture == nullptr)
         std::cerr << "Failed to load texture. Error: " << SDL_GetError() << std::endl;
 }

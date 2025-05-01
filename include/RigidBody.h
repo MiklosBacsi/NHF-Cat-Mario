@@ -39,12 +39,14 @@ struct Vector2D {
     friend Vector2D operator/(float lhs, const Vector2D& rhs);
 
     friend std::ostream& operator<<(std::ostream& os, const Vector2D& vec);
-    void log() const;
+    void Log() const;
 };
 
 class RigidBody {
+    friend class GameEngine;
 public:
     static float gravity;
+    static float scale;
 private:
     float mass;
     Vector2D force;
@@ -55,11 +57,16 @@ private:
 public:
     RigidBody(float mass = 1.0f);
     void Update(float dt);
-    Vector2D GetPosition() const;
+    const Vector2D& GetPosition() const;
     void ApplyForce(Vector2D F);
     void ApplyForceX(float Fx);
     void ApplyForceY(float Fy);
-    void RemoveForces();
+    void Reset();
+    float& Mass();
+    Vector2D& Force();
+    Vector2D& Position();
+    Vector2D& Velocity();
+    Vector2D& Acceleratoin();
     ~RigidBody();
 };
 

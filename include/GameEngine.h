@@ -49,7 +49,6 @@ private:
     Level::Type completedLevels;
     bool exitProgram;
     bool isPaused;
-    int deathCount;
     Scene::Type currentScene;
     Scene::Type nextScene;
     Language currentLanguage;
@@ -62,6 +61,7 @@ private:
     Texture titleScreen;
     Texture menuScreen;
     Input input;
+    Uint32 frameStart;
 
     void RenderMenuButtons();
     void RenderGameButtons();
@@ -70,6 +70,7 @@ private:
     void ChangeSceneFromMenuToGame(Level::Type levelType);
     void ChangeSceneFromGameToMenu();
     void ChangeSceneFromGameToDeathToGame();
+    void HandleEvent(SDL_Event& event);
     void HandleMenuButtons();
     void HandleGameButtons();
     void UpdateSingeButton(Button* button);
@@ -81,9 +82,12 @@ private:
     void StopSounds();
     void LoadSounds();
     Language getLanguage() const;
+    bool AABB(const SDL_Rect& A, const SDL_Rect& B) const;
+    void CheckForDeath();
 public:
     GameEngine(RenderWindow& window);
-    void HandleEvent(SDL_Event& event);
+    void ApplyEvenFPS();
+    void HandleEvents();
     void HandlePressedKeys();
     void HandleSceneChanges();
     void UpdateButtons();

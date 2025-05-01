@@ -72,75 +72,24 @@ GameEngine::GameEngine(RenderWindow& window) : level(nullptr), currentLevel(Leve
 /* ************************************************************************************ */
 
 /***** Public Functions *****/
-void GameEngine::HandleEvent(SDL_Event& event) {
-    switch (event.type) {
-    case SDL_KEYDOWN:
-        if (transition.IsActive())
-            return;
-        anyKeyPressed = true;
+void GameEngine::ApplyEvenFPS() {
+    frameTime = SDL_GetTicks() - frameStart;
+    
+    if (frameDelay > frameTime)
+        SDL_Delay(frameDelay - frameTime);
+}
 
-        switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE:
-            if (currentScene == Scene::GAME)
-                PlaySound(Sound::CLICK);
-            input.SetEsc(true);
-            break;
-        case SDLK_w: input.SetW(true); break;
-        case SDLK_a: input.SetA(true); break;
-        case SDLK_s: input.SetS(true); break;
-        case SDLK_d: input.SetD(true); break;
-        case SDLK_p:
-            if (currentScene == Scene::GAME && !isPaused)
-                PlaySound(Sound::CLICK);
-            input.SetP(true);
-            break;
-        case SDLK_SPACE: input.SetSpace(true); break;
-        default: break;
-        }
-        break;
-    case SDL_KEYUP:
-        switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE: input.SetEsc(false); break;
-        case SDLK_w: input.SetW(false); break;
-        case SDLK_a: input.SetA(false); break;
-        case SDLK_s: input.SetS(false); break;
-        case SDLK_d: input.SetD(false); break;
-        case SDLK_p: input.SetP(false); break;
-        case SDLK_SPACE: input.SetSpace(false); break;
-        default: break;
-        }
-        break;
-    case SDL_MOUSEBUTTONDOWN:
-        if (transition.IsActive())
-            return;
-        if (currentScene == Scene::TITLE) {
-            ChangeSceneFromTitleToMenu();
-            PlaySound(Sound::CLICK);
-            return;
-        }
-        if (event.button.button == SDL_BUTTON_LEFT) {
-            input.SetMouseClick(true);
-            input.SetMouseX(event.button.x);
-            input.SetMouseY(event.button.y);
+void GameEngine::HandleEvents() {
+    frameStart = SDL_GetTicks();
+    anyKeyPressed = false;
+    SDL_Event event;
 
-            switch (currentScene) { // Already handled TITLE
-            case Scene::MENU: HandleMenuButtons(); break;
-            case Scene::GAME: HandleGameButtons(); break;
-            case Scene::DEATH: break;
-            default:
-                throw "Wrong scene!";
-            }
-        }
-        break;
-    case SDL_MOUSEBUTTONUP: if (event.button.button == SDL_BUTTON_LEFT) input.SetMouseClick(false); break;
-    case SDL_QUIT:
-        ExitProgram();
-        break;
-    }
+    while (SDL_PollEvent(&event))
+        HandleEvent(event);
 }
 
 void GameEngine::HandlePressedKeys() {
-    if (anyKeyPressed == false)
+    if (anyKeyPressed == false && currentScene != Scene::GAME)
         return;
     switch (currentScene) {
     case Scene::NONE: break;
@@ -160,7 +109,7 @@ void GameEngine::HandlePressedKeys() {
             else
                 ChangeSceneFromGameToMenu();
         }
-        if (isPaused)
+        if (isPaused || nextScene == Scene::MENU)
             return;
         // Vertically Still
         if (input.GetUp() && input.GetDown()) {
@@ -168,26 +117,24 @@ void GameEngine::HandlePressedKeys() {
         }
         // Up
         else if (input.GetUp() == true) {
-            // xxx
+            level->player->GetRigidBody().ApplyForceY(-RigidBody::gravity);
         }
         // Down
         else if (input.GetDown() == true) {
-            // xxx
-            // Just for testing Death Scene. Don't forget to delete it!
-            ChangeSceneFromGameToDeathToGame();
+            level->player->GetRigidBody().ApplyForceY(0.0f);
         }
 
         // Horizontally Still
-        if (input.GetRight() && input.GetLeft()) {
-            // xxx
+        if ((input.GetRight() && input.GetLeft()) || (!input.GetRight() && !input.GetLeft())) {
+            level->player->GetRigidBody().ApplyForceX(0.0f);
         }
         // Right
-        if (input.GetRight() == true) {
-            // xxx
+        else if (input.GetRight() == true) {
+            level->player->GetRigidBody().ApplyForceX(2.0f);
         }
         // Left
         else if (input.GetLeft() == true) {
-            // xxx
+            level->player->GetRigidBody().ApplyForceX(-2.0f);
         }
         break;
     case Scene::DEATH: throw "Scene not allowed!";
@@ -208,6 +155,7 @@ void GameEngine::HandleSceneChanges() {
         break;
     case Scene::MENU:
         switch (nextScene) {
+        case Scene::DEATH: throw "Scene not allowed!";
         case Scene::MENU: break;
         case Scene::GAME: ChangeSceneFromMenuToGame(currentLevel); break;
         default:
@@ -249,8 +197,15 @@ void GameEngine::UpdateButtons() {
 }
 
 void GameEngine::UpdateGame() {
-    if (level != nullptr)
-        level->Update(frameDelay);
+    if (level == nullptr || isPaused || currentScene != Scene::GAME || nextScene == Scene::DEATH)
+        return;
+    
+    if (level->player->IsDead())
+        ChangeSceneFromGameToDeathToGame();
+
+    level->Update((float)frameDelay);
+
+    CheckForDeath();
 }
 
 void GameEngine::RenderItems() {
@@ -435,6 +390,73 @@ void GameEngine::ChangeSceneFromGameToDeathToGame() {
     PlaySound(Sound::DEATH);
 }
 
+void GameEngine::HandleEvent(SDL_Event& event) {
+    switch (event.type) {
+    case SDL_KEYDOWN:
+        if (transition.IsActive())
+            return;
+        anyKeyPressed = true;
+
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE:
+            if (currentScene == Scene::GAME)
+                PlaySound(Sound::CLICK);
+            input.SetEsc(true);
+            break;
+        case SDLK_w: input.SetW(true); break;
+        case SDLK_a: input.SetA(true); break;
+        case SDLK_s: input.SetS(true); break;
+        case SDLK_d: input.SetD(true); break;
+        case SDLK_p:
+            if (currentScene == Scene::GAME && !isPaused)
+                PlaySound(Sound::CLICK);
+            input.SetP(true);
+            break;
+        case SDLK_SPACE: input.SetSpace(true); break;
+        default: break;
+        }
+        break;
+    case SDL_KEYUP:
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE: input.SetEsc(false); break;
+        case SDLK_w: input.SetW(false); break;
+        case SDLK_a: input.SetA(false); break;
+        case SDLK_s: input.SetS(false); break;
+        case SDLK_d: input.SetD(false); break;
+        case SDLK_p: input.SetP(false); break;
+        case SDLK_SPACE: input.SetSpace(false); break;
+        default: break;
+        }
+        break;
+    case SDL_MOUSEBUTTONDOWN:
+        if (transition.IsActive())
+            return;
+        if (currentScene == Scene::TITLE) {
+            ChangeSceneFromTitleToMenu();
+            PlaySound(Sound::CLICK);
+            return;
+        }
+        if (event.button.button == SDL_BUTTON_LEFT) {
+            input.SetMouseClick(true);
+            input.SetMouseX(event.button.x);
+            input.SetMouseY(event.button.y);
+
+            switch (currentScene) { // Already handled TITLE
+            case Scene::MENU: HandleMenuButtons(); break;
+            case Scene::GAME: HandleGameButtons(); break;
+            case Scene::DEATH: break;
+            default:
+                throw "Wrong scene!";
+            }
+        }
+        break;
+    case SDL_MOUSEBUTTONUP: if (event.button.button == SDL_BUTTON_LEFT) input.SetMouseClick(false); break;
+    case SDL_QUIT:
+        ExitProgram();
+        break;
+    }
+}
+
 void GameEngine::HandleMenuButtons() {
     for (Button* button : menuButtons) {
         if (button->IsClicked(input.GetMouseX(), input.GetMouseY())) {
@@ -551,6 +573,19 @@ void GameEngine::LoadSounds() {
 }
 
 Language GameEngine::getLanguage() const { return currentLanguage; }
+
+bool GameEngine::AABB(const SDL_Rect& A, const SDL_Rect& B) const {
+    if (A.x + A.w >= B.x && A.x <= B.x + B.w && A.y + A.h >= B.y && A.y <= B.y + B.h)
+        return true;
+    return false;
+}
+
+void GameEngine::CheckForDeath() {
+    // Player leaves screen
+    if (AABB(level->player->HitBox(), level->screen) == false)
+        level->player->Kill();
+    // Enemy leaves screen
+}
 /* ************************************************************************************ */
 
 /***** Destructor *****/

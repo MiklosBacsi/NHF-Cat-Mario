@@ -3,7 +3,8 @@
 #include "gtest_lite.h"
 #include "RigidBody.h"
 
-void  TEST_RigidBody() {    
+void  TEST_RigidBody() {
+    RigidBody::scale = 1.0f;
     /***** Checking struct Vector2D *****/
 
     // Checks for throwing error for non-existing file

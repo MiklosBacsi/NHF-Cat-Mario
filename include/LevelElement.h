@@ -19,7 +19,7 @@ class LevelElement : public GameObject {
 protected:
     static SDL_Texture* textures;
 public:
-    LevelElement();
+    LevelElement(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
