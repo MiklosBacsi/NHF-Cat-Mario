@@ -23,9 +23,13 @@ Entity::Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
     //
 }
 
+void Entity::LimitedBy(GameObject* object) {}
+
 bool Entity::IsDead() const { return isRemoved; }
 
 RigidBody& Entity::GetRigidBody() { return rigidBody; }
+
+void Entity::UpdatePreviousPosition() { previousPosition = hitBox; }
 
 Entity::~Entity() {
     #ifdef DTOR
@@ -56,6 +60,10 @@ void Player::Render() {
     texture.Render();
     // HitBox:
     rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
+    // Dest Rect:
+    rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    // Previous Position:
+    // rectangleRGBA(window->GetRenderer(), previousPosition.x, previousPosition.y, previousPosition.x + previousPosition.w, previousPosition.y + previousPosition.h, 0, 255, 0, 255);
 }
 
 void Player::Reset() {
@@ -69,7 +77,9 @@ void Player::Reset() {
     isForcedByRobot = false;
 }
 
-void Player::Touch(GameObject* object) {}
+void Player::Touch(GameObject* object) {
+    object->TouchedBy(this);
+}
 
 void Player::TouchedBy(Entity* entity) {
     Touch(entity);
@@ -102,7 +112,23 @@ void Enemy::Update(float dt) {}
 
 void Enemy::Render() {}
 
+void Enemy::Reset() {}
+
+void Enemy::Touch(GameObject* object) {}
+
+void Enemy::TouchedBy(Entity* entity) {
+    if (dynamic_cast<Enemy*>(entity))
+        return;
+    if (Player* player = dynamic_cast<Player*>(entity)) {
+        //
+        player->GetRigidBody();
+        return;
+    }
+    throw "Unknown entity!";
+}
+
 Enemy::~Enemy() {
+    SDL_DestroyTexture(Entity::textures);
     #ifdef DTOR
     std::clog << "~Enemy Dtor" << std::endl;
     #endif

@@ -17,12 +17,11 @@
 #include "Animation.h" // ???
 #include "RenderWindow.h"
 
-Level::Level(std::string configFile, RenderWindow* window) : screen({0,0,window->GetWidth()-1,window->GetHeight()-1}),
-    player(nullptr)
-    {
+Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE) {
     GameObject::window = window;
 
     Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
+    Block::textures = Texture::LoadStaticTexture("../res/img/Block.png");
 
     float Scale = 2.5f;
     int Width = 24;
@@ -36,6 +35,19 @@ Level::Level(std::string configFile, RenderWindow* window) : screen({0,0,window-
     SDL_Rect destRect = {0, 0, (int)scaledWidth - 1, (int)scaledHeight - 1};
 
     player = std::make_unique<Player>(hitBox, srcRect, destRect);
+
+    srcRect = {0, 0, BLOCK_SIZE-1, BLOCK_SIZE-1};
+
+
+    for (int i=0; i < LVL_WIDTH; ++i) {
+        hitBox = {i * SCALED_BLOCK_SIZE, 10 * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(10,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
+    }
+
+    // hitBox = {0 * scaledBlockSize, 10 * scaledBlockSize, scaledBlockSize, scaledBlockSize};
+    // blocks.push_back(std::make_unique<UpperDirtBlock>(hitBox, srcRect));
+
+    
 }
 
 void Level::Update(float dt) {
@@ -43,14 +55,14 @@ void Level::Update(float dt) {
     
     for (auto& enemy : enemies)
         enemy->Update(dt);
-    
-    for (auto& block : blocks)
-        block->Update(dt);
+
+    grid.Update(dt);
     
     for (auto& element : elements)
         element->Update(dt);
 
     // Some other logic might be required!!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    ++GameObject::screen.x;
 }
 
 void Level::Render() {
@@ -59,13 +71,14 @@ void Level::Render() {
     for (auto& element : elements)
         element->Render();
 
-    for (auto& block : blocks)
-        block->Render();
+    grid.Render();
 
     for (auto& enemy : enemies)
         enemy->Render();
 
     player->Render();
+
+    lineRGBA(Texture::renderer, GameObject::screen.x + GameObject::screen.w, GameObject::screen.y, GameObject::screen.x + GameObject::screen.w, GameObject::screen.y + GameObject::screen.h, 255, 0, 0, 255);
 }
 
 void Level::Reset() {
@@ -74,11 +87,12 @@ void Level::Reset() {
     for (auto& enemy : enemies)
         enemy->Reset();
     
-    for (auto& block : blocks)
-        block->Reset();
+    grid.Reset();
     
     for (auto& element : elements)
         element->Reset();
+
+    GameObject::screen.x = 0;
 }
 
 Level::~Level() {

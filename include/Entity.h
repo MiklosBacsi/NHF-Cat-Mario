@@ -25,9 +25,11 @@ public:
     virtual void Render() = 0;
     virtual void Reset() = 0;
     virtual void Touch(GameObject* object) = 0;
-    virtual void TouchedBy(Entity* entity) = 0;
-    bool IsDead() const;
-    RigidBody& GetRigidBody();
+    virtual void TouchedBy(Entity* entity) = 0; // For interacting with other entities
+    virtual void LimitedBy(GameObject* object); // For handling collision
+    virtual bool IsDead() const;
+    virtual RigidBody& GetRigidBody();
+    virtual void UpdatePreviousPosition();
     virtual ~Entity();
 };
 
@@ -58,8 +60,8 @@ public:
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
-    virtual void Touch(GameObject* object) = 0;
-    virtual void TouchedBy(Entity* entity) = 0;
+    virtual void Touch(GameObject* object);
+    virtual void TouchedBy(Entity* entity);
     ~Enemy();
 };
 

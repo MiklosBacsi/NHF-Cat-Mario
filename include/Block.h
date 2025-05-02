@@ -16,17 +16,33 @@
 class Entity;
 
 class Block : public GameObject {
-protected:
-    static SDL_Texture* textures;
 public:
-    Block();
-    virtual void Update(float dt) = 0;
-    virtual void Render() = 0;
-    virtual void Reset() = 0;
-    virtual void TouchedBy(Entity* entity) = 0;
+    static SDL_Texture* textures;
+
+    Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    virtual void Update(float dt);
+    virtual void Render();
+    virtual void Reset();
+    virtual void TouchedBy(Entity* entity);
+    virtual void Limit(Entity* entity);
     ~Block();
 };
 
+class Grid {
+private:
+    int width;
+    int height;
+    int blockSize;
+    std::vector<std::unique_ptr<Block>> blocks;
+public:
+    Grid(int width, int height, int blockSize);
+    std::unique_ptr<Block>& operator()(int row, int column);
+    void Update(float dt);
+    void Render();
+    void Reset();
+    void UpdateDestRect();
+    ~Grid();
+};
 
 #endif // CPORTA
 

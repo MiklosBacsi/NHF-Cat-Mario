@@ -12,10 +12,13 @@
 #include "RigidBody.h"
 #include "RenderWindow.h"
 
+// Forward declaration
+class Entity;
+
 class GameObject {
 public:
     static RenderWindow* window;
-    static float CameraX;
+    static SDL_Rect screen;
 protected:
     Texture texture;
     SDL_Rect hitBox;
@@ -25,7 +28,9 @@ public:
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
-    SDL_Rect& HitBox();
+    virtual void TouchedBy(Entity* entity) = 0;
+    virtual SDL_Rect& HitBox();
+    virtual void UpdateDestRect();
     virtual ~GameObject();
 };
 

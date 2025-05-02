@@ -48,9 +48,19 @@ Class Level would hold all the data (player too)
 Textrue egy külön fájlba!
 bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 
-3. Beadás - Specifikáció
-- Minden osztály és publikus függvény deklaráció!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-- Csak egy zip feltöltése *.h, *.cpp fájlokkal, nincs almappa!!!!!!!!
-- argumentum: -c
-- TESZTPROGRAM!!!
-- Dokumentáció itt még nem kell
+*** To-do: ***
+- Block setup, collision
+
+
+1. Update()
+2. Check for death
+3. Check for collision
+4. If collision cannot be avoided --> lastPosition
+5. Update hitbox etc.
+
+
+// returns how much A collides with B
+int OverhangRight(SDL_Rect A, SDL_Rect B);
+int OverhangLeft
+int OverhangUp
+int OverhangDown

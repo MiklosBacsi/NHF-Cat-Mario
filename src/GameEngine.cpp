@@ -206,6 +206,12 @@ void GameEngine::UpdateGame() {
     level->Update((float)frameDelay);
 
     CheckForDeath();
+
+    CheckForCollision();
+
+    RecoverPosition(); // if necesary
+
+    UpdateRects();
 }
 
 void GameEngine::RenderItems() {
@@ -580,11 +586,44 @@ bool GameEngine::AABB(const SDL_Rect& A, const SDL_Rect& B) const {
     return false;
 }
 
+int GameEngine::OverhangRight(const SDL_Rect& A, const SDL_Rect& B) const {
+    return B.x + B.w - A.x;
+}
+
+int GameEngine::OverhangLeft(const SDL_Rect& A, const SDL_Rect& B) const {
+    return A.x + A.w - B.x;
+}
+
+int GameEngine::OverhangUp(const SDL_Rect& A, const SDL_Rect& B) const {
+    return A.y + A.h - B.y;
+}
+
+int GameEngine::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) const {
+    return B.y + B.h - A.y;
+}
+
 void GameEngine::CheckForDeath() {
     // Player leaves screen
-    if (AABB(level->player->HitBox(), level->screen) == false)
+    if (AABB(level->player->HitBox(), GameObject::screen) == false)
         level->player->Kill();
     // Enemy leaves screen
+}
+
+void GameEngine::CheckForCollision() {
+    //
+}
+
+void GameEngine::RecoverPosition() {
+    //
+}
+
+void GameEngine::UpdateRects() {
+    // Dest Rect
+    level->player->UpdateDestRect();
+    level->grid.UpdateDestRect();
+
+    // Previous Position
+    level->player->UpdatePreviousPosition();
 }
 /* ************************************************************************************ */
 

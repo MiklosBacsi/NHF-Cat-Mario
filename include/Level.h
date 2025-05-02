@@ -19,6 +19,11 @@
 #include "LevelElement.h"
 #include "Animation.h" // ???
 
+#define LVL_WIDTH 8
+#define LVL_HEIGHT 12
+#define BLOCK_SIZE 30
+#define SCALED_BLOCK_SIZE 75
+
 // Forward declaration
 class RenderWindow;
 
@@ -27,10 +32,9 @@ class Level {
 public:
     enum Type { NONE=0, LVL1, LVL2 };
 private:
-    SDL_Rect screen;
     std::unique_ptr<Player> player;
     std::vector<std::unique_ptr<Enemy>> enemies;
-    std::vector<std::unique_ptr<Block>> blocks;
+    Grid grid;
     std::vector<std::unique_ptr<LevelElement>> elements;
     size_t numberOfCheckpoints;
     size_t currentCheckpoint;

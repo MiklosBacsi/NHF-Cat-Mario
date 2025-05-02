@@ -83,7 +83,14 @@ private:
     void LoadSounds();
     Language getLanguage() const;
     bool AABB(const SDL_Rect& A, const SDL_Rect& B) const;
+    int OverhangRight(const SDL_Rect& A, const SDL_Rect& B) const;
+    int OverhangLeft(const SDL_Rect& A, const SDL_Rect& B) const;
+    int OverhangUp(const SDL_Rect& A, const SDL_Rect& B) const;
+    int OverhangDown(const SDL_Rect& A, const SDL_Rect& B) const;
     void CheckForDeath();
+    void CheckForCollision();
+    void RecoverPosition();
+    void UpdateRects();
 public:
     GameEngine(RenderWindow& window);
     void ApplyEvenFPS();
