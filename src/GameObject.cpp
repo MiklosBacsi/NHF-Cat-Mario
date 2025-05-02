@@ -39,9 +39,14 @@ int GameObject::OverhangUp(const SDL_Rect& A, const SDL_Rect& B) {
 }
 
 int GameObject::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) {
-    if (A.y + A.h >= B.y + B.h)
+    if (A.y + A.h >= B.y + B.h || AABB(A,B) == false)
         return 0;
-    return A.y + A.h - B.y;
+    int overHang = A.y + A.h - B.y + 1;
+    if (overHang > 20) {
+        std::clog << "Critical Overhang: Down" << std::endl;
+        return 0;
+    }
+    return overHang;
 }
 /* ************************************************************************************ */
 

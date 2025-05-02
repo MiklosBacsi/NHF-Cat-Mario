@@ -102,11 +102,13 @@ void GameEngine::HandlePressedKeys() {
         break;
     case Scene::GAME:
         if (input.GetPause())
-            isPaused = true; // Also handle pause!!!!!!!!!!!!!!!!!
+            isPaused = true;
         if (input.GetEsc()) {
-            if (isPaused)
-                isPaused = false; // Also handle continue!!!!!!!!!!!!!!!!!
-            else
+            if (isPaused) {
+                isPaused = false;
+                input.DisableEsc() = true;
+            }
+            else if (input.DisableEsc() == false)
                 ChangeSceneFromGameToMenu();
         }
         if (isPaused || nextScene == Scene::MENU)
@@ -116,12 +118,31 @@ void GameEngine::HandlePressedKeys() {
             // xxx
         }
         // Up
-        else if (input.GetUp() == true) {
-            level->player->GetRigidBody().ApplyForceY(-RigidBody::gravity);
+        else if (input.GetUp() == true && level->player->jumpTime.IsActive() == false && level->player->onGround && level->player->jump == false) {
+            level->player->GetRigidBody().ApplyForceY(-5.5f * RigidBody::gravity);
+            level->player->jumpTime.Activate(100);
+            level->player->jump = true;
+            std::clog << "Activate Jump Time!" << std::endl;
         }
         // Down
         else if (input.GetDown() == true) {
-            level->player->GetRigidBody().ApplyForceY(0.0f);
+            // xxx
+        }
+        // Handle Jump
+        if (level->player->jumpTime.GetPercent() > 0.5f && level->player->jumpTime.IsActive()) {
+            // Long Jump
+            if (level->player->jump) {
+                level->player->GetRigidBody().ApplyForceY(-4.0f * RigidBody::gravity);
+                level->player->jumpTime.Activate(100);
+                level->player->jump = false;
+                std::clog << "Long Jump!" << std::endl;
+            }
+            // Stop Jumping
+            else {
+                level->player->GetRigidBody().ApplyForceY(0.0f);
+                level->player->jumpTime.Deactivate();
+                std::clog << "Deactivate Jump!" << std::endl;
+            }
         }
 
         // Horizontally Still
@@ -366,6 +387,7 @@ void GameEngine::ChangeSceneFromGameToMenu() {
     nextScene = Scene::MENU;
     transition.SetTransition(2000);
     StopSounds();
+    input.SetP(false);
 }
 
 void GameEngine::ChangeSceneFromGameToDeathToGame() {
@@ -426,8 +448,8 @@ void GameEngine::HandleEvent(SDL_Event& event) {
         break;
     case SDL_KEYUP:
         switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE: input.SetEsc(false); break;
-        case SDLK_w: input.SetW(false); break;
+        case SDLK_ESCAPE: input.SetEsc(false); input.DisableEsc() = false; break;
+        case SDLK_w: input.SetW(false); level->player->jump = false; break;
         case SDLK_a: input.SetA(false); break;
         case SDLK_s: input.SetS(false); break;
         case SDLK_d: input.SetD(false); break;
@@ -596,6 +618,28 @@ void GameEngine::CheckForCollision() {
     // }
 
     level->grid.CheckCollision(level->player.get());
+
+    // Apply transformation to fix collision
+    // int up = level->player->collideUp;
+    // int down = level->player->collideDown;
+    // if (up > 0 && down > 0) {
+    //     //ignore it :)
+    // }
+    // else if (up > 0) {
+    //     level->player->HitBox().y += up;
+    //     level->player->GetRigidBody().ApplyVelocityY(0.0f);
+    // }
+    // else if (down > 0) {
+    //     level->player->HitBox().y -= down;
+    //     level->player->GetRigidBody().ApplyVelocityY(0.0f);
+    //     level->player->GetRigidBody().ApplyForceY(RigidBody::gravity * -1.0f);
+    //     level->player->OnGround() = true;
+    // }
+
+    if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
+        level->player->GetRigidBody().ApplyForceY(0.0f);
+    if (level->player->onGround && input.GetRight() == false && input.GetLeft() == false)
+        level->player->GetRigidBody().Velocity() *= 0.9f;
 }
 
 void GameEngine::RecoverPosition() {

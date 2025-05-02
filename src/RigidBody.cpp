@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-float RigidBody::gravity = 2.0f;
+float RigidBody::gravity = 5.0f;
 float RigidBody::scale = 0.001f;
 
 /* ************************************************************************************ */
@@ -149,8 +149,8 @@ void RigidBody::Update(float dt) {
     if (velocity.y < -crop) velocity.y = -crop;
     
     position = velocity * dt;
-    std::clog << "*****\n" << "dt: " << dt << "\nForce: " << force << "\nAcceleration: " <<
-    acceleration << "\nVelocity: " << velocity << "\nPosition: " << position << std::endl;
+    // std::clog << "*****\n" << "dt: " << dt << "\nForce: " << force << "\nAcceleration: " <<
+    // acceleration << "\nVelocity: " << velocity << "\nPosition: " << position << std::endl;
 }
 
 const Vector2D& RigidBody::GetPosition() const { return position; }

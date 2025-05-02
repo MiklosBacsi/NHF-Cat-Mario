@@ -121,16 +121,11 @@ void Grid::CheckCollision(Entity* entity) {
     if (startColumn < 0) startColumn = 0;
     if (endColumn > width) endColumn = width;
 
-    for (int row=0; row < height; ++row) {
-        for (int column=startColumn; column < endColumn; ++column) {
-            if (blocks.at(row * width + column) != nullptr) {
+    for (int row=0; row < height; ++row)
+        for (int column=startColumn; column < endColumn; ++column)
+            if (blocks.at(row * width + column) != nullptr)
                 if (GameObject::AABB(entity->HitBox(), blocks.at(row * width + column)->HitBox()))
                     blocks.at(row * width + column)->TouchedBy(entity);
-                else if (GameObject::OverhangDown(entity->HitBox(), blocks.at(row * width + column)->HitBox()))
-                    entity->GetRigidBody().ApplyForceY(0.0f);
-            }
-        }
-    }
 }
 
 Grid::~Grid() {

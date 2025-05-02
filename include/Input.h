@@ -13,6 +13,7 @@ private:
     bool D;
     bool P;
     bool Space;
+    bool disableEsc;
 public:
     Input();
     int GetMouseX() const;
@@ -35,6 +36,7 @@ public:
     void SetD(bool pressed);
     void SetP(bool pressed);
     void SetSpace(bool pressed);
+    bool& DisableEsc();
     ~Input();
 };
 

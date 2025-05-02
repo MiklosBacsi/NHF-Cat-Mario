@@ -24,22 +24,29 @@ Entity::Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
 }
 
 void Entity::LimitedBy(GameObject* object) {
+    hasCollided = true;
     int right=0, left=0, up=0, down=0;
 
     // First: Fix Vertical Collision
     up = GameObject::OverhangUp(hitBox, object->HitBox());
     down = GameObject::OverhangDown(hitBox, object->HitBox());
 
-    if (up > 0 && down > 0)
-        recoverY = true;
-    else if (up > 0) {
+    if (up > 0 && down > 0) {
+        recoverX = true; // !!!!!!!!!!!!!!!!!!!!!4
+        hasCollided = false;
+    }
+    else if (up > 0 && up > collideUp) {
+        collideUp = up;
         hitBox.y += up;
         rigidBody.ApplyVelocityY(0.0f);
     }
-    else if (down > 0) {
-        hitBox.y -= down;
+    else if (down > 0 && down > collideDown) {
+        collideDown = down -1;
+        hitBox.y -= (down - 1);
         rigidBody.ApplyVelocityY(0.0f);
         rigidBody.ApplyForceY(RigidBody::gravity * -1.0f);
+        if (Player* player = dynamic_cast<Player*>(this))
+            player->OnGround() = true;
     }
 
     // Then: Fix Horizontal Collision
@@ -58,7 +65,7 @@ void Entity::LimitedBy(GameObject* object) {
         hitBox.x += left;
         rigidBody.ApplyVelocityX(0.0f);
     }
-
+    std::clog << "*****\n";
     if (right > 0) std::clog << "Collision: Right\t" << right << std::endl;
     if (left > 0) std::clog << "Collision: Left\t" << left << std::endl;
     if (up > 0) std::clog << "Collision: Up\t" << up << std::endl;
@@ -87,6 +94,10 @@ Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
 }
 
 void Player::Update(float dt) {
+    onGround = false;
+    hasCollided = false;
+    collideDown = 0;
+    collideUp = 0;
     rigidBody.Update(dt);
     hitBox.x += (int) rigidBody.GetPosition().x;
     hitBox.y += (int) rigidBody.GetPosition().y;
@@ -133,6 +144,8 @@ void Player::Kill() {
     isRemoved = true;
     --deathCount;
 }
+
+bool& Player::OnGround() { return onGround; }
 
 Player::~Player() {
     #ifdef DTOR

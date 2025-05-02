@@ -44,6 +44,16 @@ Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), gr
         grid(10,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
     }
 
+    for (int i=6; i < 10; ++i) {
+        hitBox = {5 * SCALED_BLOCK_SIZE, i * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(i,5) = std::make_unique<Block>(hitBox, srcRect, hitBox);
+    }
+
+    for (int i=5; i < 10; ++i) {
+        hitBox = {7 * SCALED_BLOCK_SIZE, i * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(i,7) = std::make_unique<Block>(hitBox, srcRect, hitBox);
+    }
+
     for (int i=10; i < LVL_WIDTH; ++i) {
         hitBox = {i * SCALED_BLOCK_SIZE, 9 * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
         grid(9,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
@@ -83,8 +93,6 @@ void Level::Render() {
         enemy->Render();
 
     player->Render();
-
-    lineRGBA(Texture::renderer, GameObject::screen.x, GameObject::screen.y, GameObject::screen.x, GameObject::screen.y + GameObject::screen.h, 255, 0, 0, 255);
 }
 
 void Level::Reset() {

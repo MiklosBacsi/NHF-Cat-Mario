@@ -11,6 +11,7 @@
 #include "GameObject.h"
 #include "Texture.h"
 #include "RigidBody.h"
+#include "Timer.h"
 
 class Entity : public GameObject {
     friend class GameEngine;
@@ -20,6 +21,9 @@ protected:
     RigidBody rigidBody;
     SDL_Rect spawnPoint;
     SDL_Rect previousPosition;
+    bool hasCollided;
+    int collideUp;
+    int collideDown;
     bool recoverX;
     bool recoverY;
 public:
@@ -37,10 +41,14 @@ public:
 };
 
 class Player : public Entity {
+    friend class GameEngine;
 private:
     int deathCount;
     bool isForcedByFlag;
     bool isForcedByRobot;
+    bool onGround;
+    bool jump;
+    Timer jumpTime;
 public:
     Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     void Update(float dt);
@@ -49,6 +57,7 @@ public:
     void Touch(GameObject* object);
     void TouchedBy(Entity* entity);
     void Kill();
+    bool& OnGround();
     ~Player();
 };
 
