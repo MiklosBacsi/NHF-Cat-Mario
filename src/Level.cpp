@@ -44,6 +44,11 @@ Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), gr
         grid(10,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
     }
 
+    for (int i=10; i < LVL_WIDTH; ++i) {
+        hitBox = {i * SCALED_BLOCK_SIZE, 9 * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(9,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
+    }
+
     // hitBox = {0 * scaledBlockSize, 10 * scaledBlockSize, scaledBlockSize, scaledBlockSize};
     // blocks.push_back(std::make_unique<UpperDirtBlock>(hitBox, srcRect));
 
@@ -62,7 +67,8 @@ void Level::Update(float dt) {
         element->Update(dt);
 
     // Some other logic might be required!!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    ++GameObject::screen.x;
+    if (GameObject::screen.x + (GameObject::screen.w / 2) < player->HitBox().x + player->HitBox().w)
+        GameObject::screen.x = player->HitBox().x + player->HitBox().w - (GameObject::screen.w / 2);
 }
 
 void Level::Render() {
@@ -78,7 +84,7 @@ void Level::Render() {
 
     player->Render();
 
-    lineRGBA(Texture::renderer, GameObject::screen.x + GameObject::screen.w, GameObject::screen.y, GameObject::screen.x + GameObject::screen.w, GameObject::screen.y + GameObject::screen.h, 255, 0, 0, 255);
+    lineRGBA(Texture::renderer, GameObject::screen.x, GameObject::screen.y, GameObject::screen.x, GameObject::screen.y + GameObject::screen.h, 255, 0, 0, 255);
 }
 
 void Level::Reset() {

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-float RigidBody::gravity = 1.0f;
+float RigidBody::gravity = 2.0f;
 float RigidBody::scale = 0.001f;
 
 /* ************************************************************************************ */
@@ -160,6 +160,10 @@ void RigidBody::ApplyForce(Vector2D F) { force = F;}
 void RigidBody::ApplyForceX(float Fx) { force.x = Fx; }
 
 void RigidBody::ApplyForceY(float Fy) { force.y = Fy; }
+
+void RigidBody::ApplyVelocityX(float vx) { velocity.x = vx; }
+
+void RigidBody::ApplyVelocityY(float vy) { velocity.y = vy; }
 
 void RigidBody::Reset() {
     force = Vector2D(0,0);

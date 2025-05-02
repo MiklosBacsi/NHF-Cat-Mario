@@ -61,6 +61,8 @@ public:
     void ApplyForce(Vector2D F);
     void ApplyForceX(float Fx);
     void ApplyForceY(float Fy);
+    void ApplyVelocityX(float vx);
+    void ApplyVelocityY(float vy);
     void Reset();
     float& Mass();
     Vector2D& Force();

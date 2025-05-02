@@ -393,7 +393,9 @@ void GameEngine::ChangeSceneFromGameToDeathToGame() {
     nextScene = Scene::DEATH;
     transition.SetTransition(3000);
     StopSounds();
+    #ifndef QUICK
     PlaySound(Sound::DEATH);
+    #endif
 }
 
 void GameEngine::HandleEvent(SDL_Event& event) {
@@ -580,41 +582,27 @@ void GameEngine::LoadSounds() {
 
 Language GameEngine::getLanguage() const { return currentLanguage; }
 
-bool GameEngine::AABB(const SDL_Rect& A, const SDL_Rect& B) const {
-    if (A.x + A.w >= B.x && A.x <= B.x + B.w && A.y + A.h >= B.y && A.y <= B.y + B.h)
-        return true;
-    return false;
-}
-
-int GameEngine::OverhangRight(const SDL_Rect& A, const SDL_Rect& B) const {
-    return B.x + B.w - A.x;
-}
-
-int GameEngine::OverhangLeft(const SDL_Rect& A, const SDL_Rect& B) const {
-    return A.x + A.w - B.x;
-}
-
-int GameEngine::OverhangUp(const SDL_Rect& A, const SDL_Rect& B) const {
-    return A.y + A.h - B.y;
-}
-
-int GameEngine::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) const {
-    return B.y + B.h - A.y;
-}
-
 void GameEngine::CheckForDeath() {
     // Player leaves screen
-    if (AABB(level->player->HitBox(), GameObject::screen) == false)
+    if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false)
         level->player->Kill();
     // Enemy leaves screen
 }
 
 void GameEngine::CheckForCollision() {
-    //
+    // for (auto& enemy : level->enemies) {
+    //     if (AABB(level->player->HitBox(), enemy->HitBox()))
+    //         level->player->Touch(enemy);
+    // }
+
+    level->grid.CheckCollision(level->player.get());
 }
 
 void GameEngine::RecoverPosition() {
-    //
+    if (level->player->recoverX)
+        level->player->HitBox().x = level->player->previousPosition.x;
+    if (level->player->recoverY)
+        level->player->HitBox().y = level->player->previousPosition.y;
 }
 
 void GameEngine::UpdateRects() {

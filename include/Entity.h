@@ -13,12 +13,15 @@
 #include "RigidBody.h"
 
 class Entity : public GameObject {
+    friend class GameEngine;
 public:
     static SDL_Texture* textures;
 protected:
     RigidBody rigidBody;
     SDL_Rect spawnPoint;
     SDL_Rect previousPosition;
+    bool recoverX;
+    bool recoverY;
 public:
     Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     virtual void Update(float dt) = 0;
@@ -27,8 +30,8 @@ public:
     virtual void Touch(GameObject* object) = 0;
     virtual void TouchedBy(Entity* entity) = 0; // For interacting with other entities
     virtual void LimitedBy(GameObject* object); // For handling collision
-    virtual bool IsDead() const;
-    virtual RigidBody& GetRigidBody();
+    bool IsDead() const;
+    RigidBody& GetRigidBody();
     virtual void UpdatePreviousPosition();
     virtual ~Entity();
 };

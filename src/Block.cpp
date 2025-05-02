@@ -24,11 +24,11 @@ Block::Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : GameObject(
 void Block::Update(float dt) {}
 
 void Block::Render() {
-    //texture.Render();
+    texture.Render();
     // HitBox:
-    rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
+    // rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
     // Dest Rect:
-    rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    //rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
 }
 
 void Block::Reset() {}
@@ -66,6 +66,12 @@ Grid::Grid(int width, int height, int blockSize) : width(width), height(height),
 std::unique_ptr<Block>& Grid::operator()(int row, int column) {
     return blocks.at(row * width + column);
 }
+
+std::unique_ptr<Block>& Grid::operator[](int index) {
+    return blocks.at(index);
+}
+
+int Grid::Size() const { return blocks.size(); }
 
 void Grid::Update(float dt) {
     int startColumn = GameObject::screen.x / blockSize;
@@ -107,6 +113,24 @@ void Grid::UpdateDestRect() {
         for (int column=startColumn; column < endColumn; ++column)
             if (blocks.at(row * width + column) != nullptr)
                 blocks.at(row * width + column)->UpdateDestRect();
+}
+
+void Grid::CheckCollision(Entity* entity) {
+    int startColumn = GameObject::screen.x / blockSize;
+    int endColumn = (GameObject::screen.x + GameObject::screen.w) / blockSize + 1;
+    if (startColumn < 0) startColumn = 0;
+    if (endColumn > width) endColumn = width;
+
+    for (int row=0; row < height; ++row) {
+        for (int column=startColumn; column < endColumn; ++column) {
+            if (blocks.at(row * width + column) != nullptr) {
+                if (GameObject::AABB(entity->HitBox(), blocks.at(row * width + column)->HitBox()))
+                    blocks.at(row * width + column)->TouchedBy(entity);
+                else if (GameObject::OverhangDown(entity->HitBox(), blocks.at(row * width + column)->HitBox()))
+                    entity->GetRigidBody().ApplyForceY(0.0f);
+            }
+        }
+    }
 }
 
 Grid::~Grid() {

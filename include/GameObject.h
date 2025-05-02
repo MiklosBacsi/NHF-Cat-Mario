@@ -19,6 +19,11 @@ class GameObject {
 public:
     static RenderWindow* window;
     static SDL_Rect screen;
+    static bool AABB(const SDL_Rect& A, const SDL_Rect& B);
+    static int OverhangRight(const SDL_Rect& A, const SDL_Rect& B); // A: Entity, B: Barrier
+    static int OverhangLeft(const SDL_Rect& A, const SDL_Rect& B);
+    static int OverhangUp(const SDL_Rect& A, const SDL_Rect& B);
+    static int OverhangDown(const SDL_Rect& A, const SDL_Rect& B);
 protected:
     Texture texture;
     SDL_Rect hitBox;

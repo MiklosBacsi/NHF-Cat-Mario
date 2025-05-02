@@ -37,10 +37,13 @@ private:
 public:
     Grid(int width, int height, int blockSize);
     std::unique_ptr<Block>& operator()(int row, int column);
+    std::unique_ptr<Block>& operator[](int index);
+    int Size() const;
     void Update(float dt);
     void Render();
     void Reset();
     void UpdateDestRect();
+    void CheckCollision(Entity* entity);
     ~Grid();
 };
 

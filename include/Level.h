@@ -19,7 +19,7 @@
 #include "LevelElement.h"
 #include "Animation.h" // ???
 
-#define LVL_WIDTH 8
+#define LVL_WIDTH 20
 #define LVL_HEIGHT 12
 #define BLOCK_SIZE 30
 #define SCALED_BLOCK_SIZE 75
