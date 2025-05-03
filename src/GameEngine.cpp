@@ -122,7 +122,9 @@ void GameEngine::HandlePressedKeys() {
             level->player->GetRigidBody().ApplyForceY(-5.5f * RigidBody::gravity);
             level->player->jumpTime.Activate(100);
             level->player->jump = true;
+            #ifdef COLLISION
             std::clog << "Activate Jump Time!" << std::endl;
+            #endif
             PlaySound(Sound::JUMP);
         }
         // Down
@@ -136,13 +138,17 @@ void GameEngine::HandlePressedKeys() {
                 level->player->GetRigidBody().ApplyForceY(-4.0f * RigidBody::gravity);
                 level->player->jumpTime.Activate(100);
                 level->player->jump = false;
+                #ifdef COLLISION
                 std::clog << "Long Jump!" << std::endl;
+                #endif
             }
             // Stop Jumping
             else {
                 level->player->GetRigidBody().ApplyForceY(0.0f);
                 level->player->jumpTime.Deactivate();
+                #ifdef COLLISION
                 std::clog << "Deactivate Jump!" << std::endl;
+                #endif
             }
         }
 
@@ -153,10 +159,18 @@ void GameEngine::HandlePressedKeys() {
         // Right
         else if (input.GetRight() == true) {
             level->player->GetRigidBody().ApplyForceX(2.0f);
+            level->player->faceLeft = false;
+            level->player->runTime += (float) frameDelay / 1000.0f;
         }
         // Left
         else if (input.GetLeft() == true) {
             level->player->GetRigidBody().ApplyForceX(-2.0f);
+            level->player->faceLeft = true;
+            level->player->runTime += (float) frameDelay / 1000.0f;
+        }
+        if (level->player->runTime > 0.08f) {
+            level->player->runSprite = !level->player->runSprite;
+            level->player->runTime = 0.0f;
         }
         break;
     case Scene::DEATH: throw "Scene not allowed!";

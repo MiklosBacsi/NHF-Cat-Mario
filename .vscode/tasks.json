@@ -10,6 +10,7 @@
                 // "-fsanitize=address",
                 // "-DDTOR",
                 "-DQUICK",
+                // "-DCOLLISION",
                 // "-DCPORTA",
                 // "-DMEMTRACE",
                 "-std=c++17",

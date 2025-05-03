@@ -58,9 +58,4 @@ bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 4. If collision cannot be avoided --> lastPosition
 5. Update hitbox etc.
 
-
-// returns how much A collides with B
-int OverhangRight(SDL_Rect A, SDL_Rect B);
-int OverhangLeft
-int OverhangUp
-int OverhangDown
+static GameEngine::GetInstance() --> returns instance or throws std::runtime_error if null_ptr

@@ -46,7 +46,9 @@ int GameObject::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) {
         return 0;
     int overHang = A.y + A.h - B.y + 1;
     if (overHang > 20) {
+        #ifdef COLLISION
         std::clog << "Critical Overhang: Down" << std::endl;
+        #endif
         return 0;
     }
     SDL_Rect middle = {A.x + (A.w/2), A.y + A.h + 5, 1, 1};

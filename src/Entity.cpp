@@ -16,9 +16,9 @@ SDL_Texture* Entity::textures = nullptr;
 /* ************************************************************************************ */
 
 /***** Class Entity *****/
-Entity::Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
+Entity::Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, bool faceLeft)
     : GameObject(hitBox, srcRect, destRect, textures), spawnPoint(hitBox),
-        previousPosition(spawnPoint), recoverX(false), recoverY(false)
+        previousPosition(spawnPoint), recoverX(false), recoverY(false), faceLeft(faceLeft)
     {
     //
 }
@@ -63,11 +63,13 @@ void Entity::LimitedBy(GameObject* object) {
         hitBox.x += left;
         rigidBody.ApplyVelocityX(0.0f);
     }
+    #ifdef COLLISION
     std::clog << "*****\n";
     if (right > 0) std::clog << "Collision: Right\t" << right << std::endl;
     if (left > 0) std::clog << "Collision: Left\t" << left << std::endl;
     if (up > 0) std::clog << "Collision: Up\t" << up << std::endl;
     if (down > 0) std::clog << "Collision: Down\t" << down << std::endl;
+    #endif
 }
 
 bool Entity::IsDead() const { return isRemoved; }
@@ -89,8 +91,8 @@ Entity::~Entity() {
 
 /***** Class Player *****/
 Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
-    : Entity(hitBox, srcRect, destRect), deathCount(4),
-        isForcedByFlag(false), isForcedByRobot(false)
+    : Entity(hitBox, srcRect, destRect, false), deathCount(4), isForcedByFlag(false),
+        isForcedByRobot(false), onGround(false), jump(false), runSprite(false), runTime(0.0f)
     {
     //
 }
@@ -107,11 +109,28 @@ void Player::Update(float dt) {
 }
 
 void Player::Render() {
+    // Chosing correct Sprite
+    if (faceLeft)
+        texture.SrcRect().y = 34;
+    else
+        texture.SrcRect().y = 0;
+    
+    if (isRemoved)
+        texture.SrcRect().x = 72;
+    else if (!onGround)
+        texture.SrcRect().x = 48;
+    else if (runSprite)
+        texture.SrcRect().x = 24;
+    else
+        texture.SrcRect().x = 0;
+        
     texture.Render();
     // HitBox:
     //rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
     // Dest Rect:
-    //rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    #ifdef COLLISION
+    rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    #endif
     // Previous Position:
     // rectangleRGBA(window->GetRenderer(), previousPosition.x, previousPosition.y, previousPosition.x + previousPosition.w, previousPosition.y + previousPosition.h, 0, 255, 0, 255);
 }
@@ -127,6 +146,7 @@ void Player::Reset() {
     isForcedByRobot = false;
     recoverX = false;
     recoverY = false;
+    texture.SrcRect() = {0, 0, 24, 34};
 }
 
 void Player::Touch(GameObject* object) {
@@ -155,8 +175,8 @@ Player::~Player() {
 /* ************************************************************************************ */
 
 /***** Class Enemy *****/
-Enemy::Enemy(SDL_Rect hitBox, float activationPoint, SDL_Rect srcRect, SDL_Rect destRect)
-    : Entity(hitBox, srcRect, destRect), isActivated(false), hasQuote(false),
+Enemy::Enemy(SDL_Rect hitBox, float activationPoint, SDL_Rect srcRect, SDL_Rect destRect, bool faceLeft)
+    : Entity(hitBox, srcRect, destRect, faceLeft), isActivated(false), hasQuote(false),
         activationPoint(activationPoint)
     {
     //

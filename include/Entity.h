@@ -24,8 +24,9 @@ protected:
     bool hasCollided;
     bool recoverX;
     bool recoverY;
+    bool faceLeft;
 public:
-    Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    Entity(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, bool faceLeft=true);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
@@ -47,6 +48,8 @@ private:
     bool onGround;
     bool jump;
     Timer jumpTime;
+    bool runSprite;
+    float runTime;
 public:
     Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     void Update(float dt);
@@ -66,7 +69,7 @@ protected:
     float activationPoint;
     struct Quote quote;
 public:
-    Enemy(SDL_Rect hitBox, float activationPoint, SDL_Rect srcRect, SDL_Rect destRect);
+    Enemy(SDL_Rect hitBox, float activationPoint, SDL_Rect srcRect, SDL_Rect destRect, bool faceLeft);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;
