@@ -25,7 +25,6 @@
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
-#include "Animation.h" // ????
 
 #define FPS 100
 
@@ -84,8 +83,10 @@ private:
     Language getLanguage() const;
     void CheckForDeath();
     void CheckForCollision();
+    void CheckForAnimation();
     void RecoverPosition();
     void UpdateRects();
+    void DrawDeathCount();
     int GetTransparency();
 public:
     GameEngine(RenderWindow& window);

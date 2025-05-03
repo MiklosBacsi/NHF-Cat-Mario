@@ -11,7 +11,6 @@
 #include "Texture.h"
 #include "RigidBody.h"
 #include "Entity.h"
-#include "GameEngine.h"
 
 SDL_Texture* Block::textures = nullptr;
 
@@ -43,17 +42,12 @@ void Block::Reset() {
 }
 
 void Block::TouchedBy(Entity* entity) {
-    //
     Limit(entity);
 }
 
 void Block::Limit(Entity* entity) {
     entity->LimitedBy(this);
 }
-
-// void Block::InteractUp(Entity* entity) {}
-
-// void Block::InteractDown(Entity* entity) {}
 
 Block::~Block() {
     if (Block::textures != nullptr) {
@@ -66,9 +60,9 @@ Block::~Block() {
 }
 /* ************************************************************************************ */
 
-/***** Class HiddenBlock *****/
+/***** Class Hidden Block *****/
 HiddenBlock::HiddenBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : Block(hitBox, srcRect,
-    destRect, true) {
+    destRect, true), playAnimation(false) {
 }
 
 void HiddenBlock::Reset() {
@@ -81,10 +75,9 @@ void HiddenBlock::TouchedBy(Entity* entity) {
     if (isRemoved && GameObject::OverhangUp(entity->HitBox(), hitBox) && entity->GetRigidBody().Velocity().y < 0) {
         isRemoved = false;
         Limit(entity);
-        // Play Coin Sound
-        // Coin Animation
+        playAnimation = true;
     }
-    if (!isRemoved)
+    else if (!isRemoved)
         Limit(entity);
 }
 
@@ -95,8 +88,64 @@ HiddenBlock::~HiddenBlock() {
 }
 /* ************************************************************************************ */
 
-/***** CLASS RENDER_WINDOW *****/
+/***** Class Brick Block *****/
+BrickBlock::BrickBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : Block(hitBox, srcRect,
+    destRect, false), playAnimation(false) {
+}
 
+void BrickBlock::TouchedBy(Entity* entity) {
+    if (!isRemoved && GameObject::OverhangUp(entity->HitBox(), hitBox) && entity->GetRigidBody().Velocity().y < 0) {
+        isRemoved = true;
+        Limit(entity);
+        playAnimation = true;
+    }
+    else if (!isRemoved)
+        Limit(entity);
+}
+
+BrickBlock::~BrickBlock() {
+    #ifdef DTOR
+    std::clog << "~BrickBlock Dtor" << std::endl;
+    #endif
+}
+/* ************************************************************************************ */
+
+/***** Class Mystery Block *****/
+MysteryBlock::MysteryBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : Block(hitBox, srcRect,
+    destRect, false), playAnimation(false) {
+}
+
+void MysteryBlock::Render() {
+    texture.Render();
+    // Dest Rect:
+    #ifdef COLLISION
+    rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    #endif
+}
+
+void MysteryBlock::Reset() {
+    texture.DestRect().x = hitBox.x;
+    texture.DestRect().y = hitBox.y;
+    isRemoved = false;
+    texture.SrcRect().x = 150;
+}
+
+void MysteryBlock::TouchedBy(Entity* entity) {
+    if (!isRemoved && GameObject::OverhangUp(entity->HitBox(), hitBox) && entity->GetRigidBody().Velocity().y < 0) {
+        isRemoved = true;
+        Limit(entity);
+        playAnimation = true;
+        texture.SrcRect().x = 120;
+    }
+    else
+        Limit(entity);
+}
+
+MysteryBlock::~MysteryBlock() {
+    #ifdef DTOR
+    std::clog << "~MysteryBlock Dtor" << std::endl;
+    #endif
+}
 /* ************************************************************************************ */
 
 /***** Class Grid *****/

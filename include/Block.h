@@ -25,22 +25,44 @@ public:
     virtual void Reset();
     virtual void TouchedBy(Entity* entity);
     virtual void Limit(Entity* entity);
-    // virtual void InteractUp(Entity* entity);
-    // virtual void InteractDown(Entity* entity);
     ~Block();
 };
 
 class HiddenBlock : public Block {
+    friend class GameEngine;
+private:
+    bool playAnimation;
 public:
     HiddenBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
     void Reset() override;
     void TouchedBy(Entity* entity) override;
-    // void InteractUp(Entity* entity) override;
-    // void InteractDown(Entity* entity) override;
     ~HiddenBlock();
 };
 
+class BrickBlock : public Block {
+    friend class GameEngine;
+private:
+    bool playAnimation;
+public:
+    BrickBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void TouchedBy(Entity* entity) override;
+    ~BrickBlock();
+};
+
+class MysteryBlock : public Block {
+    friend class GameEngine;
+private:
+    bool playAnimation;
+public:
+    MysteryBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void Render() override;
+    void Reset() override;
+    void TouchedBy(Entity* entity) override;
+    ~MysteryBlock();
+};
+
 class Grid {
+    friend class GameEngine;
 private:
     int width;
     int height;

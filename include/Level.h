@@ -17,9 +17,9 @@
 #include "Entity.h"
 #include "Block.h"
 #include "LevelElement.h"
-#include "Animation.h" // ???
+#include "CoinAnimation.h"
 
-#define LVL_WIDTH 20
+#define LVL_WIDTH 30
 #define LVL_HEIGHT 12
 #define BLOCK_SIZE 30
 #define SCALED_BLOCK_SIZE 75
@@ -39,22 +39,14 @@ private:
     size_t numberOfCheckpoints;
     size_t currentCheckpoint;
     std::string nextLevel;
+    CoinAnimation animation;
 public:
-    Level(std::string configFile, RenderWindow* window);
+    Level(std::string configFile, RenderWindow* window, int frameDelay);
     void Update(float dt);
     void Render();
     void Reset();
     ~Level();
 };
-
-
-
-
-
-
-
-
-
 
 #endif // CPORTA
 

@@ -27,7 +27,7 @@
 #include "Timer.h"
 #include "Input.h"
 #include "Sound.h"
-#include "Animation.h" // ????
+#include "CoinAnimation.h"
 
 const int GameEngine::frameDelay = 1000 / FPS;
 int GameEngine::frameTime = 0;
@@ -245,6 +245,8 @@ void GameEngine::UpdateGame() {
 
     CheckForCollision();
 
+    CheckForAnimation();
+
     RecoverPosition(); // if necesary
 
     UpdateRects();
@@ -263,13 +265,15 @@ void GameEngine::RenderItems() {
         }
         break;
     case Scene::MENU:
-        if (transition.GetPercent() < 0.5f) {
+        if (transition.GetPercent() < 0.4f) {
             menuScreen.Render();
             RenderMenuButtons();
         }
-        else {
-            if (level != nullptr)
-                level->Render();
+        else if (transition.GetPercent() > 0.4f && transition.GetPercent() < 0.6f && nextScene == Scene::GAME) {
+            DrawDeathCount();
+        }
+        else if (level != nullptr) {
+            level->Render();
         }
         break;
     case Scene::GAME:
@@ -286,11 +290,7 @@ void GameEngine::RenderItems() {
         {
             float percentage = transition.GetPercent();
             if (percentage > 0.4f && percentage < 0.6f) {
-                window->DrawBackground(0, 0, 0);
-                deathButton->DrawButton();
-                SDL_Rect src = {0, 0, 24, 35};
-                SDL_Rect dest = {700, 350, 60, 88};
-                SDL_RenderCopy(window->GetRenderer(), Entity::textures, &src, &dest);
+                DrawDeathCount();
             }
             else {
                 if (level != nullptr)
@@ -319,7 +319,9 @@ void GameEngine::RenderItems() {
 }
 
 void GameEngine::ApplyTransition() {
-    if (currentScene == Scene::GAME && nextScene == Scene::DEATH && transition.GetPercent() > 0.4f && transition.GetPercent() < 0.6f)
+    if (((currentScene == Scene::GAME && nextScene == Scene::DEATH)
+        || (currentScene == Scene::MENU && nextScene == Scene::GAME))
+        && transition.GetPercent() > 0.4f && transition.GetPercent() < 0.6f)
         return;
     
     window->ApplyTransition(GetTransparency());
@@ -377,8 +379,6 @@ void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
         else if (transition.IsMiddle()) {
             transition.ReachMiddle();
             PlaySound(Sound::BACKGROUND, true);
-            LoadLevel(levelType);
-            level->Reset();
         }
         return;
     }
@@ -388,6 +388,10 @@ void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
     currentLevel = levelType;
     transition.SetTransition(2000);
     StopSounds();
+    LoadLevel(levelType);
+    level->Reset();
+    std::string deathCaption = "x " + std::to_string(level->player->deathCount);
+    deathButton->UpdateCaption(deathCaption, ENGLISH);
 }
 
 void GameEngine::ChangeSceneFromGameToMenu() {
@@ -600,8 +604,8 @@ void GameEngine::LoadLevel(Level::Type levelType) {
         delete level;
 
     switch (levelType) {
-    case Level::LVL1: level = new Level("../res/levels/Level1.txt", window); currentLevel = Level::LVL1; break;
-    case Level::LVL2: level = new Level("../res/levels/Level1.txt", window); currentLevel = Level::LVL2; break;
+    case Level::LVL1: level = new Level("../res/levels/Level1.txt", window, frameDelay); currentLevel = Level::LVL1; break;
+    case Level::LVL2: level = new Level("../res/levels/Level1.txt", window, frameDelay); currentLevel = Level::LVL2; break;
     case Level::NONE: throw "Level type not allowed!";
     default: throw "Level not found!";
     }
@@ -625,6 +629,7 @@ void GameEngine::LoadSounds() {
     sounds.LoadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
     sounds.LoadSound("../res/audio/Death.mp3", Sound::DEATH);
     sounds.LoadSound("../res/audio/Jump.mp3", Sound::JUMP);
+    sounds.LoadSound("../res/audio/Break.mp3", Sound::BREAK);
     sounds.LoadSound("../res/audio/Coin.mp3", Sound::COIN);
     sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
     sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
@@ -634,7 +639,7 @@ Language GameEngine::getLanguage() const { return currentLanguage; }
 
 void GameEngine::CheckForDeath() {
     // Player leaves screen
-    if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false)
+    if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false && level->player->HitBox().y + level->player->HitBox().h > 0)
         level->player->Kill();
     // Enemy leaves screen
 }
@@ -647,6 +652,40 @@ void GameEngine::CheckForCollision() {
         level->player->GetRigidBody().ApplyForceY(0.0f);
     if (level->player->onGround && input.GetRight() == false && input.GetLeft() == false)
         level->player->GetRigidBody().Velocity() *= 0.9f;
+}
+
+void GameEngine::CheckForAnimation() {
+    int startColumn = GameObject::screen.x / level->grid.blockSize;
+    int endColumn = (GameObject::screen.x + GameObject::screen.w) / level->grid.blockSize + 1;
+    if (startColumn < 0) startColumn = 0;
+    if (endColumn > level->grid.width) endColumn = level->grid.width;
+
+    for (int row=0; row < level->grid.height; ++row) {
+        for (int column=startColumn; column < endColumn; ++column) {
+            if (level->grid.blocks.at(row * level->grid.width + column) != nullptr) {
+                if (HiddenBlock* block = dynamic_cast<HiddenBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
+                    if (block->playAnimation) {
+                        block->playAnimation = false;
+                        PlaySound(Sound::COIN);
+                        level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
+                    }
+                }
+                else if (BrickBlock* block = dynamic_cast<BrickBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
+                    if (block->playAnimation) {
+                        block->playAnimation = false;
+                        PlaySound(Sound::BREAK);
+                    }
+                }
+                else if (MysteryBlock* block = dynamic_cast<MysteryBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
+                    if (block->playAnimation) {
+                        block->playAnimation = false;
+                        PlaySound(Sound::COIN);
+                        level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void GameEngine::RecoverPosition() {
@@ -666,6 +705,14 @@ void GameEngine::UpdateRects() {
 }
 
 int GameEngine::GetTransparency() { return transition.GetTransparency(); }
+
+void GameEngine::DrawDeathCount() {
+    window->DrawBackground(0, 0, 0);
+    deathButton->DrawButton();
+    SDL_Rect src = {0, 0, 24, 35};
+    SDL_Rect dest = {700, 350, 60, 88};
+    SDL_RenderCopy(window->GetRenderer(), Entity::textures, &src, &dest);
+}
 /* ************************************************************************************ */
 
 /***** Destructor *****/

@@ -14,10 +14,11 @@
 #include "Entity.h"
 #include "Block.h"
 #include "LevelElement.h"
-#include "Animation.h" // ???
 #include "RenderWindow.h"
 
-Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE) {
+Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : player(nullptr),
+    grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png", (float) frameDelay / 1000.0f)
+    {
     GameObject::window = window;
 
     Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
@@ -66,10 +67,19 @@ Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), gr
         grid(3+i,12+i) = std::make_unique<HiddenBlock>(hitBox, srcRect, hitBox);
     }
 
-    // hitBox = {0 * scaledBlockSize, 10 * scaledBlockSize, scaledBlockSize, scaledBlockSize};
-    // blocks.push_back(std::make_unique<UpperDirtBlock>(hitBox, srcRect));
+    // BrickBlock
+    srcRect.x = 60;
+    for (int i=0; i < 3; ++i) {
+        hitBox = {(10+i) * SCALED_BLOCK_SIZE, (3+i) * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(3+i,10+i) = std::make_unique<BrickBlock>(hitBox, srcRect, hitBox);
+    }
 
-    
+    // HiddenBlock
+    srcRect.x = 150;
+    for (int i=0; i < 3; ++i) {
+        hitBox = {(20+i) * SCALED_BLOCK_SIZE, (3+i) * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(3+i,20+i) = std::make_unique<MysteryBlock>(hitBox, srcRect, hitBox);
+    }
 }
 
 void Level::Update(float dt) {
@@ -83,7 +93,6 @@ void Level::Update(float dt) {
     for (auto& element : elements)
         element->Update(dt);
 
-    // Some other logic might be required!!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if (GameObject::screen.x + (GameObject::screen.w / 2) < player->HitBox().x + player->HitBox().w)
         GameObject::screen.x = player->HitBox().x + player->HitBox().w - (GameObject::screen.w / 2);
 }
@@ -93,6 +102,8 @@ void Level::Render() {
 
     for (auto& element : elements)
         element->Render();
+
+    animation.Render(GameObject::screen.x, GameObject::window->GetRenderer());
 
     grid.Render();
 

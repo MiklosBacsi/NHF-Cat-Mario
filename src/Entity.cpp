@@ -9,7 +9,6 @@
 #include "Entity.h"
 #include "RigidBody.h"
 #include "Texture.h"
-#include "Animation.h" // ???
 
 SDL_Texture* Entity::textures = nullptr;
 
@@ -91,7 +90,7 @@ Entity::~Entity() {
 
 /***** Class Player *****/
 Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
-    : Entity(hitBox, srcRect, destRect, false), deathCount(4), isForcedByFlag(false),
+    : Entity(hitBox, srcRect, destRect, false), deathCount(3), isForcedByFlag(false),
         isForcedByRobot(false), onGround(false), jump(false), runSprite(false), runTime(0.0f)
     {
     //
@@ -102,6 +101,10 @@ void Player::Update(float dt) {
     hasCollided = false;
     rigidBody.Update(dt);
     hitBox.x += (int) rigidBody.GetPosition().x;
+    if (hitBox.x - GameObject::screen.x < 5)
+        hitBox.x = GameObject::screen.x + 5;
+    if (hitBox.x + hitBox.w >= GameObject::screen.x + GameObject::screen.w - 5)
+        hitBox.x = GameObject::screen.x + GameObject::screen.w - hitBox.w - 5;
     hitBox.y += (int) rigidBody.GetPosition().y;
     
     texture.DestRect().x = hitBox.x;
