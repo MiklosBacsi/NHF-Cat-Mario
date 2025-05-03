@@ -25,18 +25,18 @@ Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), gr
 
     float Scale = 2.5f;
     int Width = 24;
-    int Height = 35;
+    int Height = 34;
     int x = 200;
     int y = 100;
     float scaledWidth = (float) Width * Scale;
     float scaledHeight = (float) Height * Scale;
     SDL_Rect hitBox = {x, y, (int)scaledWidth, (int)scaledHeight};
-    SDL_Rect srcRect = {0, 0, Width - 1, Height - 1};
+    SDL_Rect srcRect = {0, 0, Width, Height};
     SDL_Rect destRect = {0, 0, (int)scaledWidth - 1, (int)scaledHeight - 1};
 
     player = std::make_unique<Player>(hitBox, srcRect, destRect);
 
-    srcRect = {0, 0, BLOCK_SIZE-1, BLOCK_SIZE-1};
+    srcRect = {0, 0, BLOCK_SIZE, BLOCK_SIZE};
 
 
     for (int i=0; i < LVL_WIDTH; ++i) {
@@ -57,6 +57,13 @@ Level::Level(std::string configFile, RenderWindow* window) : player(nullptr), gr
     for (int i=10; i < LVL_WIDTH; ++i) {
         hitBox = {i * SCALED_BLOCK_SIZE, 9 * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
         grid(9,i) = std::make_unique<Block>(hitBox, srcRect, hitBox);
+    }
+
+    // HiddenBlock
+    srcRect.x = 120;
+    for (int i=0; i < 3; ++i) {
+        hitBox = {(12+i) * SCALED_BLOCK_SIZE, (3+i) * SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE, SCALED_BLOCK_SIZE};
+        grid(3+i,12+i) = std::make_unique<HiddenBlock>(hitBox, srcRect, hitBox);
     }
 
     // hitBox = {0 * scaledBlockSize, 10 * scaledBlockSize, scaledBlockSize, scaledBlockSize};
@@ -96,6 +103,7 @@ void Level::Render() {
 }
 
 void Level::Reset() {
+    GameObject::screen.x = 0;
     player->Reset();
     
     for (auto& enemy : enemies)
@@ -105,13 +113,11 @@ void Level::Reset() {
     
     for (auto& element : elements)
         element->Reset();
-
-    GameObject::screen.x = 0;
 }
 
 Level::~Level() {
     #ifdef DTOR
-    std::clog << "~Level Dtor" << endl;
+    std::clog << "~Level Dtor" << std::endl;
     #endif
 }
 

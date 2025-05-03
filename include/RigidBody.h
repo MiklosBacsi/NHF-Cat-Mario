@@ -68,7 +68,7 @@ public:
     Vector2D& Force();
     Vector2D& Position();
     Vector2D& Velocity();
-    Vector2D& Acceleratoin();
+    Vector2D& Acceleration();
     ~RigidBody();
 };
 

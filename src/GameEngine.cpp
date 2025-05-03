@@ -38,7 +38,7 @@ GameEngine::GameEngine(RenderWindow& window) : level(nullptr), currentLevel(Leve
     exitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, 80)),
-    deathButton (new TextButton(Button::NONE, "hh", 610, 800, WHITE, REG30)),
+    deathButton (new TextButton(Button::NONE, " ", 820, 355, WHITE, MED50)),
     titleScreen("../res/img/TitleScreen.png", {0, 0, 1600, 900}),
     menuScreen("../res/img/MenuScreen.png", {0, 0, 1600, 900})
     {
@@ -123,6 +123,7 @@ void GameEngine::HandlePressedKeys() {
             level->player->jumpTime.Activate(100);
             level->player->jump = true;
             std::clog << "Activate Jump Time!" << std::endl;
+            PlaySound(Sound::JUMP);
         }
         // Down
         else if (input.GetDown() == true) {
@@ -270,9 +271,12 @@ void GameEngine::RenderItems() {
         case Scene::DEATH:
         {
             float percentage = transition.GetPercent();
-            if (percentage < 0.4f && percentage > 0.6f) {
+            if (percentage > 0.4f && percentage < 0.6f) {
                 window->DrawBackground(0, 0, 0);
                 deathButton->DrawButton();
+                SDL_Rect src = {0, 0, 24, 35};
+                SDL_Rect dest = {700, 350, 60, 88};
+                SDL_RenderCopy(window->GetRenderer(), Entity::textures, &src, &dest);
             }
             else {
                 if (level != nullptr)
@@ -300,13 +304,18 @@ void GameEngine::RenderItems() {
     }
 }
 
+void GameEngine::ApplyTransition() {
+    if (currentScene == Scene::GAME && nextScene == Scene::DEATH && transition.GetPercent() > 0.4f && transition.GetPercent() < 0.6f)
+        return;
+    
+    window->ApplyTransition(GetTransparency());
+}
+
 void GameEngine::LogScenes() const {
     std::clog << "Current: " << currentScene << "\tNext: " << nextScene << std::endl;
 }
 
 bool GameEngine::GetExitProgram() const { return exitProgram; }
-
-int GameEngine::GetTransparency() { return transition.GetTransparency(); }
 /* ************************************************************************************ */
 
 /***** Private Functions *****/
@@ -355,6 +364,7 @@ void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
             transition.ReachMiddle();
             PlaySound(Sound::BACKGROUND, true);
             LoadLevel(levelType);
+            level->Reset();
         }
         return;
     }
@@ -414,6 +424,8 @@ void GameEngine::ChangeSceneFromGameToDeathToGame() {
     // Handle changes (Runs only once)
     nextScene = Scene::DEATH;
     transition.SetTransition(3000);
+    std::string deathCaption = "x " + std::to_string(level->player->deathCount);
+    deathButton->UpdateCaption(deathCaption, ENGLISH);
     StopSounds();
     #ifndef QUICK
     PlaySound(Sound::DEATH);
@@ -598,6 +610,8 @@ void GameEngine::LoadSounds() {
     sounds.LoadSound("../res/audio/BackgroundMusic.mp3", Sound::BACKGROUND);
     sounds.LoadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
     sounds.LoadSound("../res/audio/Death.mp3", Sound::DEATH);
+    sounds.LoadSound("../res/audio/Jump.mp3", Sound::JUMP);
+    sounds.LoadSound("../res/audio/Coin.mp3", Sound::COIN);
     sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
     sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
 }
@@ -612,29 +626,8 @@ void GameEngine::CheckForDeath() {
 }
 
 void GameEngine::CheckForCollision() {
-    // for (auto& enemy : level->enemies) {
-    //     if (AABB(level->player->HitBox(), enemy->HitBox()))
-    //         level->player->Touch(enemy);
-    // }
-
     level->grid.CheckCollision(level->player.get());
 
-    // Apply transformation to fix collision
-    // int up = level->player->collideUp;
-    // int down = level->player->collideDown;
-    // if (up > 0 && down > 0) {
-    //     //ignore it :)
-    // }
-    // else if (up > 0) {
-    //     level->player->HitBox().y += up;
-    //     level->player->GetRigidBody().ApplyVelocityY(0.0f);
-    // }
-    // else if (down > 0) {
-    //     level->player->HitBox().y -= down;
-    //     level->player->GetRigidBody().ApplyVelocityY(0.0f);
-    //     level->player->GetRigidBody().ApplyForceY(RigidBody::gravity * -1.0f);
-    //     level->player->OnGround() = true;
-    // }
 
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
@@ -657,6 +650,8 @@ void GameEngine::UpdateRects() {
     // Previous Position
     level->player->UpdatePreviousPosition();
 }
+
+int GameEngine::GetTransparency() { return transition.GetTransparency(); }
 /* ************************************************************************************ */
 
 /***** Destructor *****/

@@ -19,13 +19,25 @@ class Block : public GameObject {
 public:
     static SDL_Texture* textures;
 
-    Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, bool removed=false);
     virtual void Update(float dt);
     virtual void Render();
     virtual void Reset();
     virtual void TouchedBy(Entity* entity);
     virtual void Limit(Entity* entity);
+    // virtual void InteractUp(Entity* entity);
+    // virtual void InteractDown(Entity* entity);
     ~Block();
+};
+
+class HiddenBlock : public Block {
+public:
+    HiddenBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void Reset() override;
+    void TouchedBy(Entity* entity) override;
+    // void InteractUp(Entity* entity) override;
+    // void InteractDown(Entity* entity) override;
+    ~HiddenBlock();
 };
 
 class Grid {

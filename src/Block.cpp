@@ -11,27 +11,34 @@
 #include "Texture.h"
 #include "RigidBody.h"
 #include "Entity.h"
+#include "GameEngine.h"
 
 SDL_Texture* Block::textures = nullptr;
 
 /* ************************************************************************************ */
 
 /***** Class Block *****/
-Block::Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : GameObject(hitBox, srcRect, destRect, Block::textures) {
+Block::Block(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, bool removed)
+    : GameObject(hitBox, srcRect, destRect, Block::textures, removed) {
     //
 }
 
 void Block::Update(float dt) {}
 
 void Block::Render() {
-    texture.Render();
+    if (!isRemoved)
+        texture.Render();
     // HitBox:
     // rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
     // Dest Rect:
-    //rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    // rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
 }
 
-void Block::Reset() {}
+void Block::Reset() {
+    texture.DestRect().x = hitBox.x;
+    texture.DestRect().y = hitBox.y;
+    isRemoved = false;
+}
 
 void Block::TouchedBy(Entity* entity) {
     //
@@ -42,16 +49,48 @@ void Block::Limit(Entity* entity) {
     entity->LimitedBy(this);
 }
 
+// void Block::InteractUp(Entity* entity) {}
+
+// void Block::InteractDown(Entity* entity) {}
+
 Block::~Block() {
-    SDL_DestroyTexture(Block::textures);
+    if (Block::textures != nullptr) {
+        SDL_DestroyTexture(Block::textures);
+        Block::textures = nullptr;
+    }
     #ifdef DTOR
     std::clog << "~Block Dtor" << std::endl;
     #endif
 }
 /* ************************************************************************************ */
 
-/***** Class UpperDirtBlock *****/
+/***** Class HiddenBlock *****/
+HiddenBlock::HiddenBlock(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect) : Block(hitBox, srcRect,
+    destRect, true) {
+}
 
+void HiddenBlock::Reset() {
+    texture.DestRect().x = hitBox.x;
+    texture.DestRect().y = hitBox.y;
+    isRemoved = true;
+}
+
+void HiddenBlock::TouchedBy(Entity* entity) {
+    if (isRemoved && GameObject::OverhangUp(entity->HitBox(), hitBox) && entity->GetRigidBody().Velocity().y < 0) {
+        isRemoved = false;
+        Limit(entity);
+        // Play Coin Sound
+        // Coin Animation
+    }
+    if (!isRemoved)
+        Limit(entity);
+}
+
+HiddenBlock::~HiddenBlock() {
+    #ifdef DTOR
+    std::clog << "~HiddenBlock Dtor" << std::endl;
+    #endif
+}
 /* ************************************************************************************ */
 
 /***** CLASS RENDER_WINDOW *****/

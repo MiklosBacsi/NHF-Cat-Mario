@@ -35,14 +35,12 @@ void Entity::LimitedBy(GameObject* object) {
         recoverX = true; // !!!!!!!!!!!!!!!!!!!!!4
         hasCollided = false;
     }
-    else if (up > 0 && up > collideUp) {
-        collideUp = up;
+    else if (up > 0) {
         hitBox.y += up;
         rigidBody.ApplyVelocityY(0.0f);
     }
-    else if (down > 0 && down > collideDown) {
-        collideDown = down -1;
-        hitBox.y -= (down - 1);
+    else if (down > 0) {
+        hitBox.y -= (down - 2);
         rigidBody.ApplyVelocityY(0.0f);
         rigidBody.ApplyForceY(RigidBody::gravity * -1.0f);
         if (Player* player = dynamic_cast<Player*>(this))
@@ -79,6 +77,10 @@ RigidBody& Entity::GetRigidBody() { return rigidBody; }
 void Entity::UpdatePreviousPosition() { previousPosition = hitBox; }
 
 Entity::~Entity() {
+    if (Entity::textures == nullptr) {
+        SDL_DestroyTexture(Entity::textures);
+        Entity::textures = nullptr;
+    }
     #ifdef DTOR
     std::clog << "~Entity Dtor" << std::endl;
     #endif
@@ -87,7 +89,7 @@ Entity::~Entity() {
 
 /***** Class Player *****/
 Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
-    : Entity(hitBox, srcRect, destRect),
+    : Entity(hitBox, srcRect, destRect), deathCount(4),
         isForcedByFlag(false), isForcedByRobot(false)
     {
     //
@@ -96,8 +98,6 @@ Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
 void Player::Update(float dt) {
     onGround = false;
     hasCollided = false;
-    collideDown = 0;
-    collideUp = 0;
     rigidBody.Update(dt);
     hitBox.x += (int) rigidBody.GetPosition().x;
     hitBox.y += (int) rigidBody.GetPosition().y;
@@ -111,7 +111,7 @@ void Player::Render() {
     // HitBox:
     //rectangleRGBA(window->GetRenderer(), hitBox.x, hitBox.y, hitBox.x + hitBox.w, hitBox.y + hitBox.h, 255, 0, 0, 255);
     // Dest Rect:
-    rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
+    //rectangleRGBA(window->GetRenderer(), texture.DestRect().x, texture.DestRect().y, texture.DestRect().x + texture.DestRect().w, texture.DestRect().y + texture.DestRect().h, 0, 0, 255, 255);
     // Previous Position:
     // rectangleRGBA(window->GetRenderer(), previousPosition.x, previousPosition.y, previousPosition.x + previousPosition.w, previousPosition.y + previousPosition.h, 0, 255, 0, 255);
 }
@@ -182,7 +182,6 @@ void Enemy::TouchedBy(Entity* entity) {
 }
 
 Enemy::~Enemy() {
-    SDL_DestroyTexture(Entity::textures);
     #ifdef DTOR
     std::clog << "~Enemy Dtor" << std::endl;
     #endif

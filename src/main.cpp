@@ -44,7 +44,7 @@ int main(int argc, char* arvg[]) {
         // 3. Display
         window.Clear();
         engine.RenderItems();
-        window.ApplyTransition(engine.GetTransparency());
+        engine.ApplyTransition();
         window.Display();
 
         // 4. Applys even FPS by delaying

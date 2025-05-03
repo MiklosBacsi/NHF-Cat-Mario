@@ -180,7 +180,7 @@ Vector2D& RigidBody::Position() { return position; };
 
 Vector2D& RigidBody::Velocity() { return velocity; };
 
-Vector2D& RigidBody::Acceleratoin() { return acceleration; };
+Vector2D& RigidBody::Acceleration() { return acceleration; };
 
 RigidBody::~RigidBody() {
     #ifdef DTOR

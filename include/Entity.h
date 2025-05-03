@@ -22,8 +22,6 @@ protected:
     SDL_Rect spawnPoint;
     SDL_Rect previousPosition;
     bool hasCollided;
-    int collideUp;
-    int collideDown;
     bool recoverX;
     bool recoverY;
 public:

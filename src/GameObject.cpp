@@ -35,6 +35,9 @@ int GameObject::OverhangLeft(const SDL_Rect& A, const SDL_Rect& B) {
 int GameObject::OverhangUp(const SDL_Rect& A, const SDL_Rect& B) {
     if (A.y <= B.y)
         return 0;
+    SDL_Rect middle = {A.x + (A.w/2), A.y - 5, 1, 1};
+    if (AABB(middle, B) == false)
+        return 0;
     return B.y + B.h - A.y;
 }
 
@@ -46,13 +49,16 @@ int GameObject::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) {
         std::clog << "Critical Overhang: Down" << std::endl;
         return 0;
     }
+    SDL_Rect middle = {A.x + (A.w/2), A.y + A.h + 5, 1, 1};
+    if (AABB(middle, B) == false)
+        return 0;
     return overHang;
 }
 /* ************************************************************************************ */
 
 /***** Class GameObject *****/
-GameObject::GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture)
-    : texture(texture, srcRect, destRect, true), hitBox(hitBox), isRemoved(false)
+GameObject::GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture, bool isRemoved)
+    : texture(texture, srcRect, destRect, true), hitBox(hitBox), isRemoved(isRemoved)
     {
     screen = {0, 0, window->GetWidth()-1, window->GetHeight()-1};
 }

@@ -14,9 +14,11 @@
 
 // Forward declaration
 class Entity;
+class GameEngine;
 
 class GameObject {
 public:
+    enum Direction { RIGHT, LEFT, UP, DOWN };
     static RenderWindow* window;
     static SDL_Rect screen;
     static bool AABB(const SDL_Rect& A, const SDL_Rect& B);
@@ -29,7 +31,7 @@ protected:
     SDL_Rect hitBox;
     bool isRemoved;
 public:
-    GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture);
+    GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture, bool isRemoved=false);
     virtual void Update(float dt) = 0;
     virtual void Render() = 0;
     virtual void Reset() = 0;

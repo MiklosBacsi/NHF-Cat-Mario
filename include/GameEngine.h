@@ -86,6 +86,7 @@ private:
     void CheckForCollision();
     void RecoverPosition();
     void UpdateRects();
+    int GetTransparency();
 public:
     GameEngine(RenderWindow& window);
     void ApplyEvenFPS();
@@ -95,9 +96,9 @@ public:
     void UpdateButtons();
     void UpdateGame();
     void RenderItems();
+    void ApplyTransition();
     void LogScenes() const;
     bool GetExitProgram() const;
-    int GetTransparency();
     ~GameEngine();
 };
 
