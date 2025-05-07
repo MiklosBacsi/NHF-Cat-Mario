@@ -101,10 +101,17 @@ void Player::Update(float dt) {
     hasCollided = false;
     rigidBody.Update(dt);
     hitBox.x += (int) rigidBody.GetPosition().x;
-    if (hitBox.x - GameObject::screen.x < 5)
+    
+    if (hitBox.x - GameObject::screen.x < 5) {
         hitBox.x = GameObject::screen.x + 5;
-    if (hitBox.x + hitBox.w >= GameObject::screen.x + GameObject::screen.w - 5)
+        rigidBody.ApplyVelocityX(0.0f);
+    }
+        
+    if (hitBox.x + hitBox.w >= GameObject::screen.x + GameObject::screen.w - 5) {
         hitBox.x = GameObject::screen.x + GameObject::screen.w - hitBox.w - 5;
+        rigidBody.ApplyVelocityX(0.0f);
+    }
+        
     hitBox.y += (int) rigidBody.GetPosition().y;
     
     texture.DestRect().x = hitBox.x;

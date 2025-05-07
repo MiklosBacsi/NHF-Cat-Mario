@@ -463,9 +463,13 @@ void GameEngine::HandleEvent(SDL_Event& event) {
                 PlaySound(Sound::CLICK);
             input.SetEsc(true);
             break;
+        case SDLK_UP:
         case SDLK_w: input.SetW(true); break;
+        case SDLK_LEFT:
         case SDLK_a: input.SetA(true); break;
+        case SDLK_DOWN:
         case SDLK_s: input.SetS(true); break;
+        case SDLK_RIGHT:
         case SDLK_d: input.SetD(true); break;
         case SDLK_p:
             if (currentScene == Scene::GAME && !isPaused)
@@ -479,9 +483,13 @@ void GameEngine::HandleEvent(SDL_Event& event) {
     case SDL_KEYUP:
         switch (event.key.keysym.sym) {
         case SDLK_ESCAPE: input.SetEsc(false); input.DisableEsc() = false; break;
-        case SDLK_w: input.SetW(false); level->player->jump = false; break;
+        case SDLK_UP:
+        case SDLK_w: input.SetW(false); if (level != nullptr) level->player->jump = false; break;
+        case SDLK_LEFT:
         case SDLK_a: input.SetA(false); break;
+        case SDLK_DOWN:
         case SDLK_s: input.SetS(false); break;
+        case SDLK_RIGHT:
         case SDLK_d: input.SetD(false); break;
         case SDLK_p: input.SetP(false); break;
         case SDLK_SPACE: input.SetSpace(false); break;
@@ -650,7 +658,7 @@ void GameEngine::CheckForCollision() {
 
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
-    if (level->player->onGround && input.GetRight() == false && input.GetLeft() == false)
+    if (level->player->onGround && input.GetRight() == input.GetLeft())
         level->player->GetRigidBody().Velocity() *= 0.9f;
 }
 
