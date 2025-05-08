@@ -47,6 +47,8 @@ void Input::SetSpace(bool pressed) { Space = pressed; }
 
 bool& Input::DisableEsc() { return disableEsc; }
 
+bool& Input::DisableP() { return disableP; }
+
 Input::~Input() {
     #ifdef DTOR
     std::clog << "~Input Dtor" << std::endl;

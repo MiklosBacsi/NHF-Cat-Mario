@@ -14,6 +14,7 @@ private:
     bool P;
     bool Space;
     bool disableEsc;
+    bool disableP;
 public:
     Input();
     int GetMouseX() const;
@@ -37,6 +38,7 @@ public:
     void SetP(bool pressed);
     void SetSpace(bool pressed);
     bool& DisableEsc();
+    bool& DisableP();
     ~Input();
 };
 

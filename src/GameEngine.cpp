@@ -101,15 +101,23 @@ void GameEngine::HandlePressedKeys() {
             ChangeSceneFromMenuToGame(Level::LVL1);
         break;
     case Scene::GAME:
-        if (input.GetPause())
+        if (input.GetPause() && !isPaused && input.DisableP() == false) {
             isPaused = true;
+            input.DisableP() = true;
+        }
+        else if (input.GetPause() && isPaused && input.DisableP() == false) {
+            isPaused = false;
+            input.DisableP() = true;
+        }
         if (input.GetEsc()) {
-            if (isPaused) {
+            if (isPaused && input.DisableEsc() == false) {
                 isPaused = false;
                 input.DisableEsc() = true;
             }
-            else if (input.DisableEsc() == false)
-                ChangeSceneFromGameToMenu();
+            else if (!isPaused && input.DisableEsc() == false) {
+                isPaused = true;
+                input.DisableEsc() = true;
+            }
         }
         if (isPaused || nextScene == Scene::MENU)
             return;
@@ -459,7 +467,7 @@ void GameEngine::HandleEvent(SDL_Event& event) {
 
         switch (event.key.keysym.sym) {
         case SDLK_ESCAPE:
-            if (currentScene == Scene::GAME)
+            if (currentScene == Scene::GAME && input.DisableEsc() == false)
                 PlaySound(Sound::CLICK);
             input.SetEsc(true);
             break;
@@ -472,11 +480,11 @@ void GameEngine::HandleEvent(SDL_Event& event) {
         case SDLK_RIGHT:
         case SDLK_d: input.SetD(true); break;
         case SDLK_p:
-            if (currentScene == Scene::GAME && !isPaused)
+            if (currentScene == Scene::GAME && input.DisableP() == false)
                 PlaySound(Sound::CLICK);
             input.SetP(true);
             break;
-        case SDLK_SPACE: input.SetSpace(true); break;
+        case SDLK_SPACE: input.SetSpace(true); input.SetW(true); break;
         default: break;
         }
         break;
@@ -491,8 +499,8 @@ void GameEngine::HandleEvent(SDL_Event& event) {
         case SDLK_s: input.SetS(false); break;
         case SDLK_RIGHT:
         case SDLK_d: input.SetD(false); break;
-        case SDLK_p: input.SetP(false); break;
-        case SDLK_SPACE: input.SetSpace(false); break;
+        case SDLK_p: input.SetP(false); input.DisableP() = false; break;
+        case SDLK_SPACE: input.SetSpace(false); input.SetW(false); break;
         default: break;
         }
         break;
