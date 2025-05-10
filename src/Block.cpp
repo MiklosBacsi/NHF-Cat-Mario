@@ -216,6 +216,9 @@ void Grid::CheckCollision(Entity* entity) {
             if (blocks.at(row * width + column) != nullptr)
                 if (GameObject::AABB(entity->HitBox(), blocks.at(row * width + column)->HitBox()))
                     blocks.at(row * width + column)->TouchedBy(entity);
+    
+    if (entity->HasCollided() == false && dynamic_cast<Enemy*>(entity))
+        entity->GetRigidBody().ApplyForceY(0.0f);
 }
 
 Grid::~Grid() {

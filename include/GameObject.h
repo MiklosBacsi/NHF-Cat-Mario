@@ -26,6 +26,7 @@ public:
     static int OverhangLeft(const SDL_Rect& A, const SDL_Rect& B);
     static int OverhangUp(const SDL_Rect& A, const SDL_Rect& B);
     static int OverhangDown(const SDL_Rect& A, const SDL_Rect& B);
+    static bool JumpedOnHead(const SDL_Rect& player, const SDL_Rect& enemy);
 protected:
     Texture texture;
     SDL_Rect hitBox;

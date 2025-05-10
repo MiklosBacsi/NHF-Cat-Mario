@@ -93,7 +93,7 @@ void GameEngine::HandlePressedKeys() {
         return;
     switch (currentScene) {
     case Scene::NONE: break;
-    case Scene::TITLE: ChangeSceneFromTitleToMenu(); PlaySound(Sound::CLICK); break;
+    case Scene::TITLE: ChangeSceneFromTitleToMenu(); break;
     case Scene::MENU:
         if (input.GetEsc())
             ExitProgram();
@@ -119,7 +119,7 @@ void GameEngine::HandlePressedKeys() {
                 input.DisableEsc() = true;
             }
         }
-        if (isPaused || nextScene == Scene::MENU)
+        if (isPaused || nextScene == Scene::MENU || level->player->IsDead())
             return;
         // Vertically Still
         if (input.GetUp() && input.GetDown()) {
@@ -241,7 +241,7 @@ void GameEngine::UpdateButtons() {
 }
 
 void GameEngine::UpdateGame() {
-    if (level == nullptr || isPaused || currentScene != Scene::GAME || nextScene == Scene::DEATH)
+    if (level == nullptr || isPaused || currentScene != Scene::GAME /*|| nextScene == Scene::DEATH*/)
         return;
     
     if (level->player->IsDead())
@@ -375,6 +375,7 @@ void GameEngine::ChangeSceneFromTitleToMenu() {
     // Handle changes (Runs only once)
     nextScene = Scene::MENU;
     transition.SetTransition(2000);
+    PlaySound(Sound::CLICK);
 }
 
 void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
@@ -509,7 +510,6 @@ void GameEngine::HandleEvent(SDL_Event& event) {
             return;
         if (currentScene == Scene::TITLE) {
             ChangeSceneFromTitleToMenu();
-            PlaySound(Sound::CLICK);
             return;
         }
         if (event.button.button == SDL_BUTTON_LEFT) {
@@ -535,7 +535,7 @@ void GameEngine::HandleEvent(SDL_Event& event) {
 
 void GameEngine::HandleMenuButtons() {
     for (Button* button : menuButtons) {
-        if (button->IsClicked(input.GetMouseX(), input.GetMouseY())) {
+        if (button->IsClicked(input.GetMouseX(), input.GetMouseY()) && button->GetButtonType() != Button::NONE) {
             PlaySound(Sound::CLICK);
             switch (button->GetButtonType()) {
             case Button::EXIT: ExitProgram(); return;
@@ -563,7 +563,7 @@ void GameEngine::HandleGameButtons() {
     if (isPaused == false)
         return;
     for (Button* button : gameButtons) {
-        if (button->IsClicked(input.GetMouseX(), input.GetMouseY())) {
+        if (button->IsClicked(input.GetMouseX(), input.GetMouseY()) && button->GetButtonType() != Button::NONE) {
             PlaySound(Sound::CLICK);
             switch (button->GetButtonType()) {
             case Button::EXIT: ChangeSceneFromGameToMenu(); isPaused = false; break;
@@ -645,8 +645,10 @@ void GameEngine::LoadSounds() {
     sounds.LoadSound("../res/audio/Lobby.mp3", Sound::LOBBY);
     sounds.LoadSound("../res/audio/Death.mp3", Sound::DEATH);
     sounds.LoadSound("../res/audio/Jump.mp3", Sound::JUMP);
+    sounds.LoadSound("../res/audio/Roar.mp3", Sound::ROAR);
     sounds.LoadSound("../res/audio/Break.mp3", Sound::BREAK);
     sounds.LoadSound("../res/audio/Coin.mp3", Sound::COIN);
+    sounds.LoadSound("../res/audio/Pop.mp3", Sound::POP);
     sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
     sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
 }
@@ -658,11 +660,32 @@ void GameEngine::CheckForDeath() {
     if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false && level->player->HitBox().y + level->player->HitBox().h > 0)
         level->player->Kill();
     // Enemy leaves screen
+    for (auto& enemy : level->enemies)
+        if(enemy->isActivated && enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
+            enemy->Kill();
 }
 
 void GameEngine::CheckForCollision() {
-    level->grid.CheckCollision(level->player.get());
+    // Player <==> Blocks
+    if (level->player->IsDead() == false && level->player->isGiga == false)
+        level->grid.CheckCollision(level->player.get());
 
+    // Enemies <==> Blocks
+    for (auto& enemy : level->enemies)
+        if (enemy->isActivated && enemy->isRemoved == false)
+            level->grid.CheckCollision(enemy.get());
+
+    // Player <==> Enemies
+    for (auto& enemy : level->enemies)
+        if (enemy->isActivated && enemy->IsDead() == false && GameObject::AABB(level->player->HitBox(), enemy->HitBox()))
+            enemy->TouchedBy(level->player.get());
+
+    // Enemies <==> Enemies
+    for (auto& enemy : level->enemies)
+        for (auto& other : level->enemies)
+            if (enemy != other && enemy->IsDead() == false && other->IsDead() == false && enemy->isActivated && other->isActivated)
+                if (GameObject::AABB(enemy->HitBox(), other->HitBox()))
+                    enemy->Touch(other.get());
 
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
@@ -702,6 +725,19 @@ void GameEngine::CheckForAnimation() {
             }
         }
     }
+
+    // Check for Entity Sounds
+    if (level->player->playSound && level->player->isGiga) {
+        level->player->playSound = false;
+        sounds.PlaySound(Sound::ROAR);
+    }
+
+    for (auto& enemy : level->enemies) {
+        if (enemy->playSound) {
+            enemy->playSound = false;
+            sounds.PlaySound(Sound::POP);
+        }
+    }
 }
 
 void GameEngine::RecoverPosition() {
@@ -716,8 +752,14 @@ void GameEngine::UpdateRects() {
     level->player->UpdateDestRect();
     level->grid.UpdateDestRect();
 
+    for (auto& enemy : level->enemies)
+        enemy->UpdateDestRect();
+
     // Previous Position
     level->player->UpdatePreviousPosition();
+
+    for (auto& enemy : level->enemies)
+        enemy->UpdatePreviousPosition();
 }
 
 int GameEngine::GetTransparency() { return transition.GetTransparency(); }

@@ -8,6 +8,7 @@
 #include "GameObject.h"
 #include "Texture.h"
 #include "RigidBody.h"
+#include "Entity.h"
 
 RenderWindow* GameObject::window = nullptr;
 SDL_Rect GameObject::screen = {0,0,0,0};
@@ -56,6 +57,15 @@ int GameObject::OverhangDown(const SDL_Rect& A, const SDL_Rect& B) {
         return 0;
     return overHang;
 }
+
+bool GameObject::JumpedOnHead(const SDL_Rect& player, const SDL_Rect& enemy) {
+    if (player.y + player.h >= enemy.y + enemy.h || AABB(player,enemy) == false)
+        return false;
+    int overHang = player.y + player.h - enemy.y + 1;
+    if (overHang > 20)
+        return false;
+    return true;
+}
 /* ************************************************************************************ */
 
 /***** Class GameObject *****/
@@ -70,6 +80,10 @@ SDL_Rect& GameObject::HitBox() { return hitBox; }
 void GameObject::UpdateDestRect() {
     texture.DestRect().x = hitBox.x - screen.x;
     texture.DestRect().y = hitBox.y - screen.y;
+
+    if (dynamic_cast<Entity*>(this)) {
+        texture.DestRect().y -= 1;
+    }
 }
 
 GameObject::~GameObject() {

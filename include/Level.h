@@ -40,6 +40,19 @@ private:
     size_t currentCheckpoint;
     std::string nextLevel;
     CoinAnimation animation;
+
+    void AddPlayer(int x, int y);
+    void AddUpperDirtBlock(int row, int column);
+    void AddLowerDirtBlock(int row, int column);
+    void AddBrickBlock(int row, int column);
+    void AddBoxyBlock(int row, int column);
+    void AddHiddenBlock(int row, int column);
+    void AddMysteryBlock(int row, int column);
+    void AddCommonEnemy(int x, int y, int activationPoint, bool faceLeft);
+    void AddSoldierEnemy(int x, int y, int activationPoint, bool faceLeft);
+    void AddKingEnemy(int x, int y, int activationPoint, bool faceLeft);
+    void AddRedMushroomEnemy(int x, int y, int activationPoint, bool faceLeft);
+    void AddPurpleMushroomEnemy(int x, int y, int activationPoint, bool faceLeft);
 public:
     Level(std::string configFile, RenderWindow* window, int frameDelay);
     void Update(float dt);
