@@ -74,7 +74,7 @@ void Entity::LimitedBy(GameObject* object) {
     }
 
     #ifdef COLLISION
-    if (Enemy* enemy = dynamic_cast<Enemy*>(this)) {
+    if (dynamic_cast<Player*>(this)) {
         std::clog << "*****\n";
         if (right > 0) std::clog << "Collision: Right\t" << right << std::endl;
         if (left > 0) std::clog << "Collision: Left\t" << left << std::endl;
@@ -82,7 +82,6 @@ void Entity::LimitedBy(GameObject* object) {
         if (down > 0) std::clog << "Collision: Down\t" << down << std::endl;
         rigidBody.Velocity().Log();
         rigidBody.Acceleration().Log();
-        enemy->IsDead();
     }
     #endif
 }
@@ -96,10 +95,6 @@ RigidBody& Entity::GetRigidBody() { return rigidBody; }
 void Entity::UpdatePreviousPosition() { previousPosition = hitBox; }
 
 Entity::~Entity() {
-    if (Entity::textures != nullptr) {
-        SDL_DestroyTexture(Entity::textures);
-        Entity::textures = nullptr;
-    }
     #ifdef DTOR
     std::clog << "~Entity Dtor" << std::endl;
     #endif

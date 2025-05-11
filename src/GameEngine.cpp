@@ -669,6 +669,9 @@ void GameEngine::CheckForDeath() {
     for (auto& enemy : level->enemies)
         if(enemy->isActivated && enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
             enemy->Kill();
+    for (auto& enemy : level->tempEnemies)
+        if(enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
+            enemy->Kill();
     // Level Element leaves screen
     for (auto& element : level->elements)
         if (element->isActivated && element->isRemoved == false && GameObject::AABB(element->HitBox(), GameObject::screen) == false)
@@ -684,16 +687,38 @@ void GameEngine::CheckForCollision() {
     for (auto& enemy : level->enemies)
         if (enemy->isActivated && enemy->isRemoved == false)
             level->grid.CheckCollision(enemy.get());
+    
+    for (auto& enemy : level->tempEnemies)
+        if (enemy->isRemoved == false)
+            level->grid.CheckCollision(enemy.get());
 
     // Player <==> Enemies
     for (auto& enemy : level->enemies)
         if (enemy->isActivated && enemy->IsDead() == false && GameObject::AABB(level->player->HitBox(), enemy->HitBox()))
             level->player->Touch(enemy.get());
 
+    for (auto& enemy : level->tempEnemies)
+        if (enemy->IsDead() == false && GameObject::AABB(level->player->HitBox(), enemy->HitBox()))
+            level->player->Touch(enemy.get());
+
     // Enemies <==> Enemies
     for (auto& enemy : level->enemies)
         for (auto& other : level->enemies)
             if (enemy != other && enemy->IsDead() == false && other->IsDead() == false && enemy->isActivated && other->isActivated)
+                if (GameObject::AABB(enemy->HitBox(), other->HitBox()))
+                    enemy->Touch(other.get());
+    
+    for (auto& enemy : level->enemies)
+        for (auto& other : level->tempEnemies)
+            if (enemy->IsDead() == false && other->IsDead() == false && enemy->isActivated)
+                if (GameObject::AABB(enemy->HitBox(), other->HitBox())) {
+                    enemy->Touch(other.get());
+                    other->Touch(enemy.get());  // necessary for handling all interactions
+                }
+
+    for (auto& enemy : level->tempEnemies)
+        for (auto& other : level->tempEnemies)
+            if (enemy != other && enemy->IsDead() == false && other->IsDead() == false)
                 if (GameObject::AABB(enemy->HitBox(), other->HitBox()))
                     enemy->Touch(other.get());
     
@@ -709,6 +734,12 @@ void GameEngine::CheckForCollision() {
                 if (GameObject::AABB(enemy->HitBox(), element->HitBox()))
                     enemy->Touch(element.get());
 
+    for (auto& enemy : level->tempEnemies)
+        for (auto& element : level->elements)
+            if (enemy->IsDead() == false && element->isActivated && element->isRemoved == false)
+                if (GameObject::AABB(enemy->HitBox(), element->HitBox()))
+                    enemy->Touch(element.get());
+
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
     if (level->player->onGround && input.GetRight() == input.GetLeft())
@@ -716,6 +747,7 @@ void GameEngine::CheckForCollision() {
 }
 
 void GameEngine::CheckForAnimation() {
+    // Block Sounds and Animations
     int startColumn = GameObject::screen.x / level->grid.blockSize;
     int endColumn = (GameObject::screen.x + GameObject::screen.w) / level->grid.blockSize + 1;
     if (startColumn < 0) startColumn = 0;
@@ -724,6 +756,7 @@ void GameEngine::CheckForAnimation() {
     for (int row=0; row < level->grid.height; ++row) {
         for (int column=startColumn; column < endColumn; ++column) {
             if (level->grid.blocks.at(row * level->grid.width + column) != nullptr) {
+                // Hidden Block
                 if (HiddenBlock* block = dynamic_cast<HiddenBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
                     if (block->playAnimation) {
                         block->playAnimation = false;
@@ -731,17 +764,51 @@ void GameEngine::CheckForAnimation() {
                         level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
                     }
                 }
+                // Brick Block
                 else if (BrickBlock* block = dynamic_cast<BrickBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
                     if (block->playAnimation) {
                         block->playAnimation = false;
                         PlaySound(Sound::BREAK);
                     }
                 }
+                // Mystery Block
                 else if (MysteryBlock* block = dynamic_cast<MysteryBlock*>(level->grid.blocks.at(row * level->grid.width + column).get())) {
                     if (block->playAnimation) {
                         block->playAnimation = false;
-                        PlaySound(Sound::COIN);
-                        level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
+
+                        // Add Coin or Spawn Random Enemy
+                        switch (std::rand() % 10) {
+                        // Common Enemy
+                        case 0: level->tempEnemies.push_back(
+                            std::make_unique<CommonEnemy>((SDL_Rect){block->HitBox().x, block->HitBox().y-75, 75, 68}, 0,
+                            (SDL_Rect){0, 68, 30, 27}, 30, (SDL_Rect){block->HitBox().x, block->HitBox().y-75, 75, 68}, false));
+                            break;
+                        // Soldier Enemy
+                        case 1: level->tempEnemies.push_back(
+                            std::make_unique<SoldierEnemy>((SDL_Rect){block->HitBox().x, block->HitBox().y-100, 75, 92}, 0,
+                            (SDL_Rect){0, 95, 30, 38}, 30, (SDL_Rect){block->HitBox().x, block->HitBox().y-100, 75, 92}, false));
+                            break;
+                        // King Enemy
+                        case 2: level->tempEnemies.push_back(
+                            std::make_unique<KingEnemy>((SDL_Rect){block->HitBox().x, block->HitBox().y-75, 80, 82}, 0,
+                            (SDL_Rect){60, 68, 32, 33}, 32, (SDL_Rect){block->HitBox().x, block->HitBox().y-75, 80, 82}, false));
+                            break;
+                        // Red Mushroom Enemy
+                        case 3: level->tempEnemies.push_back(
+                            std::make_unique<RedMushroomEnemy>((SDL_Rect){block->HitBox().x, block->HitBox().y-75, 73, 73}, 0,
+                            (SDL_Rect){62, 131, 29, 29}, 29, (SDL_Rect){block->HitBox().x, block->HitBox().y-75, 73, 73}, false));
+                            break;
+                        // Purple Mushroom Enemy
+                        case 4: level->tempEnemies.push_back(
+                            std::make_unique<PurpleMushroomEnemy>((SDL_Rect){block->HitBox().x, block->HitBox().y-75, 73, 75}, 0,
+                            (SDL_Rect){63, 101, 29, 30}, 29, (SDL_Rect){block->HitBox().x, block->HitBox().y-75, 73, 75}, false));
+                            break;
+
+                        default:
+                            PlaySound(Sound::COIN);
+                            level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
+                            break;
+                        }
                     }
                 }
             }
@@ -753,8 +820,14 @@ void GameEngine::CheckForAnimation() {
         level->player->playSound = false;
         sounds.PlaySound(Sound::ROAR);
     }
-    // Check for Entity Sounds
+    // Check for Enemy Sounds
     for (auto& enemy : level->enemies) {
+        if (enemy->playSound) {
+            enemy->playSound = false;
+            sounds.PlaySound(Sound::POP);
+        }
+    }
+    for (auto& enemy : level->tempEnemies) {
         if (enemy->playSound) {
             enemy->playSound = false;
             sounds.PlaySound(Sound::POP);
@@ -786,6 +859,10 @@ void GameEngine::AssignQuote() {
         for (auto& enemy : level->enemies)
             if ((enemy->IsDead() == false && enemy->isActivated && enemy->HitBox().x - GameObject::screen.x > 0) && (leftMostEnemy == nullptr || (enemy->HitBox().x < leftMostEnemy->HitBox().x)))
                 leftMostEnemy = enemy.get();
+        
+        for (auto& enemy : level->tempEnemies)
+            if ((enemy->IsDead() == false && enemy->HitBox().x - GameObject::screen.x > 0) && (leftMostEnemy == nullptr || (enemy->HitBox().x < leftMostEnemy->HitBox().x)))
+                leftMostEnemy = enemy.get();
 
         if (leftMostEnemy == nullptr)
             return;
@@ -816,6 +893,8 @@ void GameEngine::UpdateRects() {
 
     for (auto& enemy : level->enemies)
         enemy->UpdateDestRect();
+    for (auto& enemy : level->tempEnemies)
+        enemy->UpdateDestRect();
 
     for (auto& element : level->elements)
         element->UpdateDestRect();
@@ -824,6 +903,8 @@ void GameEngine::UpdateRects() {
     level->player->UpdatePreviousPosition();
 
     for (auto& enemy : level->enemies)
+        enemy->UpdatePreviousPosition();
+    for (auto& enemy : level->tempEnemies)
         enemy->UpdatePreviousPosition();
 }
 

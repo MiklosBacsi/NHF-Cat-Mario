@@ -35,6 +35,7 @@ public:
 private:
     std::unique_ptr<Player> player;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::vector<std::unique_ptr<Enemy>> tempEnemies;
     Grid grid;
     std::vector<std::unique_ptr<LevelElement>> elements;
     size_t numberOfCheckpoints;

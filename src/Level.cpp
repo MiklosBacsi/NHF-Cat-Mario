@@ -29,17 +29,17 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : pla
     AddPlayer(200, 550);
 
     AddSoldierEnemy(1200, 100, 1000, true);
-    AddCommonEnemy(1200, 100, 1000, false);
-    AddKingEnemy(1150, 100, 1000, true);
-    AddSoldierEnemy(1150, 100, 1000, false);
-    AddPurpleMushroomEnemy(1100, 100, 1000, true);
-    AddRedMushroomEnemy(1100, 100, 1000, false);
-    AddFish(800, 850, 700, true);
-    AddLaser(500, 300, 400, true);
+    // AddCommonEnemy(1200, 100, 1000, false);
+    // AddKingEnemy(1150, 100, 1000, true);
+    // AddSoldierEnemy(1150, 100, 1000, false);
+    // AddPurpleMushroomEnemy(1100, 100, 1000, true);
+    // AddRedMushroomEnemy(1100, 100, 1000, false);
+    // AddFish(800, 850, 700, true);
+    // AddLaser(500, 300, 400, true);
 
     AddHighTube(500, 600);
     AddMiddleTube(800, 500);
-    AddLowTube(1300, 600);
+    // AddLowTube(1300, 600);
 
     AddHill(1000, 500);
     AddTree(1500, 500);
@@ -72,14 +72,19 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : pla
     //     AddBrickBlock(3+i, 10+i);
 
     // Mytery Block
-    // for (int i=0; i < 3; ++i)
-    //     AddMysteryBlock(3+i, 21+i);
+    for (int i=0; i < 3; ++i)
+        AddMysteryBlock(3+i, 21+i);
+    
+    for (int i=0; i < 3; ++i)
+        AddMysteryBlock(3+i, 14+i);
 }
 
 void Level::Update(float dt) {
     player->Update(dt);
     
     for (auto& enemy : enemies)
+        enemy->Update(dt);
+    for (auto& enemy : tempEnemies)
         enemy->Update(dt);
 
     grid.Update(dt);
@@ -103,6 +108,8 @@ void Level::Render() {
 
     for (auto& enemy : enemies)
         enemy->Render();
+    for (auto& enemy: tempEnemies)
+        enemy->Render();
 
     if (quoteButton != nullptr)
         quoteButton->DrawButton();
@@ -124,9 +131,16 @@ void Level::Reset() {
 
     enemyWithQuote = nullptr;
     quoteButton.reset();
+
+    // Delete temporary Enemies that are spawned by Mystery Blocks
+    tempEnemies.clear();
 }
 
 Level::~Level() {
+    if (Entity::textures != nullptr) {
+        SDL_DestroyTexture(Entity::textures);
+        Entity::textures = nullptr;
+    }
     #ifdef DTOR
     std::clog << "~Level Dtor" << std::endl;
     #endif
