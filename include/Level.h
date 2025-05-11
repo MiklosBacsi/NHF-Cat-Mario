@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 
+#include "RenderWindow.h"
 #include "GameObject.h"
 #include "Texture.h"
 #include "RigidBody.h"
@@ -40,6 +41,9 @@ private:
     size_t currentCheckpoint;
     std::string nextLevel;
     CoinAnimation animation;
+    Quote quote;
+    Enemy* enemyWithQuote;
+    std::unique_ptr<TextButton> quoteButton;
 
     void AddPlayer(int x, int y);
     void AddUpperDirtBlock(int row, int column);

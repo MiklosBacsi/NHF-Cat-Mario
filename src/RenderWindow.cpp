@@ -100,12 +100,12 @@ TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x
     texture.DestRect().h = surface->h;
 }
 
-TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, int bgOpacity, bool isSelected)
+TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, int bgOpacity, bool isSelected, Language language)
     : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(caption), captionType(Lang::NONE),
         surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity)
     {
 
-    surface = TTF_RenderUTF8_Blended(window->GetFont(font, ENGLISH), caption.c_str(), GetColour(colour));    
+    surface = TTF_RenderUTF8_Blended(window->GetFont(font, language), caption.c_str(), GetColour(colour));    
     texture.GetTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
 
     texture.SrcRect().w = surface->w;

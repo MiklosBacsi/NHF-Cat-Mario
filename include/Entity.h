@@ -73,10 +73,8 @@ class Enemy : public Entity {
     friend class GameEngine;
 protected:
     bool isActivated;
-    bool hasQuote;
     int activationPoint;
     int shiftTextureRight;
-    struct Quote quote;
 public:
     Enemy(SDL_Rect hitBox, int activationPoint, SDL_Rect srcRect, int shiftTextureRight, SDL_Rect destRect, bool faceLeft);
     virtual void Update(float dt);

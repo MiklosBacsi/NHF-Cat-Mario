@@ -17,7 +17,8 @@
 #include "RenderWindow.h"
 
 Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : player(nullptr),
-    grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png", (float) frameDelay / 1000.0f)
+    grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png",
+    (float) frameDelay / 1000.0f), enemyWithQuote(nullptr)
     {
     GameObject::window = window;
 
@@ -90,6 +91,9 @@ void Level::Render() {
     for (auto& enemy : enemies)
         enemy->Render();
 
+    if (quoteButton != nullptr)
+        quoteButton->DrawButton();
+
     player->Render();
 }
 
@@ -104,6 +108,9 @@ void Level::Reset() {
     
     for (auto& element : elements)
         element->Reset();
+
+    enemyWithQuote = nullptr;
+    quoteButton.reset();
 }
 
 Level::~Level() {

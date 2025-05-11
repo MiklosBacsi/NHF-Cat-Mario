@@ -6,6 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
+#include <memory>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -34,7 +35,7 @@ int GameEngine::frameTime = 0;
 RenderWindow* GameEngine::window = nullptr;
 /* ************************************************************************************ */
 /***** Constructor *****/
-GameEngine::GameEngine(RenderWindow& window) : level(nullptr), currentLevel(Level::NONE), completedLevels(Level::NONE),
+GameEngine::GameEngine(RenderWindow& window) : currentLevel(Level::NONE), completedLevels(Level::NONE),
     exitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, 80)),
@@ -238,12 +239,19 @@ void GameEngine::UpdateButtons() {
     // Game Buttons
     for (Button* button : gameButtons)
         UpdateSingeButton(button);
+
+    // Quote Button
+    if (level != nullptr && level->enemyWithQuote != nullptr)
+        level->quote = LangMod[currentLanguage]->GetQuote(level->quote.quoteIndex);
 }
 
 void GameEngine::UpdateGame() {
-    if (level == nullptr || isPaused || currentScene != Scene::GAME /*|| nextScene == Scene::DEATH*/)
+    if (level == nullptr || currentScene != Scene::GAME)
         return;
-    
+    AssignQuote();
+    if (isPaused)
+        return;
+        
     if (level->player->IsDead())
         ChangeSceneFromGameToDeathToGame();
 
@@ -414,8 +422,7 @@ void GameEngine::ChangeSceneFromGameToMenu() {
             transition.ReachMiddle();
             PlaySound(Sound::LOBBY, true);
             
-            delete level;
-            level = nullptr;
+            level.reset();
         }
         return;
     }
@@ -600,7 +607,7 @@ void GameEngine::UpdateSingeButton(Button* button) {
             static_cast<TextButton*>(button)->DestroySelectBoxTexture();
             break;
         default:
-            throw "ButtonType not found!";
+            throw "Language not found!";
         }
     }
 
@@ -616,12 +623,9 @@ void GameEngine::UpdateSingeButton(Button* button) {
 }
 
 void GameEngine::LoadLevel(Level::Type levelType) {
-    if (level != nullptr)
-        delete level;
-
     switch (levelType) {
-    case Level::LVL1: level = new Level("../res/levels/Level1.txt", window, frameDelay); currentLevel = Level::LVL1; break;
-    case Level::LVL2: level = new Level("../res/levels/Level1.txt", window, frameDelay); currentLevel = Level::LVL2; break;
+    case Level::LVL1: level.reset(new Level("../res/levels/Level1.txt", window, frameDelay)); currentLevel = Level::LVL1; break;
+    case Level::LVL2: level.reset(new Level("../res/levels/Level1.txt", window, frameDelay)); currentLevel = Level::LVL2; break;
     case Level::NONE: throw "Level type not allowed!";
     default: throw "Level not found!";
     }
@@ -737,6 +741,34 @@ void GameEngine::CheckForAnimation() {
             enemy->playSound = false;
             sounds.PlaySound(Sound::POP);
         }
+    }
+}
+
+void GameEngine::AssignQuote() {
+    if (level->enemyWithQuote == nullptr || level->enemyWithQuote->IsDead()) {
+        level->enemyWithQuote = nullptr;
+        level->quoteButton.reset();
+    }
+
+    // Search for new enemy for Quote
+    if (level->enemyWithQuote == nullptr) {
+        Enemy* leftMostEnemy = nullptr;
+        for (auto& enemy : level->enemies)
+            if ((enemy->IsDead() == false && enemy->isActivated && enemy->HitBox().x - GameObject::screen.x > 0) && (leftMostEnemy == nullptr || (enemy->HitBox().x < leftMostEnemy->HitBox().x)))
+                leftMostEnemy = enemy.get();
+
+        if (leftMostEnemy == nullptr)
+            return;
+
+        level->enemyWithQuote = leftMostEnemy;
+        
+        level->quote = LangMod[currentLanguage]->GetRandomQuote();
+    }
+    // Update quote
+    if (level->enemyWithQuote != nullptr) {
+        level->quoteButton.reset(new TextButton(Button::NONE, level->quote.quote,
+            level->enemyWithQuote->HitBox().x + level->enemyWithQuote->HitBox().w - GameObject::screen.x + 5,
+            level->enemyWithQuote->HitBox().y - GameObject::screen.y, Colour::BLACK, MED15, 100, false, currentLanguage));
     }
 }
 

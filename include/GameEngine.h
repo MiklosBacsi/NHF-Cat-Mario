@@ -9,6 +9,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
+#include <memory>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,7 +44,7 @@ public:
     static int frameTime;
 private:
     Transition transition;
-    Level* level;
+    std::unique_ptr<Level> level;
     Level::Type currentLevel;
     Level::Type completedLevels;
     bool exitProgram;
@@ -84,6 +85,7 @@ private:
     void CheckForDeath();
     void CheckForCollision();
     void CheckForAnimation();
+    void AssignQuote();
     void RecoverPosition();
     void UpdateRects();
     void DrawDeathCount();

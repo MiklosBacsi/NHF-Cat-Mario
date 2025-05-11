@@ -18,13 +18,14 @@
 
                 /***** GAME *****/
                 "${workspaceFolder}/src/*.cpp",
+                "-o", "${workspaceFolder}/bin/Cat-Mario",
 
                 /***** TEST *****/
                 // "${workspaceFolder}/test/TestMain.cpp",
                 // "${workspaceFolder}/src/RigidBody.cpp",
                 // "${workspaceFolder}/src/LanguageModule.cpp",
+                //"-o", "${workspaceFolder}/bin/Cat-Mario-Test",
 
-                "-o", "${workspaceFolder}/bin/Cat-Mario",
                 "-lSDL2",
                 "-lSDL2_gfx",
                 "-lSDL2_ttf",

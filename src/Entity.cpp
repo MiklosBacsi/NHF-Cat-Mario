@@ -223,8 +223,7 @@ Player::~Player() {
 
 /***** Class Enemy *****/
 Enemy::Enemy(SDL_Rect hitBox, int activationPoint, SDL_Rect srcRect, int shiftTextureRight, SDL_Rect destRect, bool faceLeft)
-    : Entity(hitBox, srcRect, destRect, faceLeft), isActivated(false), hasQuote(false),
-        activationPoint(activationPoint), shiftTextureRight(shiftTextureRight)
+    : Entity(hitBox, srcRect, destRect, faceLeft), isActivated(false), activationPoint(activationPoint), shiftTextureRight(shiftTextureRight)
     {
     //
 }
@@ -270,7 +269,6 @@ void Enemy::Reset() {
     isRemoved = false;
     recoverX = false;
     recoverY = false;
-    hasQuote = false;
     isActivated = false;
     playSound = false;
 }
