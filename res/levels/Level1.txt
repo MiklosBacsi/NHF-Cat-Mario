@@ -1,0 +1,5 @@
+Uncompleted
+false // isLastLevel
+Level2.txt //nextLevel
+5 // Number of checkpoints
+(x,y)

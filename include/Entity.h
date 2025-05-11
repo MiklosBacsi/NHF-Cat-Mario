@@ -45,7 +45,7 @@ public:
 class Player : public Entity {
     friend class GameEngine;
 public:
-    static int position;
+    static int position;        // x coordinate + width
     static int GetPosition();   // Necessary for comparison with Enemy's activationPoint
 private:
     int deathCount;
@@ -72,6 +72,7 @@ public:
 class Enemy : public Entity {
     friend class GameEngine;
 protected:
+    bool faceLeftDefault;
     bool isActivated;
     int activationPoint;
     int shiftTextureRight;

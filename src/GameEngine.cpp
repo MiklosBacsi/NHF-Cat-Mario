@@ -652,6 +652,8 @@ void GameEngine::LoadSounds() {
     sounds.LoadSound("../res/audio/Roar.mp3", Sound::ROAR);
     sounds.LoadSound("../res/audio/Break.mp3", Sound::BREAK);
     sounds.LoadSound("../res/audio/Coin.mp3", Sound::COIN);
+    sounds.LoadSound("../res/audio/Fish.mp3", Sound::FISH);
+    sounds.LoadSound("../res/audio/Laser.mp3", Sound::LASER);
     sounds.LoadSound("../res/audio/Pop.mp3", Sound::POP);
     sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
     sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
@@ -667,6 +669,10 @@ void GameEngine::CheckForDeath() {
     for (auto& enemy : level->enemies)
         if(enemy->isActivated && enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
             enemy->Kill();
+    // Level Element leaves screen
+    for (auto& element : level->elements)
+        if (element->isActivated && element->isRemoved == false && GameObject::AABB(element->HitBox(), GameObject::screen) == false)
+            element->isRemoved = true;
 }
 
 void GameEngine::CheckForCollision() {
@@ -682,7 +688,7 @@ void GameEngine::CheckForCollision() {
     // Player <==> Enemies
     for (auto& enemy : level->enemies)
         if (enemy->isActivated && enemy->IsDead() == false && GameObject::AABB(level->player->HitBox(), enemy->HitBox()))
-            enemy->TouchedBy(level->player.get());
+            level->player->Touch(enemy.get());
 
     // Enemies <==> Enemies
     for (auto& enemy : level->enemies)
@@ -690,6 +696,18 @@ void GameEngine::CheckForCollision() {
             if (enemy != other && enemy->IsDead() == false && other->IsDead() == false && enemy->isActivated && other->isActivated)
                 if (GameObject::AABB(enemy->HitBox(), other->HitBox()))
                     enemy->Touch(other.get());
+    
+    // Player <==> Elements
+    for (auto& element : level->elements)
+        if (GameObject::AABB(level->player->HitBox(), element->HitBox()) && level->player->IsDead() == false)
+            level->player->Touch(element.get());
+
+    // Enemies <==> Elements
+    for (auto& enemy : level->enemies)
+        for (auto& element : level->elements)
+            if (enemy->IsDead() == false && enemy->isActivated && element->isActivated && element->isRemoved == false)
+                if (GameObject::AABB(enemy->HitBox(), element->HitBox()))
+                    enemy->Touch(element.get());
 
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
@@ -730,16 +748,28 @@ void GameEngine::CheckForAnimation() {
         }
     }
 
-    // Check for Entity Sounds
+    // Check for Roar Sound
     if (level->player->playSound && level->player->isGiga) {
         level->player->playSound = false;
         sounds.PlaySound(Sound::ROAR);
     }
-
+    // Check for Entity Sounds
     for (auto& enemy : level->enemies) {
         if (enemy->playSound) {
             enemy->playSound = false;
             sounds.PlaySound(Sound::POP);
+        }
+    }
+    // Check for Element Sounds
+    for (auto& element : level->elements) {
+        if (element->playSound) {
+            element->playSound = false;
+            if (dynamic_cast<Fish*>(element.get()))
+                PlaySound(Sound::FISH);
+            else if (dynamic_cast<Laser*>(element.get()))
+                PlaySound(Sound::LASER);
+            else
+                throw "Unknown Level Element!";
         }
     }
 }
@@ -786,6 +816,9 @@ void GameEngine::UpdateRects() {
 
     for (auto& enemy : level->enemies)
         enemy->UpdateDestRect();
+
+    for (auto& element : level->elements)
+        element->UpdateDestRect();
 
     // Previous Position
     level->player->UpdatePreviousPosition();

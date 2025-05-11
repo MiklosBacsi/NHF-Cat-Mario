@@ -57,6 +57,19 @@ private:
     void AddKingEnemy(int x, int y, int activationPoint, bool faceLeft);
     void AddRedMushroomEnemy(int x, int y, int activationPoint, bool faceLeft);
     void AddPurpleMushroomEnemy(int x, int y, int activationPoint, bool faceLeft);
+    void AddHill(int x, int y);
+    void AddTree(int x, int y);
+    void AddGrass(int x, int y);
+    void AddCloud(int x, int y);
+    void AddFish(int x, int y, int activationPoint, bool faceUp);
+    void AddLaser(int x, int y, int activationPoint, bool faceLeft);
+    void AddHighTube(int x, int y);
+    void AddMiddleTube(int x, int y);
+    void AddLowTube(int x, int y);
+
+    void ReadCoordinate();
+    bool ReadBool();
+    int ReadInt();
 public:
     Level(std::string configFile, RenderWindow* window, int frameDelay);
     void Update(float dt);

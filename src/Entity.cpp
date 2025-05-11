@@ -96,7 +96,7 @@ RigidBody& Entity::GetRigidBody() { return rigidBody; }
 void Entity::UpdatePreviousPosition() { previousPosition = hitBox; }
 
 Entity::~Entity() {
-    if (Entity::textures == nullptr) {
+    if (Entity::textures != nullptr) {
         SDL_DestroyTexture(Entity::textures);
         Entity::textures = nullptr;
     }
@@ -223,7 +223,8 @@ Player::~Player() {
 
 /***** Class Enemy *****/
 Enemy::Enemy(SDL_Rect hitBox, int activationPoint, SDL_Rect srcRect, int shiftTextureRight, SDL_Rect destRect, bool faceLeft)
-    : Entity(hitBox, srcRect, destRect, faceLeft), isActivated(false), activationPoint(activationPoint), shiftTextureRight(shiftTextureRight)
+    : Entity(hitBox, srcRect, destRect, faceLeft), faceLeftDefault(faceLeft), isActivated(false),
+        activationPoint(activationPoint), shiftTextureRight(shiftTextureRight)
     {
     //
 }
@@ -236,7 +237,7 @@ void Enemy::Update(float dt) {
     hasCollided = false;
     rigidBody.Update(dt);
     
-    hitBox.x += (int) rigidBody.GetPosition().x;        
+    hitBox.x += (int) rigidBody.GetPosition().x;
     hitBox.y += (int) rigidBody.GetPosition().y;
 
     if (faceLeft)
@@ -271,6 +272,7 @@ void Enemy::Reset() {
     recoverY = false;
     isActivated = false;
     playSound = false;
+    faceLeft = faceLeftDefault;
 }
 
 void Enemy::Touch(GameObject* object) {
@@ -284,7 +286,6 @@ Enemy::~Enemy() {
     std::clog << "~Enemy Dtor" << std::endl;
     #endif
 }
-#endif // CPORTA
 /* ************************************************************************************ */
 
 /***** Class Common Enemy *****/
@@ -481,3 +482,4 @@ PurpleMushroomEnemy::~PurpleMushroomEnemy() {
     std::clog << "~PurpleMushroomEnemy Dtor" << std::endl;
     #endif
 }
+#endif // CPORTA

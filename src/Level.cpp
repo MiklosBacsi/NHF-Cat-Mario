@@ -22,8 +22,9 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : pla
     {
     GameObject::window = window;
 
-    Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
     Block::textures = Texture::LoadStaticTexture("../res/img/Block.png");
+    Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
+    LevelElement::textures = Texture::LoadStaticTexture("../res/img/LevelElement.png");
 
     AddPlayer(200, 550);
 
@@ -33,6 +34,18 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : pla
     AddSoldierEnemy(1150, 100, 1000, false);
     AddPurpleMushroomEnemy(1100, 100, 1000, true);
     AddRedMushroomEnemy(1100, 100, 1000, false);
+    AddFish(800, 850, 700, true);
+    AddLaser(500, 300, 400, true);
+
+    AddHighTube(500, 600);
+    AddMiddleTube(800, 500);
+    AddLowTube(1300, 600);
+
+    AddHill(1000, 500);
+    AddTree(1500, 500);
+    AddGrass(800, 600);
+    AddCloud(1300, 500);
+
 
     // Upper Dirt
     for (int i=10; i < LVL_WIDTH; ++i)
@@ -198,6 +211,60 @@ void Level::AddPurpleMushroomEnemy(int x, int y, int activationPoint, bool faceL
     SDL_Rect hitBox = {x, y, 73, 75};
     SDL_Rect srcRect = {63, 101, 29, 30};
     enemies.push_back(std::make_unique<PurpleMushroomEnemy>(hitBox, activationPoint, srcRect, 29, hitBox, faceLeft));
+}
+
+void Level::AddHill(int x, int y) {
+    SDL_Rect destRect = {x, y, 360, 158};
+    SDL_Rect srcRect = {0, 40, 144, 63};
+    elements.push_back(std::make_unique<LevelElement>(destRect, srcRect, destRect));
+}
+
+void Level::AddTree(int x, int y) {
+    SDL_Rect destRect = {x, y, 65, 125};
+    SDL_Rect srcRect = {122, 103, 26, 50};
+    elements.push_back(std::make_unique<LevelElement>(destRect, srcRect, destRect));
+}
+
+void Level::AddGrass(int x, int y) {
+    SDL_Rect destRect = {x, y, 162, 60};
+    SDL_Rect srcRect = {122, 167, 65, 24};
+    elements.push_back(std::make_unique<LevelElement>(destRect, srcRect, destRect));
+}
+
+void Level::AddCloud(int x, int y) {
+    SDL_Rect destRect = {x, y, 175, 100};
+    SDL_Rect srcRect = {0, 0, 70, 40};
+    elements.push_back(std::make_unique<Cloud>(destRect, srcRect, destRect, 70));
+}
+
+void Level::AddFish(int x, int y, int activationPoint, bool faceUp) {
+    SDL_Rect destRect = {x, y, 73, 105};
+    SDL_Rect srcRect = {144, 61, 29, 42};
+    elements.push_back(std::make_unique<Fish>(destRect, srcRect, destRect, activationPoint, faceUp));
+}
+
+void Level::AddLaser(int x, int y, int activationPoint, bool faceLeft) {
+    SDL_Rect destRect = {x, y, 302, 40};
+    SDL_Rect srcRect = {0, 285, 121, 16};
+    elements.push_back(std::make_unique<Laser>(destRect, srcRect, destRect, activationPoint, faceLeft));
+}
+
+void Level::AddHighTube(int x, int y) {
+    SDL_Rect destRect = {x, y, 152, 290};
+    SDL_Rect srcRect = {0, 103, 61, 116};
+    elements.push_back(std::make_unique<Tube>(destRect, srcRect, destRect));
+}
+
+void Level::AddMiddleTube(int x, int y) {
+    SDL_Rect destRect = {x, y, 152, 220};
+    SDL_Rect srcRect = {61, 103, 61, 88};
+    elements.push_back(std::make_unique<Tube>(destRect, srcRect, destRect));
+}
+
+void Level::AddLowTube(int x, int y) {
+    SDL_Rect destRect = {x, y, 152, 147};
+    SDL_Rect srcRect = {0, 219, 61, 59};
+    elements.push_back(std::make_unique<Tube>(destRect, srcRect, destRect));
 }
 
 #endif // CPORTA

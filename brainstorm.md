@@ -6,12 +6,8 @@ Textrue egy külön fájlba!
 bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 
 *** To-do: ***
-- Enemy Quote!!!
+- MyteryBlock: random enemy / coin
 - Level Element:
-    - Generic: Mountain, Hill, Grass
-    - Cloud
-    - Tube (Low, Middle, High)
-    - Fish
     - Checkpoint Flag
     - End Flag
     - House
@@ -20,10 +16,6 @@ bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 - Rewrite Tests
 - Documentation
 - CMake!!!!!!!!!!!!!!!
-
-Entity Quote:
-Select the enemy that's the left-most --> give the quote to him,
-and if he dies regenerate a new quote for the left-most enemy
 
 
 Class Level:
