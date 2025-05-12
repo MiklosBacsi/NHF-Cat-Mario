@@ -1,5 +1,81 @@
-Uncompleted
-false // isLastLevel
-Level2.txt //nextLevel
-5 // Number of checkpoints
-(x,y)
+Grid
+(50,12)
+Player
+(50,580)
+UpperDirtBlock
+2
+(0,0)
+(1,1)
+LowerDirtBlock
+5
+(11,0)
+(11,1)
+(11,2)
+(11,3)
+(11,4)
+BrickBlock
+1
+(0,3)
+BoxyBlock
+1
+(0,5)
+HiddenBlock
+2
+(7,1)
+(7,2)
+MysteryBlock
+2
+(6,3)
+(6,4)
+CommonEnemy
+1
+(1000,100) 100 true
+SoldierEnemy
+1
+(1000,100) 150 false
+KingEnemy
+1
+(1000,100) 200 true
+RedMushroomEnemy
+1
+(1000,100) 250 false
+PurpleMushroomEnemy
+1
+(1000,100) 300 true
+Hill
+1
+(500,0)
+Tree
+1
+(1200,0)
+Grass
+1
+(600, 400)
+Cloud
+1
+(1600, 700)
+Fish
+2
+(700,100) 350 true
+(800,100) 350 false
+Laser
+2
+(1500,100) 400 true
+(500,100) 400 false
+HighTube
+1
+(1400, 300)
+MiddleTube
+1
+(1350, 500)
+LowTube
+1
+(1300, 700)
+CheckpointFlag
+0
+EndFlag
+1
+(2000, 10)
+House
+1
+(1800, 500)

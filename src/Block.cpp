@@ -149,8 +149,21 @@ MysteryBlock::~MysteryBlock() {
 /* ************************************************************************************ */
 
 /***** Class Grid *****/
-Grid::Grid(int width, int height, int blockSize) : width(width), height(height),
-    blockSize(blockSize), blocks(width * height) {
+Grid::Grid(int blockSize) : width(0), height(0),
+    blockSize(blockSize) {
+}
+
+void Grid::InitGrid(int width, int height) {
+    this->width = width;
+    this->height = height;
+
+    blocks.clear();
+    blocks.reserve(width * height);
+
+    int numberOfBlocks = width * height;
+
+    for (int i=0; i < numberOfBlocks; ++i)
+        blocks.push_back(nullptr);
 }
 
 std::unique_ptr<Block>& Grid::operator()(int row, int column) {

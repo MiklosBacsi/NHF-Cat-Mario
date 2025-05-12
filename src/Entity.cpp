@@ -189,6 +189,7 @@ void Player::Reset() {
     hitBox = spawnPoint;
     previousPosition = spawnPoint;
     texture.DestRect() = spawnPoint;
+    faceLeft = false;
     isRemoved = false;
     isForcedByFlag = false;
     isGiga = false;
@@ -232,6 +233,7 @@ void Player::MakeGiga() {
 void Player::SetButtomOfFlag(int y) {
     isForcedByFlag = true;
     buttomOfFlag = y;
+    faceLeft = false;
 }
 
 bool Player::IsForcedByFlag() const { return isForcedByFlag; }

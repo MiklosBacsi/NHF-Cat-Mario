@@ -1,0 +1,87 @@
+Grid
+(50,12)
+Player
+(50,580)
+UpperDirtBlock
+2
+(0,0)
+(1,1)
+LowerDirtBlock
+25
+(11,0)
+(11,1)
+(11,2)
+(11,3)
+(11,4)
+(11,5)
+(11,6)
+(11,7)
+(11,8)
+(11,9)
+(11,10)
+(11,11)
+(11,12)
+(11,13)
+(11,14)
+(11,15)
+(11,16)
+(11,17)
+(11,18)
+(11,19)
+(11,20)
+(11,21)
+(11,22)
+(11,23)
+(11,24)
+BrickBlock
+0
+BoxyBlock
+0
+HiddenBlock
+0
+MysteryBlock
+0
+CommonEnemy
+1
+(1000,100) 100 true
+SoldierEnemy
+0
+KingEnemy
+0
+RedMushroomEnemy
+0
+PurpleMushroomEnemy
+0
+Hill
+0
+Tree
+1
+(1200,0)
+Grass
+1
+(600, 400)
+Cloud
+0
+Fish
+2
+(700,800) 600 true
+(800,100) 650 false
+Laser
+0
+HighTube
+0
+MiddleTube
+0
+LowTube
+0
+CheckpointFlag
+3
+(200, 500)
+(800, 500)
+(1200, 500)
+EndFlag
+1
+(1500, 10)
+House
+1
+(1600, 650);

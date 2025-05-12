@@ -7,6 +7,8 @@
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -27,6 +29,17 @@
 
 // Forward declaration
 class RenderWindow;
+
+struct Coordinate {
+    int x;
+    int y;
+};
+
+struct EnemyData {
+    Coordinate spawnPoint;
+    int activationPoint;
+    bool faceLeft;
+};
 
 class Level {
     friend class GameEngine;
@@ -69,9 +82,11 @@ private:
     void AddEndFlag(int x, int y);
     void AddHouse(int x, int y);
 
-    void ReadCoordinate();
-    bool ReadBool();
-    int ReadInt();
+    void LoadLevelFromConfigFile(std::string configFile);
+    bool ParseBool(const std::string& token);
+    int ReadInt(std::ifstream& in);
+    Coordinate ReadCoordinate(std::ifstream& in);
+    EnemyData ReadEnemyData(std::ifstream& in);
 public:
     Level(std::string configFile, RenderWindow* window, int frameDelay);
     void Update(float dt);

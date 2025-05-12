@@ -414,6 +414,7 @@ void GameEngine::ChangeSceneFromMenuToGame() {
     StopSounds();
     LoadLevel();
     level->Reset();
+    level->Update((float)frameDelay);
     std::string deathCaption = "x " + std::to_string(level->player->deathCount);
     deathButton->UpdateCaption(deathCaption, ENGLISH);
 }

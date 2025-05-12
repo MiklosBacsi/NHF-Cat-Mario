@@ -69,7 +69,8 @@ private:
     int blockSize;
     std::vector<std::unique_ptr<Block>> blocks;
 public:
-    Grid(int width, int height, int blockSize);
+    Grid(int blockSize);
+    void InitGrid(int width, int height);
     std::unique_ptr<Block>& operator()(int row, int column);
     std::unique_ptr<Block>& operator[](int index);
     int Size() const;

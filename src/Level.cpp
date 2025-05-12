@@ -4,7 +4,10 @@
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
+#include <vector>
 #include <memory>
 
 #include "Level.h"
@@ -19,7 +22,7 @@
 bool Level::isCompleted = false;
 
 Level::Level(std::string configFile, RenderWindow* window, int frameDelay)
-    : player(nullptr), grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png",
+    : player(nullptr), grid(SCALED_BLOCK_SIZE), animation("../res/img/Coin.png",
         (float) frameDelay / 1000.0f), enemyWithQuote(nullptr)
     {
     GameObject::window = window;
@@ -30,76 +33,7 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay)
     Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
     LevelElement::textures = Texture::LoadStaticTexture("../res/img/LevelElement.png");
 
-    std::clog << "Config File:\n" << configFile << std::endl;
-
-    AddPlayer(50, 550);
-
-    AddCheckpointFlag(400, 400);
-    AddCheckpointFlag(1200, 400);
-    AddCheckpointFlag(2000, 400);
-
-    // AddSoldierEnemy(1200, 100, 1000, true);
-    // AddCommonEnemy(1200, 100, 1000, false);
-    // AddKingEnemy(1150, 100, 1000, true);
-    // AddSoldierEnemy(1150, 100, 1000, false);
-    // AddPurpleMushroomEnemy(1100, 100, 1000, true);
-    // AddRedMushroomEnemy(1100, 100, 1000, false);
-    // AddFish(800, 850, 700, true);
-    // AddFish(1000, 850, 900, true);
-    // AddFish(1200, 850, 1100, true);
-    // AddFish(1400, 850, 1300, true);
-    // AddLaser(500, 300, 400, true);
-
-    AddHighTube(500, 600);
-    AddMiddleTube(800, 500);
-    // AddLowTube(1300, 600);
-
-    AddHill(1000, 500);
-    AddTree(1500, 500);
-    AddGrass(800, 600);
-    AddCloud(1300, 500);
-
-
-    // Upper Dirt
-    for (int i=10; i < 30; ++i)
-        AddUpperDirtBlock(9, i);
-    for (int i=0; i < 15; ++i)
-        AddUpperDirtBlock(11, 32+i);
-    
-    
-    // End Flag
-    AddEndFlag(75*34 + 10, 75*10 - 752);
-    AddBoxyBlock(10, 34);
-
-    // House
-    AddHouse(75*37, 75*11 - 218);
-
-    // Lower Dirt
-    for (int i=0; i < 30; ++i)
-        AddLowerDirtBlock(10, i);
-
-    // Boxy Block
-    for (int i=6; i < 10; ++i)
-        AddBoxyBlock(i, 5);
-    for (int i=5; i < 10; ++i)
-        AddBoxyBlock(i, 7);
-    AddBoxyBlock(8, 10);
-    AddBoxyBlock(8, 20);
-
-    // Hidden Block
-    // for (int i=0; i < 3; ++i)
-    //     AddHiddenBlock(3+i, 13+i);
-
-    // Brick Block
-    // for (int i=0; i < 3; ++i)
-    //     AddBrickBlock(3+i, 10+i);
-
-    // Mytery Block
-    for (int i=0; i < 3; ++i)
-        AddMysteryBlock(3+i, 21+i);
-    
-    for (int i=0; i < 3; ++i)
-        AddMysteryBlock(3+i, 14+i);
+    LoadLevelFromConfigFile(configFile);
 }
 
 void Level::Update(float dt) {
@@ -279,7 +213,9 @@ void Level::AddCloud(int x, int y) {
 
 void Level::AddFish(int x, int y, int activationPoint, bool faceUp) {
     SDL_Rect destRect = {x, y, 73, 105};
-    SDL_Rect srcRect = {144, 61, 29, 42};
+    SDL_Rect srcRect = {148, 83, 29, 42};
+    if (!faceUp)
+        srcRect.y = 125;
     elements.push_back(std::make_unique<Fish>(destRect, srcRect, destRect, activationPoint, faceUp));
 }
 
@@ -323,6 +259,264 @@ void Level::AddHouse(int x, int y) {
     SDL_Rect destRect = {x, y, 250, 218};
     SDL_Rect srcRect = {83, 191, 100, 87};
     elements.push_back(std::make_unique<House>(destRect, srcRect, destRect));
+}
+/* ************************************************************************************ */
+
+/***** Level Config Functions *****/
+void Level::LoadLevelFromConfigFile(std::string configFile) {
+    std::ifstream in(configFile);
+    if (!in.is_open()) {
+        std::cerr << "Failed to open config file: " << configFile << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line == "Grid") {
+            Coordinate coordinate = ReadCoordinate(in);
+            grid.InitGrid(coordinate.x, coordinate.y);
+        }
+        else if (line == "Player") {
+            Coordinate coordinate = ReadCoordinate(in);
+            AddPlayer(coordinate.x, coordinate.y);
+        }
+        else if (line == "UpperDirtBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddUpperDirtBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "LowerDirtBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddLowerDirtBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "BrickBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddBrickBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "BoxyBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddBoxyBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "HiddenBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddHiddenBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "MysteryBlock") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddMysteryBlock(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "CommonEnemy") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddCommonEnemy(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "SoldierEnemy") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddSoldierEnemy(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "KingEnemy") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddKingEnemy(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "RedMushroomEnemy") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddRedMushroomEnemy(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "PurpleMushroomEnemy") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddPurpleMushroomEnemy(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "Hill") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddHill(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "Tree") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddTree(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "Grass") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddGrass(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "Cloud") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddCloud(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "Fish") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddFish(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "Laser") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                EnemyData data = ReadEnemyData(in);
+                AddLaser(data.spawnPoint.x, data.spawnPoint.y, data.activationPoint, data.faceLeft);
+            }
+        }
+        else if (line == "HighTube") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddHighTube(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "MiddleTube") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddMiddleTube(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "LowTube") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddLowTube(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "CheckpointFlag") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddCheckpointFlag(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "EndFlag") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddEndFlag(coordinate.x, coordinate.y);
+            }
+        }
+        else if (line == "House") {
+            int count = ReadInt(in);
+            for (int i = 0; i < count; ++i) {
+                Coordinate coordinate = ReadCoordinate(in);
+                AddHouse(coordinate.x, coordinate.y);
+            }
+        }
+        else
+            std::clog << "Could not find: " << line << std::endl;
+    }
+
+    in.close();
+}
+
+bool Level::ParseBool(const std::string& token) {
+    if (token == "true")
+        return true;
+    if (token == "false")
+        return false;
+    throw std::runtime_error("Invalid boolean value: '" + token + "'");
+}
+
+int Level::ReadInt(std::ifstream& in) {
+    std::string line;
+    while (std::getline(in, line) && line.empty());
+
+    try {
+        return std::stoi(line);
+    } catch (...) {
+        throw std::runtime_error("Invalid integer value: '" + line + "'");
+    }
+}
+
+Coordinate Level::ReadCoordinate(std::ifstream& in) {
+    std::string line;
+    while (std::getline(in, line) && line.empty());
+
+    size_t open = line.find('(');
+    size_t comma = line.find(',');
+    size_t close = line.find(')');
+
+    if (open == std::string::npos || comma == std::string::npos || close == std::string::npos || open > comma || comma > close)
+        throw std::runtime_error("Invalid coordinate format: '" + line + "'");
+
+    try {
+        int x = std::stoi(line.substr(open + 1, comma - open - 1));
+        int y = std::stoi(line.substr(comma + 1, close - comma - 1));
+        return { x, y };
+    } catch (...) {
+        throw std::runtime_error("Failed to parse integers from coordinate: '" + line + "'");
+    }
+}
+
+EnemyData Level::ReadEnemyData(std::ifstream& in) {
+    std::string line;
+    while (std::getline(in, line) && line.empty());
+
+    std::istringstream ss(line);
+    std::string coordStr;
+    ss >> coordStr;
+
+    size_t open = coordStr.find('(');
+    size_t comma = coordStr.find(',');
+    size_t close = coordStr.find(')');
+
+    if (open == std::string::npos || comma == std::string::npos || close == std::string::npos)
+        throw std::runtime_error("Invalid coordinate in enemy data: '" + coordStr + "'");
+
+    int x, y, activationPoint;
+    std::string boolStr;
+
+    try {
+        x = std::stoi(coordStr.substr(open + 1, comma - open - 1));
+        y = std::stoi(coordStr.substr(comma + 1, close - comma - 1));
+        ss >> activationPoint >> boolStr;
+    } catch (...) {
+        throw std::runtime_error("Failed to parse enemy data: '" + line + "'");
+    }
+
+    if (ss.fail() || boolStr.empty())
+        throw std::runtime_error("Incomplete enemy data: '" + line + "'");
+
+    return { {x, y}, activationPoint, ParseBool(boolStr) };
 }
 
 #endif // CPORTA
