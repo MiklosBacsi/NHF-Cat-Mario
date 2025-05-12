@@ -112,6 +112,30 @@ Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
 }
 
 void Player::Update(float dt) {
+    if (isForcedByFlag && !isRemoved) {
+        // Sliding down the End Flag
+        if (hitBox.y + hitBox.h < buttomOfFlag) {
+            hitBox.y += 0.2f * dt;
+            onGround = false;
+            rigidBody.Reset();
+            return;
+        }
+        // Moves compulsively
+        else {
+            hasCollided = false;
+            rigidBody.Update(dt);
+
+            rigidBody.ApplyForceX(0.0f);
+            rigidBody.ApplyVelocityX(0.2f);
+            
+            hitBox.x += (int) rigidBody.GetPosition().x;
+            hitBox.y += (int) rigidBody.GetPosition().y;
+
+            position = hitBox.x + hitBox.w;
+        }
+        return;
+    }
+
     onGround = false;
     hasCollided = false;
     rigidBody.Update(dt);
@@ -205,7 +229,16 @@ void Player::MakeGiga() {
     texture.DestRect().h = 170;
 }
 
+void Player::SetButtomOfFlag(int y) {
+    isForcedByFlag = true;
+    buttomOfFlag = y;
+}
+
+bool Player::IsForcedByFlag() const { return isForcedByFlag; }
+
 bool& Player::OnGround() { return onGround; }
+
+SDL_Rect& Player::SpawnPoint() { return spawnPoint; }
 
 int Player::GetPosition() { return position; }
 

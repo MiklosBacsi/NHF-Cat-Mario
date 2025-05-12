@@ -35,7 +35,7 @@ int GameEngine::frameTime = 0;
 RenderWindow* GameEngine::window = nullptr;
 /* ************************************************************************************ */
 /***** Constructor *****/
-GameEngine::GameEngine(RenderWindow& window) : currentLevel(Level::NONE), completedLevels(Level::NONE),
+GameEngine::GameEngine(RenderWindow& window) : currentLevel(Level::NONE), nextLevel(Level::NONE), completedLevels(Level::NONE),
     exitProgram(false), isPaused(false),
     currentScene(Scene::TITLE), nextScene(Scene::NONE), currentLanguage(ENGLISH),
     titleButton (new TextButton(Button::NONE, Lang::PRESS, 610, 810, WHITE, REG30, currentLanguage, 80)),
@@ -98,8 +98,10 @@ void GameEngine::HandlePressedKeys() {
     case Scene::MENU:
         if (input.GetEsc())
             ExitProgram();
-        else if (input.GetSpace())
-            ChangeSceneFromMenuToGame(Level::LVL1);
+        else if (input.GetSpace()) {
+            nextLevel = Level::LVL1;
+            ChangeSceneFromMenuToGame();
+        }
         break;
     case Scene::GAME:
         if (input.GetPause() && !isPaused && input.DisableP() == false) {
@@ -120,7 +122,7 @@ void GameEngine::HandlePressedKeys() {
                 input.DisableEsc() = true;
             }
         }
-        if (isPaused || nextScene == Scene::MENU || level->player->IsDead())
+        if (isPaused || nextScene == Scene::MENU || level->player->IsDead() || level->player->isForcedByFlag)
             return;
         // Vertically Still
         if (input.GetUp() && input.GetDown()) {
@@ -202,7 +204,7 @@ void GameEngine::HandleSceneChanges() {
         switch (nextScene) {
         case Scene::DEATH: throw "Scene not allowed!";
         case Scene::MENU: break;
-        case Scene::GAME: ChangeSceneFromMenuToGame(currentLevel); break;
+        case Scene::GAME: ChangeSceneFromMenuToGame(); break;
         default:
             throw "Wrong Scene!";
             break;
@@ -213,6 +215,7 @@ void GameEngine::HandleSceneChanges() {
         case Scene::GAME: break;
         case Scene::DEATH: ChangeSceneFromGameToDeathToGame(); break;
         case Scene::MENU: ChangeSceneFromGameToMenu(); break;
+        case Scene::LOAD: ChangeSceneToNextLevel(); break;
         default:
             throw "Wrong Scene!";
         }
@@ -248,6 +251,9 @@ void GameEngine::UpdateButtons() {
 void GameEngine::UpdateGame() {
     if (level == nullptr || currentScene != Scene::GAME)
         return;
+    if (CheckIfLevelCompleted())
+        return;
+
     AssignQuote();
     if (isPaused)
         return;
@@ -301,9 +307,10 @@ void GameEngine::RenderItems() {
             if (isPaused)
                 RenderPuase();
             break;
-        // Death Scene
+        // Load & Death Scene
+        case Scene::LOAD:
         case Scene::DEATH:
-        {
+            {
             float percentage = transition.GetPercent();
             if (percentage > 0.4f && percentage < 0.6f) {
                 DrawDeathCount();
@@ -312,7 +319,7 @@ void GameEngine::RenderItems() {
                 if (level != nullptr)
                     level->Render();
             }
-        }
+            }
             break;
         // Changing back to Menu
         case Scene::MENU:
@@ -386,12 +393,13 @@ void GameEngine::ChangeSceneFromTitleToMenu() {
     PlaySound(Sound::CLICK);
 }
 
-void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
+void GameEngine::ChangeSceneFromMenuToGame() {
     // Already started changes
     if (nextScene == Scene::GAME) {
         if (transition.HasExpired()) {
-            currentScene = Scene::GAME;
             transition.Deactivate();
+            currentScene = Scene::GAME;
+            currentLevel = nextLevel;
         }
         else if (transition.IsMiddle()) {
             transition.ReachMiddle();
@@ -402,10 +410,9 @@ void GameEngine::ChangeSceneFromMenuToGame(Level::Type levelType) {
     
     // Handle changes (Runs only once)
     nextScene = Scene::GAME;
-    currentLevel = levelType;
     transition.SetTransition(2000);
     StopSounds();
-    LoadLevel(levelType);
+    LoadLevel();
     level->Reset();
     std::string deathCaption = "x " + std::to_string(level->player->deathCount);
     deathButton->UpdateCaption(deathCaption, ENGLISH);
@@ -420,9 +427,9 @@ void GameEngine::ChangeSceneFromGameToMenu() {
         }
         else if (transition.IsMiddle()) {
             transition.ReachMiddle();
+            level.reset(nullptr);
+            nextLevel = Level::NONE;
             PlaySound(Sound::LOBBY, true);
-            
-            level.reset();
         }
         return;
     }
@@ -464,6 +471,36 @@ void GameEngine::ChangeSceneFromGameToDeathToGame() {
     #ifndef QUICK
     PlaySound(Sound::DEATH);
     #endif
+}
+
+void GameEngine::ChangeSceneToNextLevel() {
+    // Already started changes
+    if (nextScene == Scene::LOAD) {
+        float percentage = transition.GetPercent();
+        // Has Expired
+        if (percentage > 1.0f) {
+            transition.Deactivate();
+            currentLevel = nextLevel;
+            nextLevel = Level::NONE;
+            nextScene = Scene::GAME;
+            StopSounds();
+            PlaySound(Sound::BACKGROUND, true);
+            Level::isCompleted = false;
+        }
+        // In the Middle
+        else if (transition.IsMiddle()) {
+            transition.ReachMiddle();
+            LoadLevel();
+            Level::isCompleted = false;
+        }
+        return;
+    }
+    
+    // Handle changes (Runs only once)
+    Level::isCompleted = false;
+    nextScene = Scene::LOAD;
+    transition.SetTransition(3000);
+    StopSounds();
 }
 
 void GameEngine::HandleEvent(SDL_Event& event) {
@@ -550,12 +587,14 @@ void GameEngine::HandleMenuButtons() {
             case Button::JP: currentLanguage = JAPANESE; UpdateButtons(); return;
             case Button::HUN: currentLanguage = HUNGARIAN; UpdateButtons(); return;
             case Button::START:
-            case Button::LEV1: ChangeSceneFromMenuToGame(Level::LVL1); return;
+            case Button::LEV1: nextLevel = Level::LVL1; ChangeSceneFromMenuToGame(); return;
             case Button::LEV2:
                 if (completedLevels == Level::NONE)
                     PlaySound(Sound::ERROR);
-                else
-                    ChangeSceneFromMenuToGame(Level::LVL2);
+                else {
+                    nextLevel = Level::LVL2;
+                    ChangeSceneFromMenuToGame();
+                }
                 return;
             case Button::NONE: return;
             default:
@@ -622,10 +661,11 @@ void GameEngine::UpdateSingeButton(Button* button) {
     }
 }
 
-void GameEngine::LoadLevel(Level::Type levelType) {
-    switch (levelType) {
-    case Level::LVL1: level.reset(new Level("../res/levels/Level1.txt", window, frameDelay)); currentLevel = Level::LVL1; break;
-    case Level::LVL2: level.reset(new Level("../res/levels/Level1.txt", window, frameDelay)); currentLevel = Level::LVL2; break;
+void GameEngine::LoadLevel() {
+    level.reset(nullptr);
+    switch (nextLevel) {
+    case Level::LVL1: level.reset(new Level("../res/levels/Level1.txt", window, frameDelay)); break;
+    case Level::LVL2: level.reset(new Level("../res/levels/Level2.txt", window, frameDelay)); break;
     case Level::NONE: throw "Level type not allowed!";
     default: throw "Level not found!";
     }
@@ -653,28 +693,51 @@ void GameEngine::LoadSounds() {
     sounds.LoadSound("../res/audio/Break.mp3", Sound::BREAK);
     sounds.LoadSound("../res/audio/Coin.mp3", Sound::COIN);
     sounds.LoadSound("../res/audio/Fish.mp3", Sound::FISH);
+    sounds.LoadSound("../res/audio/Sakana.mp3", Sound::SAKANA);
+    sounds.LoadSound("../res/audio/Hal.mp3", Sound::HAL);
     sounds.LoadSound("../res/audio/Laser.mp3", Sound::LASER);
     sounds.LoadSound("../res/audio/Pop.mp3", Sound::POP);
+    sounds.LoadSound("../res/audio/Flag.mp3", Sound::FLAG);
     sounds.LoadSound("../res/audio/Error.mp3", Sound::ERROR);
     sounds.LoadSound("../res/audio/Empty.mp3", Sound::EMPTY);
 }
 
 Language GameEngine::getLanguage() const { return currentLanguage; }
 
+bool GameEngine::CheckIfLevelCompleted() {
+    if (Level::isCompleted == false || transition.IsActive())
+        return false;
+
+    switch (currentLevel) {
+    case Level::LVL1:
+        nextLevel = Level::LVL2;
+        ChangeSceneToNextLevel();
+        break;
+    case Level::LVL2:
+        ChangeSceneFromGameToMenu();
+        break;
+    default:
+        throw "Level not found!";
+    }
+    return true;
+}
+
 void GameEngine::CheckForDeath() {
     // Player leaves screen
-    if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false && level->player->HitBox().y + level->player->HitBox().h > 0)
+    if (GameObject::AABB(level->player->HitBox(), GameObject::screen) == false && level->player->HitBox().y + level->player->HitBox().h > 5) {
         level->player->Kill();
+        // std::clog << "Player left the screen!" << std::endl;
+    }
     // Enemy leaves screen
     for (auto& enemy : level->enemies)
-        if(enemy->isActivated && enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
+        if(enemy->isActivated && enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false && enemy->HitBox().x < GameObject::screen.x + GameObject::screen.w)
             enemy->Kill();
     for (auto& enemy : level->tempEnemies)
-        if(enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false)
+        if(enemy->isRemoved == false && GameObject::AABB(enemy->HitBox(), GameObject::screen) == false && enemy->HitBox().x < GameObject::screen.x + GameObject::screen.w)
             enemy->Kill();
     // Level Element leaves screen
     for (auto& element : level->elements)
-        if (element->isActivated && element->isRemoved == false && GameObject::AABB(element->HitBox(), GameObject::screen) == false)
+        if (element->isActivated && element->isRemoved == false && GameObject::AABB(element->HitBox(), GameObject::screen) == false && element->HitBox().x < GameObject::screen.x + GameObject::screen.w)
             element->isRemoved = true;
 }
 
@@ -742,7 +805,7 @@ void GameEngine::CheckForCollision() {
 
     if (level->player->hasCollided == false && level->player->jump == false && level->player->jumpTime.IsActive() == false)
         level->player->GetRigidBody().ApplyForceY(0.0f);
-    if (level->player->onGround && input.GetRight() == input.GetLeft())
+    if (level->player->onGround && input.GetRight() == input.GetLeft() && level->player->isForcedByFlag == false)
         level->player->GetRigidBody().Velocity() *= 0.9f;
 }
 
@@ -837,10 +900,21 @@ void GameEngine::CheckForAnimation() {
     for (auto& element : level->elements) {
         if (element->playSound) {
             element->playSound = false;
-            if (dynamic_cast<Fish*>(element.get()))
-                PlaySound(Sound::FISH);
+            if (dynamic_cast<Fish*>(element.get())) {
+                switch (currentLanguage) {
+                case ENGLISH: PlaySound(Sound::FISH); break;
+                case JAPANESE: PlaySound(Sound::SAKANA); break;
+                case HUNGARIAN: PlaySound(Sound::HAL); break;
+                default:
+                    throw "Language not found!";
+                }
+            }
             else if (dynamic_cast<Laser*>(element.get()))
                 PlaySound(Sound::LASER);
+            else if (dynamic_cast<EndFlag*>(element.get())) {
+                StopSounds();
+                PlaySound(Sound::FLAG);
+            }
             else
                 throw "Unknown Level Element!";
         }
@@ -949,6 +1023,7 @@ std::string ToString(Scene::Type scene) {
     case Scene::MENU: return "MENU";
     case Scene::GAME: return "GAME";
     case Scene::DEATH: return "DEATH";
+    case Scene::LOAD: return "LOAD";
     default: throw "Scene not found!";
     }
 }

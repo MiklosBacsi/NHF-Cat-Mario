@@ -51,6 +51,7 @@ private:
     int deathCount;
     bool isGiga;
     bool isForcedByFlag;
+    int buttomOfFlag;
     bool onGround;
     bool jump;
     Timer jumpTime;
@@ -65,7 +66,10 @@ public:
     void TouchedBy(Entity* entity);
     void Kill();
     void MakeGiga();
+    void SetButtomOfFlag(int y);
+    bool IsForcedByFlag() const;
     bool& OnGround();
+    SDL_Rect& SpawnPoint();
     ~Player();
 };
 

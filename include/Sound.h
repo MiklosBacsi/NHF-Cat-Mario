@@ -17,7 +17,7 @@
 
 class Sound {
 public:
-    enum Type {CLICK=0, BACKGROUND, LOBBY, DEATH, JUMP, ROAR, BREAK, COIN, FISH, LASER, POP, FLAG, ERROR, EMPTY, COUNT=14};
+    enum Type {CLICK=0, HAL, SAKANA, BACKGROUND, DEATH, JUMP, ROAR, BREAK, COIN, LASER, FISH, LOBBY, POP, FLAG, ERROR, EMPTY, COUNT=16};
 private:
     std::vector<Mix_Chunk*> sounds;
     void FreeSound(Sound::Type soundType);

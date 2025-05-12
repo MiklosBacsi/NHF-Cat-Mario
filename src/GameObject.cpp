@@ -72,8 +72,7 @@ bool GameObject::JumpedOnHead(const SDL_Rect& player, const SDL_Rect& enemy) {
 GameObject::GameObject(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, SDL_Texture* texture, bool isRemoved)
     : texture(texture, srcRect, destRect, true), hitBox(hitBox), isRemoved(isRemoved)
     {
-    if (screen.w == 0 && screen.h == 0)
-        screen = {0, 0, window->GetWidth()-1, window->GetHeight()-1};
+    //
 }
 
 SDL_Rect& GameObject::HitBox() { return hitBox; }

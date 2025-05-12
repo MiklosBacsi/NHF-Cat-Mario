@@ -30,7 +30,7 @@
 #define FPS 100
 
 namespace Scene {
-    enum Type { NONE=0, TITLE, MENU, GAME, DEATH };
+    enum Type { NONE=0, TITLE, MENU, GAME, DEATH, LOAD };
 }
 
 std::string ToString(Scene::Type scene);
@@ -46,6 +46,7 @@ private:
     Transition transition;
     std::unique_ptr<Level> level;
     Level::Type currentLevel;
+    Level::Type nextLevel;
     Level::Type completedLevels;
     bool exitProgram;
     bool isPaused;
@@ -67,14 +68,15 @@ private:
     void RenderGameButtons();
     void RenderPuase();
     void ChangeSceneFromTitleToMenu();
-    void ChangeSceneFromMenuToGame(Level::Type levelType);
+    void ChangeSceneFromMenuToGame();
     void ChangeSceneFromGameToMenu();
     void ChangeSceneFromGameToDeathToGame();
+    void ChangeSceneToNextLevel();
     void HandleEvent(SDL_Event& event);
     void HandleMenuButtons();
     void HandleGameButtons();
     void UpdateSingeButton(Button* button);
-    void LoadLevel(Level::Type levelType);
+    void LoadLevel();
     void ExitProgram();
     void SetLanguage(Language language);
     void SetTransition(size_t miliSeconds=2000);
@@ -82,6 +84,7 @@ private:
     void StopSounds();
     void LoadSounds();
     Language getLanguage() const;
+    bool CheckIfLevelCompleted();
     void CheckForDeath();
     void CheckForCollision();
     void CheckForAnimation();

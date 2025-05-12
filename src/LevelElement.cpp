@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "RigidBody.h"
 #include "Entity.h"
+#include "Level.h"
 
 SDL_Texture* LevelElement::textures = nullptr;
 
@@ -205,6 +206,94 @@ void Tube::TouchedBy(Entity* entity) {
 Tube::~Tube() {
     #ifdef DTOR
     std::clog << "~Tube Dtor" << std::endl;
+    #endif
+}
+/* ************************************************************************************ */
+
+/***** Class Checkpoint Flag *****/
+CheckpointFlag::CheckpointFlag(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
+    : LevelElement(hitBox, srcRect, destRect), isReached(false)
+    {
+    //
+}
+
+void CheckpointFlag::TouchedBy(Entity* entity) {
+    if (dynamic_cast<Enemy*>(entity))
+        return;
+    else if (Player* player = dynamic_cast<Player*>(entity)) {
+        if (isReached)
+            return;
+
+        this->isRemoved = true;
+        this->isReached = true;
+        player->SpawnPoint().x = this->hitBox.x;
+        player->SpawnPoint().y = this->hitBox.y + 50;
+        return;
+    }
+    else
+        throw "Unknown entity!";
+}
+
+CheckpointFlag::~CheckpointFlag() {
+    #ifdef DTOR
+    std::clog << "~CheckpointFlag Dtor" << std::endl;
+    #endif
+}
+/* ************************************************************************************ */
+
+/***** Class End Flag *****/
+EndFlag::EndFlag(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
+    : LevelElement(hitBox, srcRect, destRect)
+    {
+    //
+}
+
+void EndFlag::TouchedBy(Entity* entity) {
+    if (dynamic_cast<Enemy*>(entity))
+        return;
+    else if (Player* player = dynamic_cast<Player*>(entity)) {
+        if (player->IsForcedByFlag())
+            return;
+        
+        player->SetButtomOfFlag(this->HitBox().y + this->HitBox().h - 5);
+        player->HitBox().x = this->hitBox.x - player->HitBox().w + 20;
+        playSound = true;
+        return;
+    }
+    else
+        throw "Unknown entity!";
+}
+
+EndFlag::~EndFlag() {
+    #ifdef DTOR
+    std::clog << "~EndFlag Dtor" << std::endl;
+    #endif
+}
+/* ************************************************************************************ */
+
+/***** Class End Flag *****/
+House::House(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
+    : LevelElement(hitBox, srcRect, destRect), isReached(false)
+    {
+    //
+}
+
+void House::TouchedBy(Entity* entity) {
+    if (dynamic_cast<Enemy*>(entity))
+        return;
+    else if (Player* player = dynamic_cast<Player*>(entity)) {
+        if (player->IsForcedByFlag() && player->HitBox().x > this->hitBox.x + (this->hitBox.w/2) && !isReached) {
+            Level::isCompleted = true;
+            isReached = true;
+        }
+    }
+    else
+        throw "Unknown entity!";
+}
+
+House::~House() {
+    #ifdef DTOR
+    std::clog << "~House Dtor" << std::endl;
     #endif
 }
 

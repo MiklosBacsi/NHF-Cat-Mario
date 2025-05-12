@@ -20,7 +20,7 @@
 #include "LevelElement.h"
 #include "CoinAnimation.h"
 
-#define LVL_WIDTH 30
+#define LVL_WIDTH 50
 #define LVL_HEIGHT 12
 #define BLOCK_SIZE 30
 #define SCALED_BLOCK_SIZE 75
@@ -32,15 +32,13 @@ class Level {
     friend class GameEngine;
 public:
     enum Type { NONE=0, LVL1, LVL2 };
+    static bool isCompleted;
 private:
     std::unique_ptr<Player> player;
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::vector<std::unique_ptr<Enemy>> tempEnemies;
     Grid grid;
     std::vector<std::unique_ptr<LevelElement>> elements;
-    size_t numberOfCheckpoints;
-    size_t currentCheckpoint;
-    std::string nextLevel;
     CoinAnimation animation;
     Quote quote;
     Enemy* enemyWithQuote;
@@ -67,6 +65,9 @@ private:
     void AddHighTube(int x, int y);
     void AddMiddleTube(int x, int y);
     void AddLowTube(int x, int y);
+    void AddCheckpointFlag(int x, int y);
+    void AddEndFlag(int x, int y);
+    void AddHouse(int x, int y);
 
     void ReadCoordinate();
     bool ReadBool();

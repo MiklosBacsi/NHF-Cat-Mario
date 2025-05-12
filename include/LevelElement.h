@@ -74,6 +74,30 @@ public:
     ~Tube();
 };
 
+class CheckpointFlag : public LevelElement {
+private:
+    bool isReached;
+public:
+    CheckpointFlag(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void TouchedBy(Entity* entity);
+    ~CheckpointFlag();
+};
+
+class EndFlag : public LevelElement {
+public:
+    EndFlag(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void TouchedBy(Entity* entity) override;
+    ~EndFlag();
+};
+
+class House : public LevelElement {
+private:
+    bool isReached;
+public:
+    House(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect);
+    void TouchedBy(Entity* entity) override;
+    ~House();
+};
 
 #endif // CPORTA
 

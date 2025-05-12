@@ -16,25 +16,38 @@
 #include "LevelElement.h"
 #include "RenderWindow.h"
 
-Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : player(nullptr),
-    grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png",
-    (float) frameDelay / 1000.0f), enemyWithQuote(nullptr)
+bool Level::isCompleted = false;
+
+Level::Level(std::string configFile, RenderWindow* window, int frameDelay)
+    : player(nullptr), grid(LVL_WIDTH, LVL_HEIGHT, SCALED_BLOCK_SIZE), animation("../res/img/Coin.png",
+        (float) frameDelay / 1000.0f), enemyWithQuote(nullptr)
     {
     GameObject::window = window;
+    GameObject::screen = {0, 0, window->GetWidth(), window->GetHeight()};
+    isCompleted = false;
 
     Block::textures = Texture::LoadStaticTexture("../res/img/Block.png");
     Entity::textures = Texture::LoadStaticTexture("../res/img/Entity.png");
     LevelElement::textures = Texture::LoadStaticTexture("../res/img/LevelElement.png");
 
-    AddPlayer(200, 550);
+    std::clog << "Config File:\n" << configFile << std::endl;
 
-    AddSoldierEnemy(1200, 100, 1000, true);
+    AddPlayer(50, 550);
+
+    AddCheckpointFlag(400, 400);
+    AddCheckpointFlag(1200, 400);
+    AddCheckpointFlag(2000, 400);
+
+    // AddSoldierEnemy(1200, 100, 1000, true);
     // AddCommonEnemy(1200, 100, 1000, false);
     // AddKingEnemy(1150, 100, 1000, true);
     // AddSoldierEnemy(1150, 100, 1000, false);
     // AddPurpleMushroomEnemy(1100, 100, 1000, true);
     // AddRedMushroomEnemy(1100, 100, 1000, false);
     // AddFish(800, 850, 700, true);
+    // AddFish(1000, 850, 900, true);
+    // AddFish(1200, 850, 1100, true);
+    // AddFish(1400, 850, 1300, true);
     // AddLaser(500, 300, 400, true);
 
     AddHighTube(500, 600);
@@ -48,11 +61,21 @@ Level::Level(std::string configFile, RenderWindow* window, int frameDelay) : pla
 
 
     // Upper Dirt
-    for (int i=10; i < LVL_WIDTH; ++i)
+    for (int i=10; i < 30; ++i)
         AddUpperDirtBlock(9, i);
+    for (int i=0; i < 15; ++i)
+        AddUpperDirtBlock(11, 32+i);
+    
+    
+    // End Flag
+    AddEndFlag(75*34 + 10, 75*10 - 752);
+    AddBoxyBlock(10, 34);
+
+    // House
+    AddHouse(75*37, 75*11 - 218);
 
     // Lower Dirt
-    for (int i=0; i < LVL_WIDTH; ++i)
+    for (int i=0; i < 30; ++i)
         AddLowerDirtBlock(10, i);
 
     // Boxy Block
@@ -134,6 +157,9 @@ void Level::Reset() {
 
     // Delete temporary Enemies that are spawned by Mystery Blocks
     tempEnemies.clear();
+
+    if (player->HitBox().x > 500)
+        GameObject::screen.x = player->HitBox().x - 300;
 }
 
 Level::~Level() {
@@ -279,6 +305,24 @@ void Level::AddLowTube(int x, int y) {
     SDL_Rect destRect = {x, y, 152, 147};
     SDL_Rect srcRect = {0, 219, 61, 59};
     elements.push_back(std::make_unique<Tube>(destRect, srcRect, destRect));
+}
+
+void Level::AddCheckpointFlag(int x, int y) {
+    SDL_Rect destRect = {x, y, 80, 150};
+    SDL_Rect srcRect = {144, 0, 32, 60};
+    elements.push_back(std::make_unique<CheckpointFlag>(destRect, srcRect, destRect));
+}
+
+void Level::AddEndFlag(int x, int y) {
+    SDL_Rect destRect = {x, y, 55, 752};
+    SDL_Rect srcRect = {187, 0, 22, 301};
+    elements.push_back(std::make_unique<EndFlag>(destRect, srcRect, destRect));
+}
+
+void Level::AddHouse(int x, int y) {
+    SDL_Rect destRect = {x, y, 250, 218};
+    SDL_Rect srcRect = {83, 191, 100, 87};
+    elements.push_back(std::make_unique<House>(destRect, srcRect, destRect));
 }
 
 #endif // CPORTA

@@ -9,7 +9,7 @@
                 "-g",
                 // "-fsanitize=address",
                 // "-DDTOR",
-                "-DQUICK",
+                // "-DQUICK",
                 // "-DCOLLISION",
                 // "-DCPORTA",
                 // "-DMEMTRACE",

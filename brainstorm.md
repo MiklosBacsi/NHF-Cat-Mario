@@ -6,11 +6,6 @@ Textrue egy külön fájlba!
 bool isStatic --> nem szabad felszabadítani, majd az osztály fogja
 
 *** To-do: ***
-- MyteryBlock: random enemy / coin
-- Level Element:
-    - Checkpoint Flag
-    - End Flag
-    - House
 - Level File Config
 - Choosing Level from Menu
 - Rewrite Tests
