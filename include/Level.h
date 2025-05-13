@@ -22,8 +22,6 @@
 #include "LevelElement.h"
 #include "CoinAnimation.h"
 
-#define LVL_WIDTH 50
-#define LVL_HEIGHT 12
 #define BLOCK_SIZE 30
 #define SCALED_BLOCK_SIZE 75
 
@@ -56,6 +54,7 @@ private:
     Quote quote;
     Enemy* enemyWithQuote;
     std::unique_ptr<TextButton> quoteButton;
+    int maxCameraX;
 
     void AddPlayer(int x, int y);
     void AddUpperDirtBlock(int row, int column);

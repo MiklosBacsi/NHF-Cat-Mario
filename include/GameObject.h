@@ -18,7 +18,6 @@ class GameEngine;
 
 class GameObject {
 public:
-    enum Direction { RIGHT, LEFT, UP, DOWN };
     static RenderWindow* window;
     static SDL_Rect screen;
     static bool AABB(const SDL_Rect& A, const SDL_Rect& B);

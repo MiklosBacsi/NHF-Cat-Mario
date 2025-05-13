@@ -826,6 +826,9 @@ void GameEngine::CheckForAnimation() {
                         block->playAnimation = false;
                         PlaySound(Sound::COIN);
                         level->animation.AddCoin(block->HitBox().x + (block->HitBox().w / 2), block->HitBox().y);
+
+                        // Limit Player's speed for pleasant memories
+                        level->player->GetRigidBody().ApplyVelocityX(0.0f);
                     }
                 }
                 // Brick Block

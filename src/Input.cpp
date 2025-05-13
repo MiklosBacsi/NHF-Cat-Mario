@@ -3,7 +3,8 @@
 #include "Input.h"
 
 Input::Input() : MouseX(0), MouseY(0), MouseClick(false), Esc(false),
-    W(false), A(false), S(false), D(false), P(false), Space(false) {}
+    W(false), A(false), S(false), D(false), P(false), Space(false),
+    disableEsc(false), disableP(false) {}
 
 int Input::GetMouseX() const { return MouseX; }
 

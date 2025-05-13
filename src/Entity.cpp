@@ -118,10 +118,12 @@ void Player::Update(float dt) {
             hitBox.y += 0.2f * dt;
             onGround = false;
             rigidBody.Reset();
+            // std::clog << "Sliding down the Flag!" << std::endl;
             return;
         }
         // Moves compulsively
         else {
+            // std::clog << "Moves compulsively..." << std::endl;
             hasCollided = false;
             rigidBody.Update(dt);
 
@@ -143,11 +145,6 @@ void Player::Update(float dt) {
     
     if (hitBox.x - GameObject::screen.x < 5) {
         hitBox.x = GameObject::screen.x + 5;
-        rigidBody.ApplyVelocityX(0.0f);
-    }
-        
-    if (hitBox.x + hitBox.w >= GameObject::screen.x + GameObject::screen.w - 5) {
-        hitBox.x = GameObject::screen.x + GameObject::screen.w - hitBox.w - 5;
         rigidBody.ApplyVelocityX(0.0f);
     }
         

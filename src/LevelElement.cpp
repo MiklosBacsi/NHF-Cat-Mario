@@ -164,9 +164,9 @@ void Laser::Update(float dt) {
     }
 
     if (faceLeft)
-        hitBox.x -= (int) (1.0f * dt);
+        hitBox.x -= (int) (2.0f * dt);
     else
-        hitBox.x += (int) (1.0f * dt);
+        hitBox.x += (int) (2.0f * dt);
 }
 
 void Laser::Reset() {

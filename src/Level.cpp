@@ -49,7 +49,13 @@ void Level::Update(float dt) {
     for (auto& element : elements)
         element->Update(dt);
 
-    if (GameObject::screen.x + (GameObject::screen.w / 2) < player->HitBox().x + player->HitBox().w)
+    if (GameObject::screen.x + GameObject::screen.w > maxCameraX)
+        GameObject::screen.x = maxCameraX - GameObject::screen.w;
+    if (player->HitBox().x + player->HitBox().w > maxCameraX - 5) {
+        player->HitBox().x = maxCameraX - player->HitBox().w - 5;
+        player->GetRigidBody().ApplyVelocityX(0.0f);
+    }
+    else if (GameObject::screen.x + (GameObject::screen.w / 2) < player->HitBox().x + player->HitBox().w && GameObject::screen.x + GameObject::screen.w < maxCameraX)
         GameObject::screen.x = player->HitBox().x + player->HitBox().w - (GameObject::screen.w / 2);
 }
 
@@ -250,8 +256,8 @@ void Level::AddCheckpointFlag(int x, int y) {
 }
 
 void Level::AddEndFlag(int x, int y) {
-    SDL_Rect destRect = {x, y, 55, 752};
-    SDL_Rect srcRect = {187, 0, 22, 301};
+    SDL_Rect destRect = {x, y, 55, 600};
+    SDL_Rect srcRect = {187, 0, 22, 240};
     elements.push_back(std::make_unique<EndFlag>(destRect, srcRect, destRect));
 }
 
@@ -275,6 +281,7 @@ void Level::LoadLevelFromConfigFile(std::string configFile) {
         if (line == "Grid") {
             Coordinate coordinate = ReadCoordinate(in);
             grid.InitGrid(coordinate.x, coordinate.y);
+            maxCameraX = coordinate.x * SCALED_BLOCK_SIZE - 1;
         }
         else if (line == "Player") {
             Coordinate coordinate = ReadCoordinate(in);

@@ -75,9 +75,8 @@ MiddleTube
 LowTube
 0
 CheckpointFlag
-3
+2
 (200, 500)
-(800, 500)
 (1200, 500)
 EndFlag
 1
