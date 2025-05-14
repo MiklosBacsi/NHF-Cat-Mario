@@ -278,31 +278,49 @@ void  TEST_RigidBody() {
     TEST(RigidBody, 'Update') {
         RigidBody body(0.1f);
         EXPECT_NO_THROW(body.Update(0.5f));
-        EXPECT_NO_THROW(body.ApplyForce({10,10}));
-        EXPECT_NO_THROW(body.RemoveForces());
-        body.Update(0.5f);
+        EXPECT_NO_THROW(body.ApplyForce({10.0f,10.0f}));
+        EXPECT_NO_THROW(body.ApplyForceX(-2.3f));
+        EXPECT_NO_THROW(body.ApplyForceY(-4.3f));
+        EXPECT_NO_THROW(body.ApplyForceX(-2.3f));
+        EXPECT_NO_THROW(body.ApplyForceY(-4.3f));
+        
+        EXPECT_NO_THROW(body.Reset());
+        body.Update(0.05f);
         EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
-        EXPECT_FLOAT_EQ(2.5f, body.GetPosition().y);
+        EXPECT_FLOAT_EQ(0.025f, body.GetPosition().y);
 
-        body.ApplyForce({-10,-1.0});
+        body.Reset();
+        body.ApplyForce({-5.0f, -1.0f * RigidBody::gravity * body.Mass()});
         body.Update(0.5f);
+        EXPECT_FLOAT_EQ(-25.0f, body.Velocity().x);
+        EXPECT_FLOAT_EQ(0.0f, body.Velocity().y);
+        EXPECT_FLOAT_EQ(-12.5f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
+
+        body.Reset();
+        body.ApplyForce({-5.0f, -1.0f * RigidBody::gravity * body.Mass()});
+        body.Update(0.5f);
+        body.Update(0.5f);
+        EXPECT_FLOAT_EQ(-50.0f, body.Velocity().x);
+        EXPECT_FLOAT_EQ(0.0f, body.Velocity().y);
         EXPECT_FLOAT_EQ(-25.0f, body.GetPosition().x);
         EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
     } END
 
-    TEST(RigidBody, 'Apply & Remove Force') {
+    TEST(RigidBody, 'Apply Force') {
         RigidBody body;
         body.ApplyForceY(-10.0f);
         body.Update(0.1f);
         EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
         EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
 
-        body.ApplyForceX(50.0f);
-        body.Update(0.1f);
-        EXPECT_FLOAT_EQ(0.5f, body.GetPosition().x);
-        EXPECT_FLOAT_EQ(0.0f, body.GetPosition().y);
+        body.Reset();
+        body.ApplyForceX(5.0f);
+        body.Update(2.0f);
+        EXPECT_FLOAT_EQ(20.0f, body.GetPosition().x);
+        EXPECT_FLOAT_EQ(40.0f, body.GetPosition().y);
 
-        body.RemoveForces();
+        body.Reset();
         body.Update(0.5f);
         EXPECT_FLOAT_EQ(0.0f, body.GetPosition().x);
         EXPECT_FLOAT_EQ(2.5f, body.GetPosition().y);
@@ -313,7 +331,7 @@ void  TEST_RigidBody() {
         EXPECT_FLOAT_EQ(-20.0f, body2.GetPosition().x);
         EXPECT_FLOAT_EQ(50.0f, body2.GetPosition().y);
 
-        body2.RemoveForces();
+        body2.Reset();
         body2.Update(2.0f);
         EXPECT_FLOAT_EQ(0.0f, body2.GetPosition().x);
         EXPECT_FLOAT_EQ(40.0f, body2.GetPosition().y);

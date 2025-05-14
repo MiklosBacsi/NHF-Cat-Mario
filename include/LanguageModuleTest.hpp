@@ -108,7 +108,7 @@ void TEST_LanguageModule() {
         EXPECT_STREQ("Exit to Menu", english.GetTranslation(Lang::EXIT_TO_MENU).c_str());
 
         LanguageModule japanese("../res/lang/Japanese.txt");
-        EXPECT_STREQ("メニューを終了する", japanese.GetTranslation(Lang::EXIT_TO_MENU).c_str());
+        EXPECT_STREQ("メニューに戻る", japanese.GetTranslation(Lang::EXIT_TO_MENU).c_str());
 
         LanguageModule hungarian("../res/lang/Hungarian.txt");
         EXPECT_STREQ("Kilépés a menübe", hungarian.GetTranslation(Lang::EXIT_TO_MENU).c_str());

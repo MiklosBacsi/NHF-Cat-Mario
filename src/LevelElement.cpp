@@ -104,6 +104,8 @@ Fish::Fish(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, int activationP
 }
 
 void Fish::Update(float dt) {
+    if (hitBox.x + hitBox.w + 20 < GameObject::screen.x)
+        isRemoved = true;
     if (isRemoved)
         return;
     if (!isActivated) {
@@ -152,6 +154,8 @@ Laser::Laser(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect, int activatio
 }
 
 void Laser::Update(float dt) {
+    if (hitBox.x + hitBox.w + 20 < GameObject::screen.x)
+        isRemoved = true;
     if (isRemoved)
         return;
     if (!isActivated) {

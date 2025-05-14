@@ -58,7 +58,7 @@ public:
 
 class Button {
 public:
-    enum Type { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LEV1, LEV2 };
+    enum Type { NONE=0, START, EXIT, PAUSE, CONTINUE, ENG, JP, HUN, LVL1, LVL2 };
     static RenderWindow* window;
 protected:
     Type buttonType;

@@ -2,8 +2,14 @@
 
 #include <iostream>
 
-float RigidBody::gravity = 5.0f;
-float RigidBody::scale = 0.001f;
+
+#ifdef MY_TEST
+    float RigidBody::gravity = 10.0f;
+    float RigidBody::scale = 1.0f;
+#else
+    float RigidBody::gravity = 5.0f;
+    float RigidBody::scale = 0.001f;
+#endif
 
 /* ************************************************************************************ */
 
@@ -142,11 +148,13 @@ void RigidBody::Update(float dt) {
 
     velocity += acceleration * dt;
 
+    #ifndef MY_TEST
     const float crop = 1.5f;
     if (velocity.x > crop) velocity.x = crop;
     if (velocity.x < -crop) velocity.x = -crop;
     if (velocity.y > crop) velocity.y = crop;
     if (velocity.y < -crop) velocity.y = -crop;
+    #endif
     
     position = velocity * dt;
     // std::clog << "*****\n" << "dt: " << dt << "\nForce: " << force << "\nAcceleration: " <<
@@ -166,10 +174,10 @@ void RigidBody::ApplyVelocityX(float vx) { velocity.x = vx; }
 void RigidBody::ApplyVelocityY(float vy) { velocity.y = vy; }
 
 void RigidBody::Reset() {
-    force = Vector2D(0,0);
-    acceleration = Vector2D(0,0);
-    velocity = Vector2D(0,0);
-    position = Vector2D(0,0);
+    force = Vector2D(0.0f,0.0f);
+    acceleration = Vector2D(0.0f,0.0f);
+    velocity = Vector2D(0.0f,0.0f);
+    position = Vector2D(0.0f,0.0f);
 }
 
 float& RigidBody::Mass() { return mass; }

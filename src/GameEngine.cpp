@@ -49,9 +49,11 @@ GameEngine::GameEngine(RenderWindow& window) : currentLevel(Level::NONE), nextLe
     LangMod.push_back(new LanguageModule("../res/lang/Japanese.txt"));
     LangMod.push_back(new LanguageModule("../res/lang/Hungarian.txt"));
     
-    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 350, BLACK, MED50, currentLanguage, 200, true));
+    menuButtons.push_back((Button*) new TextButton(Button::START, Lang::START, 200, 330, BLACK, MED50, currentLanguage, 200, true));
     menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::CAT_MARIO, 60, 80, BLACK, BOLD100, currentLanguage, 200));
     menuButtons.push_back((Button*) new TextButton(Button::NONE, Lang::PAUSE, 920, 300, BLACK, REG30, currentLanguage, 200));
+    menuButtons.push_back((Button*) new TextButton(Button::LVL1, Lang::LVL1, 250, 470, BLACK, REG30, currentLanguage, 200, false));
+    menuButtons.push_back((Button*) new TextButton(Button::LVL2, Lang::LVL2, 400, 470, BLACK, REG30, currentLanguage, 200, false));
 
     menuButtons.push_back((Button*) new ImageButton(Button::ENG, {920, 100, 200, 100}, "../res/img/FlagENG.png", true));
     menuButtons.push_back((Button*) new ImageButton(Button::JP, {1170, 100, 150, 100}, "../res/img/FlagJP.png"));
@@ -499,6 +501,8 @@ void GameEngine::ChangeSceneToNextLevel() {
     
     // Handle changes (Runs only once)
     Level::isCompleted = false;
+    if (currentLevel > completedLevels)
+        completedLevels = currentLevel;
     nextScene = Scene::LOAD;
     transition.SetTransition(3000);
     StopSounds();
@@ -588,8 +592,8 @@ void GameEngine::HandleMenuButtons() {
             case Button::JP: currentLanguage = JAPANESE; UpdateButtons(); return;
             case Button::HUN: currentLanguage = HUNGARIAN; UpdateButtons(); return;
             case Button::START:
-            case Button::LEV1: nextLevel = Level::LVL1; ChangeSceneFromMenuToGame(); return;
-            case Button::LEV2:
+            case Button::LVL1: nextLevel = Level::LVL1; ChangeSceneFromMenuToGame(); return;
+            case Button::LVL2:
                 if (completedLevels == Level::NONE)
                     PlaySound(Sound::ERROR);
                 else {
