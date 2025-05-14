@@ -1,5 +1,4 @@
 #ifndef CPORTA
-// #undef MEMTRACE
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
@@ -14,11 +13,6 @@
 
 #include "GameEngine.h"
 #include "RenderWindow.h"
-
-
-/* SDL miatt rengeteg helyen nem lehet const, mert a függvényeknek nem const-ot kell beadni
- * és így "mindenhol" feleselegen kéne const_cast-olni.
- */
 
 int main(int argc, char* arvg[]) {
     #ifndef CPORTA

@@ -1,3 +1,5 @@
+#ifdef MY_TEST
+
 # include <iostream>
 
 #include "gtest_lite.h"
@@ -13,3 +15,5 @@ int main() {
     GTEND(std::cerr); // Csak C(J)PORTA működéséhez kell
     return 0;
 }
+
+#endif // MY_TEST
