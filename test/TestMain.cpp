@@ -1,3 +1,13 @@
+/** @file TestMain.cpp
+  * @brief This program tests the modules of the game Cat Mario
+  *  
+  * This program uses the gtest_lite.h library to test some of
+  * the game's modules by calling their test functions.
+  *
+  * @author Bácsi Miklós
+  * @date 2025-05-17
+*/
+
 #ifdef MY_TEST
 
 # include <iostream>

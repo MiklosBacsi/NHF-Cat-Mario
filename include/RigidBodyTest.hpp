@@ -1,3 +1,12 @@
+/** @file RigidBodyTest.hpp
+  * @brief This file contains tests for the module RigidBody
+  *  
+  * For testing, it uses the gtest_lite.h library.
+  *
+  * @author Bácsi Miklós
+  * @date 2025-05-17
+*/
+
 # include <iostream>
 
 #include "gtest_lite.h"
@@ -21,7 +30,7 @@ void  TEST_RigidBody() {
         EXPECT_FLOAT_EQ(-4.2f, vec2.y);
     } END
 
-    TEST(Vector2D, oparator==) {
+    TEST(Vector2D, operator==) {
         Vector2D vec1, vec2;
         EXPECT_NO_THROW(vec1 == vec2);
         EXPECT_TRUE(vec1 == vec2);

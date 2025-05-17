@@ -1,3 +1,19 @@
+/** @file main.cpp
+  * @brief 2D platformer game named Cat Mario
+  *  
+  * This is the main file of the game, calling the major functions in order.
+  * 
+  * It initialises the window and the game engine as well, and contains the
+  * title screen and game loop too.
+  * 
+  * This program uses the SDL2 library for graphical representation, playing
+  * audio, and handling inputs, and unfortunately, there is a known memory
+  * leak in this library.
+  *
+  * @author Bácsi Miklós
+  * @date 2025-05-17
+*/
+
 #ifndef CPORTA
 
 #include <SDL2/SDL.h>
@@ -14,7 +30,7 @@
 #include "GameEngine.h"
 #include "RenderWindow.h"
 
-int main(int argc, char* arvg[]) {
+int main(int argc, char* argv[]) {
     #ifndef CPORTA
 
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
@@ -24,7 +40,10 @@ int main(int argc, char* arvg[]) {
 
     RenderWindow window("Cat Mario", 1600, 900);
     GameEngine engine(window);
-    engine.UpdateButtons(); // Because TextButtons are filled up with a space by the constructor, because translation is stroed in ProgramData
+
+    // This function is called, because TextButtons are filled up with a space
+    // by the constructor and the translation is stored in GameEngine.
+    engine.UpdateButtons();
 
     while (engine.GetExitProgram() == false) {
         // 1. Handling events one-by-one

@@ -114,7 +114,7 @@ Player::Player(SDL_Rect hitBox, SDL_Rect srcRect, SDL_Rect destRect)
 void Player::Update(float dt) {
     if (isForcedByFlag && !isRemoved) {
         // Sliding down the End Flag
-        if (hitBox.y + hitBox.h < buttomOfFlag) {
+        if (hitBox.y + hitBox.h < bottomOfFlag) {
             hitBox.y += 0.2f * dt;
             onGround = false;
             rigidBody.Reset();
@@ -163,7 +163,7 @@ void Player::Render() {
         return;
     }
 
-    // Chosing correct Sprite
+    // Choosing correct Sprite
     if (faceLeft)
         texture.SrcRect().y = 34;
     else
@@ -227,9 +227,9 @@ void Player::MakeGiga() {
     texture.DestRect().h = 170;
 }
 
-void Player::SetButtomOfFlag(int y) {
+void Player::SetBottomOfFlag(int y) {
     isForcedByFlag = true;
-    buttomOfFlag = y;
+    bottomOfFlag = y;
     faceLeft = false;
 }
 
@@ -345,7 +345,7 @@ CommonEnemy::~CommonEnemy() {
 }
 /* ************************************************************************************ */
 
-/***** Class Sodier Enemy *****/
+/***** Class Soldier Enemy *****/
 SoldierEnemy::SoldierEnemy(SDL_Rect hitBox, int activationPoint, SDL_Rect srcRect, int shiftTextureRight, SDL_Rect destRect, bool faceLeft)
     : Enemy(hitBox, activationPoint, srcRect, shiftTextureRight, destRect, faceLeft), isSqueezed(false), isSliding(false) {
     //

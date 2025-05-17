@@ -1,3 +1,12 @@
+/** @file LanguageModuleTest.hpp
+  * @brief This file contains tests for the module LanguageModule
+  * 
+  * For testing, it uses the gtest_lite.h library.
+  * 
+  * @author Bácsi Miklós
+  * @date 2025-05-17
+*/
+
 # include <iostream>
 
 #include "gtest_lite.h"

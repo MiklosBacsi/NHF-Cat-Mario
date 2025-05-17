@@ -259,7 +259,7 @@ void EndFlag::TouchedBy(Entity* entity) {
         if (player->IsForcedByFlag())
             return;
         
-        player->SetButtomOfFlag(this->HitBox().y + this->HitBox().h - 5);
+        player->SetBottomOfFlag(this->HitBox().y + this->HitBox().h - 5);
         player->HitBox().x = this->hitBox.x - player->HitBox().w + 20;
         playSound = true;
         return;

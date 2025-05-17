@@ -89,7 +89,7 @@ Button::~Button() {
 }
 
 TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, int bgOpacity, bool isSelected)
-    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity) {
+    : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(" "), captionType(capType), surface(nullptr), font(font), colour(colour), backgroundOpacity(bgOpacity) {
 
     surface = TTF_RenderUTF8_Blended(window->GetFont(font, language), " ", GetColour(colour)); 
     texture.GetTexture() = SDL_CreateTextureFromSurface(RenderWindow::renderer, surface);
@@ -102,7 +102,7 @@ TextButton::TextButton(Button::Type buttonType, Lang::CaptionType capType, int x
 
 TextButton::TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, int bgOpacity, bool isSelected, Language language)
     : Button(buttonType, {0,0,0,0}, {x,y,0,0}, true, 5, isSelected, GetRadiusFromFont(font)), caption(caption), captionType(Lang::NONE),
-        surface(nullptr), font(font), colour(colour), backgroundOppacity(bgOpacity)
+        surface(nullptr), font(font), colour(colour), backgroundOpacity(bgOpacity)
     {
 
     surface = TTF_RenderUTF8_Blended(window->GetFont(font, language), caption.c_str(), GetColour(colour));    
@@ -121,8 +121,8 @@ ImageButton::ImageButton(Button::Type buttonType, SDL_Rect destRect, const char*
 }
 
 void TextButton::DrawButton() {
-    if (backgroundOppacity > 0)
-        roundedBoxRGBA(RenderWindow::renderer, texture.GetDestX1() - radius, texture.GetDestY1() - radius, texture.GetDestX2() + radius, texture.GetDestY2() + radius, radius, 255, 255, 255, backgroundOppacity);
+    if (backgroundOpacity > 0)
+        roundedBoxRGBA(RenderWindow::renderer, texture.GetDestX1() - radius, texture.GetDestY1() - radius, texture.GetDestX2() + radius, texture.GetDestY2() + radius, radius, 255, 255, 255, backgroundOpacity);
     
     texture.Render();
 
@@ -385,13 +385,13 @@ RenderWindow::~RenderWindow() {
 /* ************************************************************************************ */
 
 /***** CLASS TRANSITION *****/
-void Transition::SetTransition(size_t miliSeconds) {
+void Transition::SetTransition(size_t milliSeconds) {
     AlreadyReachedMiddle = false;
     #ifdef QUICK
         timer.Activate(200);
         return;
     #endif
-    timer.Activate(miliSeconds);
+    timer.Activate(milliSeconds);
 }
 
 void Transition::Deactivate() { timer.Deactivate(); }

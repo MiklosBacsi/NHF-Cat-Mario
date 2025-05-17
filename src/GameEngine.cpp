@@ -271,7 +271,7 @@ void GameEngine::UpdateGame() {
 
     CheckForAnimation();
 
-    RecoverPosition(); // if necesary
+    RecoverPosition(); // if necessary
 
     UpdateRects();
 }
@@ -307,7 +307,7 @@ void GameEngine::RenderItems() {
             if (level != nullptr)
                 level->Render();
             if (isPaused)
-                RenderPuase();
+                RenderPause();
             break;
         // Load & Death Scene
         case Scene::LOAD:
@@ -371,7 +371,7 @@ void GameEngine::RenderGameButtons() {
         button->DrawButton();
 }
 
-void GameEngine::RenderPuase() {
+void GameEngine::RenderPause() {
     roundedBoxRGBA(window->GetRenderer(), 200, 150, window->GetWidth()-201, window->GetHeight()-151, 50, 0, 0, 0, 150);
     RenderGameButtons();
 }
@@ -682,7 +682,7 @@ void GameEngine::ExitProgram() { exitProgram = true; }
 
 void GameEngine::SetLanguage(Language language) { currentLanguage = language; }
 
-void GameEngine::SetTransition(size_t miliSeconds) { transition.SetTransition(miliSeconds); }
+void GameEngine::SetTransition(size_t milliSeconds) { transition.SetTransition(milliSeconds); }
 
 void GameEngine::PlaySound(Sound::Type soundType, bool loop) { sounds.PlaySound(soundType, loop); }
 
@@ -990,8 +990,6 @@ void GameEngine::UpdateRects() {
         enemy->UpdatePreviousPosition();
 }
 
-int GameEngine::GetTransparency() { return transition.GetTransparency(); }
-
 void GameEngine::DrawDeathCount() {
     window->DrawBackground(0, 0, 0);
     deathButton->DrawButton();
@@ -999,6 +997,8 @@ void GameEngine::DrawDeathCount() {
     SDL_Rect dest = {700, 350, 60, 88};
     SDL_RenderCopy(window->GetRenderer(), Entity::textures, &src, &dest);
 }
+
+int GameEngine::GetTransparency() { return transition.GetTransparency(); }
 /* ************************************************************************************ */
 
 /***** Destructor *****/

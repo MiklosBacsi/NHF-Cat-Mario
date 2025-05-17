@@ -30,70 +30,221 @@
 #define FPS 100
 
 namespace Scene {
-    enum Type { NONE=0, TITLE, MENU, GAME, DEATH, LOAD };
+    enum Type { NONE=0, TITLE, MENU, GAME, DEATH, LOAD };   ///< Type of the Scene.
 }
 
+/**
+ * @brief Converts a Scene type to string.
+ * @param scene Type of the scene.
+ * @return Returns a string
+ */
 std::string ToString(Scene::Type scene);
+
+/**
+ * @brief Prints scene type to the output stream.
+ * @param scene Type of the scene.
+ * @return Returns the output stream as a reference.
+ */
 std::ostream& operator<<(std::ostream& os, Scene::Type scene);
 
+/**
+ * @brief It manages all the interactions of the program.
+ */
 class GameEngine {
 public:
-    static RenderWindow* window;
-    bool anyKeyPressed;
-    const static int frameDelay;
-    static int frameTime;
+    static RenderWindow* window;    ///< Static member, pointer to the window.
+    const static int frameDelay;    ///< Static member, contains the frame delay.
+    static int frameTime;   ///< Static member, contains the frameTime.
 private:
-    Transition transition;
-    std::unique_ptr<Level> level;
-    Level::Type currentLevel;
-    Level::Type nextLevel;
-    Level::Type completedLevels;
-    bool exitProgram;
-    bool isPaused;
-    Scene::Type currentScene;
-    Scene::Type nextScene;
-    Language currentLanguage;
-    std::vector<LanguageModule*> LangMod;
-    TextButton* titleButton;
-    TextButton* deathButton;
-    std::vector<Button*> menuButtons;
-    std::vector<Button*> gameButtons;
-    Sound sounds;
-    Texture titleScreen;
-    Texture menuScreen;
-    Input input;
-    Uint32 frameStart;
+    bool anyKeyPressed; ///< Contains whether any keys were pressed in a single update session.
+    Transition transition;      ///< Contains transition module for transitions between scenes.
+    std::unique_ptr<Level> level;   ///< Pointer to the loaded level (nullptr if no level is loaded).
+    Level::Type currentLevel;   ///< Contains the type of the current level.
+    Level::Type nextLevel;      ///< Contains the type of the next level.
+    Level::Type completedLevels;    ///< Contains the maximum completed levels.
+    bool exitProgram;   ///< Contains whether the program is exited.
+    bool isPaused;      ///< Contains whether the program is paused.
+    Scene::Type currentScene;   ///< Contains the type of the current scene.
+    Scene::Type nextScene;      ///< Contains the type of the next scene.
+    Language currentLanguage;   ///< Contains the type of the current language.
+    std::vector<LanguageModule*> LangMod;   ///< Contains the loaded language modules.
+    TextButton* titleButton;    ///< Title button (caption).
+    TextButton* deathButton;    ///< Death button (counter).
+    std::vector<Button*> menuButtons;   ///< Contains all the menu buttons.
+    std::vector<Button*> gameButtons;   ///< Contains all the game buttons.
+    Sound sounds;   ///< Contains all the loaded sounds.
+    Texture titleScreen;    ///< Contains the texture of the title screen.
+    Texture menuScreen;     ///< Contains the texture of the menu screen.
+    Input input;    ///< Contains the input booleans.
+    Uint32 frameStart;  ///< Contains the frame start of each update session.
 
+    /**
+     * @brief Renders the buttons in menu scene.
+     */
     void RenderMenuButtons();
+
+    /**
+     * @brief Renders the buttons in game scene.
+     */
     void RenderGameButtons();
-    void RenderPuase();
+
+    /**
+     * @brief Renders backdrop and game buttons. Called when game is paused.
+     */
+    void RenderPause();
+
+    /**
+     * @brief Handles scene changes from title screen to menu.
+     */
     void ChangeSceneFromTitleToMenu();
+
+    /**
+     * @brief Handles scene changes from menu to game.
+     */
     void ChangeSceneFromMenuToGame();
+
+    /**
+     * @brief Handles scene changes from game to menu.
+     */
     void ChangeSceneFromGameToMenu();
+
+    /**
+     * @brief Handles scene changes from game scene to death scene and back to game scene.
+     */
     void ChangeSceneFromGameToDeathToGame();
+
+    /**
+     * @brief Handles scene changes to a different level, when a level is completed.
+     */
     void ChangeSceneToNextLevel();
+
+    /**
+     * @brief Handles a single SLD event
+     * @param event Reference to the event.
+     * @see SDL_Event
+     */
     void HandleEvent(SDL_Event& event);
+
+    /**
+     * @brief Handles pressed buttons in scene menu.
+     */
     void HandleMenuButtons();
+
+    /**
+     * @brief Handles pressed buttons in scene game.
+     */
     void HandleGameButtons();
+
+    /**
+     * @brief Updates a single button's attributes. Calls the function that translates to a new language and changes texture.
+     * @param button Pointer to the button which is to be updated.
+     */
     void UpdateSingeButton(Button* button);
+
+
+    /**
+     * @brief Loads the (next) level.
+     * @see nextLevel
+     */
     void LoadLevel();
+
+    /**
+     * @brief Sets exit program boolean to true.
+     */
     void ExitProgram();
+
+    /**
+     * @brief Sets the current language to the given one.
+     * @param language Language that we change to.
+     * @see Language
+     */
     void SetLanguage(Language language);
-    void SetTransition(size_t miliSeconds=2000);
+
+    /**
+     * @brief Initiates transition post-processing between scenes.
+     * @param milliSeconds How long the transition shall take, given in milliseconds.
+     * @see Transition
+     */
+    void SetTransition(size_t milliSeconds=2000);
+
+    /**
+     * @brief Plays a sound of the given type.
+     * @param soundType Type of the sound.
+     * @param loop Gives whether the sound is to be looped.
+     * @see Sound
+     */
     void PlaySound(Sound::Type soundType, bool loop=false);
+
+    /**
+     * @brief Stops all playing sounds.
+     * @see Sound
+     */
     void StopSounds();
+
+    /**
+     * @brief Loads all the necessary sounds for the program.
+     * @see Sound
+     */
     void LoadSounds();
+
+    /**
+     * @brief Returns the current language.
+     * @see Language
+     */
     Language getLanguage() const;
+
+    /**
+     * @brief Checks if the level is completed, and if so, it changes to the appropriate scene.
+     * @return Returns whether the level is completed.
+     */
     bool CheckIfLevelCompleted();
+
+    /**
+     * @brief Checks whether a game object dies.
+     */
     void CheckForDeath();
+
+    /**
+     * @brief Checks whether an entity collides with a game object.
+     */
     void CheckForCollision();
+
+    /**
+     * @brief Checks whether an animations need to be played.
+     */
     void CheckForAnimation();
+
+    /**
+     * @brief Assigns a quote to the leftmost enemy.
+     */
     void AssignQuote();
+
+    /**
+     * @brief Recovers the player's position if its collision cannot be handled properly.
+     */
     void RecoverPosition();
+
+    /**
+     * @brief Updates all the game object's rectangles. Necessary for rendering them in the correct place on the screen.
+     */
     void UpdateRects();
+
+    /**
+     * @brief Draws death count in death scene.
+     */
     void DrawDeathCount();
+
+    /**
+     * @return Returns the current transparency of the transition (post-processing).
+     */
     int GetTransparency();
+
 public:
+    /**
+     * @brief Creates a game engine and initialises its components.
+     * @param window
+     * @see RenderWindow
+     */
     GameEngine(RenderWindow& window);
     void ApplyEvenFPS();
     void HandleEvents();

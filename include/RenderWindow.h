@@ -86,12 +86,12 @@ private:
     SDL_Surface* surface;
     FontType font;
     Colour colour;
-    const int backgroundOppacity;
+    const int backgroundOpacity;
 
     void DrawSelectBox();
 public:
     TextButton(Button::Type buttonType, Lang::CaptionType capType, int x, int y, Colour colour, FontType font, Language language, int bgOpacity=0, bool isSelected=false);
-    TextButton(Button::Type buttonType, std::string capiton, int x, int y, Colour colour, FontType font, int bgOpacity=0, bool isSelected=false, Language language = ENGLISH);
+    TextButton(Button::Type buttonType, std::string caption, int x, int y, Colour colour, FontType font, int bgOpacity=0, bool isSelected=false, Language language = ENGLISH);
     void DrawButton();
     void UpdateCaption(std::string newCaption, Language newLanguage); // when changing Language
     void DestroySelectBoxTexture();
@@ -114,7 +114,7 @@ private:
     bool AlreadyReachedMiddle;
 public:
     Transition() {}
-    void SetTransition(size_t miliSeconds);
+    void SetTransition(size_t milliSeconds);
     void Deactivate();
     int GetTransparency() const;
     float GetPercent() const;

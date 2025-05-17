@@ -7,20 +7,61 @@
 
 #include <iostream>
 
+/**
+ * @brief Timer module.
+ */
 class Timer {
 private:
-    bool isActive;
-    Uint32 startTicks;
-    size_t setDuration;
+    bool isActive;      ///< Contains whether timer is active.
+    Uint32 startTicks;  ///< Contains the start of the timer.
+    size_t setDuration; ///< Contains the set duration of the timer.
+
 public:
+    /**
+     * @brief Default constructor.
+     */
     Timer();
-    Timer(size_t miliSeconds);
+
+    /**
+     * @brief Constructor that sets the timer to a given duration.
+     * @param milliSeconds Duration given in miliseconds.alignas
+     */
+    Timer(size_t milliSeconds);
+
+    /**
+     * @brief Deactivates the timer.
+     */
     void Deactivate();
-    void Activate(size_t miliSeconds);
+
+    /**
+     * @brief Activates the timer for a given amount of time.
+     * @param milliSeconds Duration time given in miliseconds.
+     */
+    void Activate(size_t milliSeconds);
+
+    /**
+     * @return Returns the elapsed time in miliseconds.
+     */
     size_t GetTime() const;
+
+    /**
+     * @return Return whether time is active.
+     */
     bool IsActive() const;
+
+    /**
+     * @return Returns whether the timer has expired.
+     */
     bool HasExpired() const;
+
+    /**
+     * @return Returns the completed percentage of the given session.
+     */
     float GetPercent() const;
+
+    /**
+     * @brief Destructor.
+     */
     ~Timer();
 };
 

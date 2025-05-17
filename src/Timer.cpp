@@ -8,13 +8,13 @@
 
 Timer::Timer() : isActive(false), setDuration(1) {}
 
-Timer::Timer(size_t miliSeconds) : isActive(true), startTicks(SDL_GetTicks()), setDuration(miliSeconds) {}
+Timer::Timer(size_t milliSeconds) : isActive(true), startTicks(SDL_GetTicks()), setDuration(milliSeconds) {}
 
 void Timer::Deactivate() { isActive = false; }
 
-void Timer::Activate(size_t miliSeconds) {
+void Timer::Activate(size_t milliSeconds) {
     isActive = true;
-    setDuration = miliSeconds;
+    setDuration = milliSeconds;
     startTicks = SDL_GetTicks();
 }
 
