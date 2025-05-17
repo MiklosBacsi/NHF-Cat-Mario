@@ -1,3 +1,9 @@
+/** @file Input.h
+  * @brief Stores the states of the keys.
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef INPUT_H
 #define INPUT_H
 

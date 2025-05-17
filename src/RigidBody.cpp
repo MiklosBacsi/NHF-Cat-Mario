@@ -1,3 +1,9 @@
+/** @file RigidBody.cpp
+  * @brief Contains the implementation of RigidBody.h
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #include "RigidBody.h"
 
 #include <iostream>

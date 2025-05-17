@@ -1,3 +1,9 @@
+/** @file Timer.h
+  * @brief Helps measuring time with a timer that can be activated for given amount of time.
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef TIMER_H
 #define TIMER_H
 

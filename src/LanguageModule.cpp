@@ -1,3 +1,9 @@
+/** @file LanguageModule.cpp
+  * @brief Contains the implementation of LanguageModule.h
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #include <iostream>
 #include <string>
 #include <vector>

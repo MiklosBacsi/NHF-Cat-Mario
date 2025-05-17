@@ -6,7 +6,7 @@
   * heterogeneous collection.
   *
   * @author Bácsi Miklós
-  * @date 2025-05-17
+  * @date 2025-05-18
 */
 
 #ifndef BLOCK_H
@@ -247,7 +247,7 @@ public:
     void Reset();
 
     /**
-     * @brief Updates all the block's destination rectangles of the textures in the grid, so that they would fit correctly on the screen.
+     * @brief Updates all the blocks' destination rectangles of the textures in the grid, so that they would fit correctly on the screen.
      */
     void UpdateDestRect();
 

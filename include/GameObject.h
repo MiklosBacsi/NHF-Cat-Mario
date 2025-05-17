@@ -6,7 +6,7 @@
   * heterogeneous collection.
   *
   * @author Bácsi Miklós
-  * @date 2025-05-17
+  * @date 2025-05-18
 */
 
 #ifndef GAME_OBJECT_H

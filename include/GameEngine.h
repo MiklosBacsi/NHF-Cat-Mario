@@ -1,3 +1,9 @@
+/** @file GameEngine.h
+  * @brief Contains class GameEngine which manages all the interactions of the program.
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef GAME_ENGINE_H
 #define GAME_ENGINE_H
 
@@ -78,6 +84,8 @@ private:
     Input input;    ///< Contains the input booleans.
     Uint32 frameStart;  ///< Contains the frame start of each update session.
 
+    /****************************************************************************************/
+
     /**
      * @brief Renders the buttons in menu scene.
      */
@@ -92,6 +100,8 @@ private:
      * @brief Renders backdrop and game buttons. Called when game is paused.
      */
     void RenderPause();
+
+    /****************************************************************************************/
 
     /**
      * @brief Handles scene changes from title screen to menu.
@@ -118,6 +128,8 @@ private:
      */
     void ChangeSceneToNextLevel();
 
+    /****************************************************************************************/
+
     /**
      * @brief Handles a single SLD event
      * @param event Reference to the event.
@@ -141,6 +153,7 @@ private:
      */
     void UpdateSingeButton(Button* button);
 
+    /****************************************************************************************/
 
     /**
      * @brief Loads the (next) level.
@@ -166,6 +179,8 @@ private:
      * @see Transition
      */
     void SetTransition(size_t milliSeconds=2000);
+
+    /****************************************************************************************/
 
     /**
      * @brief Plays a sound of the given type.
@@ -193,6 +208,8 @@ private:
      */
     Language getLanguage() const;
 
+    /****************************************************************************************/
+
     /**
      * @brief Checks if the level is completed, and if so, it changes to the appropriate scene.
      * @return Returns whether the level is completed.
@@ -214,6 +231,8 @@ private:
      */
     void CheckForAnimation();
 
+    /****************************************************************************************/
+
     /**
      * @brief Assigns a quote to the leftmost enemy.
      */
@@ -225,7 +244,7 @@ private:
     void RecoverPosition();
 
     /**
-     * @brief Updates all the game object's rectangles. Necessary for rendering them in the correct place on the screen.
+     * @brief Updates all the game objects' rectangles. Necessary for rendering them in the correct place on the screen.
      */
     void UpdateRects();
 
@@ -242,20 +261,65 @@ private:
 public:
     /**
      * @brief Creates a game engine and initialises its components.
-     * @param window
+     * @param window Reference to the window of the program. Necessary for accessing window and its components.
      * @see RenderWindow
      */
     GameEngine(RenderWindow& window);
+
+    /**
+     * @brief Ensures even FPS and update frequency.
+     */
     void ApplyEvenFPS();
+
+    /**
+     * @brief Handles all the events one-by-one.
+     * @see SDL_Event
+     */
     void HandleEvents();
+
+    /**
+     * @brief Manages what happens when the given keys are pressed and on which scenes.
+     */
     void HandlePressedKeys();
+
+    /**
+     * @brief Manages the changing between scenes.
+     */
     void HandleSceneChanges();
+
+    /**
+     * @brief Updates all the buttons on all scenes. Usually called when selecting a different language.
+     */
     void UpdateButtons();
+
+    /**
+     * @brief Manages one update cycle of the game including: updating position, resolving collision, and checking for death.
+     */
     void UpdateGame();
+
+    /**
+     * @brief Renders the appropiate items to the screen (renderer).
+     */
     void RenderItems();
+
+    /**
+     * @brief Applies transition between scenes. Works basically as post-processing.
+     */
     void ApplyTransition();
+
+    /**
+     * @brief Logs the current and the next scene to stream std::clog.
+     */
     void LogScenes() const;
+
+    /**
+     * @return Returns whether the game has been exited.
+     */
     bool GetExitProgram() const;
+
+    /**
+     * @brief Destructor: deletes buttons and the language modules.
+     */
     ~GameEngine();
 };
 

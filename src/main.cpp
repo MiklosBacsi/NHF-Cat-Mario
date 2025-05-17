@@ -11,7 +11,7 @@
   * leak in this library.
   *
   * @author Bácsi Miklós
-  * @date 2025-05-17
+  * @date 2025-05-18
 */
 
 #ifndef CPORTA

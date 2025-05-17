@@ -1,3 +1,9 @@
+/** @file Texture.h
+  * @brief Encapsulates SDL_Texture for better and safer use.
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef TEXTURE_H
 #define TEXTURE_H
 

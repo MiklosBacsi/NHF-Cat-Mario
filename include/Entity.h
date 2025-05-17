@@ -1,3 +1,9 @@
+/** @file Entity.h
+  * @brief Contains declaration of base class Entity and its derived classes. 
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef ENTITY_H
 #define ENTITY_H
 
@@ -68,7 +74,7 @@ public:
 
     /**
      * @brief Handles being touched by another Entity.
-     * @param object The entity that it is touched by.
+     * @param entity The entity which it is touched by.
      * @see Entity
      */
     virtual void TouchedBy(Entity* entity) = 0;
@@ -220,7 +226,7 @@ class Enemy : public Entity {
 protected:
     bool faceLeftDefault;   ///< Contains whether the enemy faces left by default.
     bool isActivated;       ///< Contains whether the enemy is activated.
-    int activationPoint;    ///< Contains the x coordinate where the enemy is activated.
+    int activationPoint;    ///< When the player reaches this x coordinate, the enemy gets activated.
     int shiftTextureRight;  ///< Contains how much the texture is shifted to the right (necessary for rendering the sprite when the enemy faces to the left).
 
 public:

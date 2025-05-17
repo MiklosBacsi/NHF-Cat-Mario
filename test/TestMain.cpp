@@ -5,7 +5,7 @@
   * the game's modules by calling their test functions.
   *
   * @author Bácsi Miklós
-  * @date 2025-05-17
+  * @date 2025-05-18
 */
 
 #ifdef MY_TEST

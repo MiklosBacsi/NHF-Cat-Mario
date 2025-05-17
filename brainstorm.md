@@ -1,2 +1,3 @@
 *** To-do: ***
-- Documentation: GameEngine, Level, LevelElement, RenderWindow, RigidBody
+- Generate UML diagram using Mermaid
+- Write Word documentation

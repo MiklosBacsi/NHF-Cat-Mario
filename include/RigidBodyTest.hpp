@@ -4,7 +4,7 @@
   * For testing, it uses the gtest_lite.h library.
   *
   * @author Bácsi Miklós
-  * @date 2025-05-17
+  * @date 2025-05-18
 */
 
 # include <iostream>

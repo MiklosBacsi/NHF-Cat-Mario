@@ -1,3 +1,9 @@
+/** @file GameEngine.cpp
+  * @brief Contains the implementation of GameEngine.h
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef CPORTA
 
 #include <SDL2/SDL.h>

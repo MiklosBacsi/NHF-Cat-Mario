@@ -1,3 +1,14 @@
+/** @file Sound.h
+  * @brief Allows us to play sounds using SDL2's Mixer library.
+  * 
+  * SDL supports only 8 channels.
+  * Channel 7 is reserved for playing background and lobby music.
+  * Stopping looped channel is buggy, so an empty audio is play on that channel.
+  * 
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef SOUND_H
 #define SOUND_H
 
@@ -10,10 +21,6 @@
 #include <vector>
 
 #define MAX_CHANNELS 8
-
-// SDL supports only 8 channels
-// Channel 7 is reserved for playing background and lobby music
-// Stopping looped channel is buggy, so I play empty audio on channel
 
 /**
  * @brief Sound module.

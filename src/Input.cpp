@@ -1,3 +1,9 @@
+/** @file Input.cpp
+  * @brief Contains the implementation of Input.h
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #include <iostream>
 
 #include "Input.h"

@@ -1,3 +1,9 @@
+/** @file LanguageModule.h
+  * @brief Stores translation of captions and quotes in a single language. 
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef LANGUAGE_MODULE_H
 #define LANGUAGE_MODULE_H
 

@@ -1,3 +1,9 @@
+/** @file Sound.cpp
+  * @brief Contains the implementation of Sound.h
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef CPORTA
 
 #include <SDL2/SDL.h>

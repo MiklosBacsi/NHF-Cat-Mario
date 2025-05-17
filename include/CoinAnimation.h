@@ -1,3 +1,9 @@
+/** @file CoinAnimation.h
+  * @brief Class CoinAnimation stores and renders coins.
+  * @author Bácsi Miklós
+  * @date 2025-05-18
+*/
+
 #ifndef COIN_ANIMATION_H
 #define COIN_ANIMATION_H
 
@@ -23,7 +29,7 @@ struct Coin {
 
 
 /**
- * @brief Single coin used for animation.
+ * @brief Stores coins used for animation.
  */
 class CoinAnimation {
 public:
