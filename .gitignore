@@ -6,3 +6,6 @@
 
 # Object files
 *.o
+
+# temp
+AllClasses.h

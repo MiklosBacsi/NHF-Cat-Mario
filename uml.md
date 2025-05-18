@@ -1,7 +1,3 @@
-*** To-do: ***
-- Generate UML diagram using Mermaid
-- Write Word documentation
-
 ```mermaid
 classDiagram
 
@@ -166,7 +162,6 @@ class PurpleMushroomEnemy {
 
 %% Level Elements
 class LevelElement {
-    <<abstract>>
     +static SDL_Texture* textures
     -bool isActivated
     -bool playSound
@@ -295,7 +290,6 @@ class RenderWindow {
 }
 
 class Level {
-    +enum Type { NONE, LVL1, LVL2 }
     +static bool isCompleted
     -std::unique_ptr<Player> player
     -std::vector<std::unique_ptr<Enemy>> enemies
