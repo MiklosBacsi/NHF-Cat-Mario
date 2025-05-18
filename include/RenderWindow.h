@@ -172,7 +172,7 @@ public:
 /****************************************************************************************************/
 
 /**
- * @brief Virtual base class for implementing UI buttons.
+ * @brief Abstract base class for implementing UI buttons.
  */
 class Button {
 public:

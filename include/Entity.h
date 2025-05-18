@@ -22,7 +22,7 @@
 /**********************************************************************************************************************************************/
 
 /**
- * @brief Virtual base class for entities allowing compatibility and heterogeneous collection. It inherits from GameObject.
+ * @brief Abstract base class for entities allowing compatibility and heterogeneous collection. It inherits from GameObject.
  */
 class Entity : public GameObject {
     friend class GameEngine;

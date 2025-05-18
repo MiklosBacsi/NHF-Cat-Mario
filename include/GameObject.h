@@ -28,7 +28,7 @@ class Entity;
 class GameEngine;
 
 /**
- * @brief Virtual base class that allows compatibility between game objects.
+ * @brief Abstract base class that allows compatibility between game objects.
  */
 class GameObject {
 public:
