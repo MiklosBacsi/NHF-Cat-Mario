@@ -9,7 +9,7 @@ Furthermore, you're presented with deep philosophical quotes that hinder you fro
 sudo apt install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 ```
 
-## Compiled program is available [here](https://drive.google.com/drive/folders/1bmBtZN4KHAPi11nzDXE6cC0na3l_qFhV?usp=drive_link).
+## Compiled program is available in the releases!
 
 ## Build and run in VS Code
 Select main.cpp and click on the triangle (Run C/C++ File).
